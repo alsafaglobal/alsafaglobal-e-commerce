@@ -8,6 +8,7 @@ import FilterChips from './FilterChips';
 import MobileFilterPanel from './MobileFilterPanel';
 import ProductGrid from './ProductGrid';
 import LoadingSkeleton from './LoadingSkeleton';
+import { createClient } from '@/lib/supabase/client';
 
 interface Product {
   id: number;
@@ -29,168 +30,47 @@ const ShopCatalogInteractive: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const mockProducts: Product[] = [
-  {
-    id: 1,
-    name: "Midnight Rose Elegance",
-    price: 125.00,
-    scentType: "Floral",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_15ac54666-1768927507132.png",
-    alt: "Elegant glass perfume bottle with rose gold cap on marble surface surrounded by fresh pink roses",
-    topNotes: ["Rose", "Bergamot", "Pink Pepper"],
-    heartNotes: ["Jasmine", "Peony", "Violet"],
-    baseNotes: ["Musk", "Sandalwood", "Amber"],
-    sizes: [50, 100],
-    description: "A sophisticated floral fragrance that captures the essence of midnight blooming roses with a modern twist."
-  },
-  {
-    id: 2,
-    name: "Cedarwood Noir",
-    price: 145.00,
-    scentType: "Woody",
-    image: "https://images.unsplash.com/photo-1647009822729-0076c73fe6f0",
-    alt: "Dark amber perfume bottle with black cap on wooden surface with cedar wood chips",
-    topNotes: ["Bergamot", "Cardamom", "Grapefruit"],
-    heartNotes: ["Cedarwood", "Vetiver", "Cypress"],
-    baseNotes: ["Leather", "Patchouli", "Tonka Bean"],
-    sizes: [50, 100],
-    description: "An intense woody fragrance with deep cedarwood notes and a touch of leather for the modern gentleman."
-  },
-  {
-    id: 3,
-    name: "Ocean Breeze Aqua",
-    price: 95.00,
-    scentType: "Fresh",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_14023ba79-1764719212053.png",
-    alt: "Clear blue perfume bottle with silver cap on white surface with water droplets and sea shells",
-    topNotes: ["Sea Salt", "Lemon", "Mint"],
-    heartNotes: ["Marine Accord", "Lavender", "Sage"],
-    baseNotes: ["Driftwood", "Musk", "Amber"],
-    sizes: [50, 100],
-    description: "A refreshing aquatic fragrance that evokes the crisp ocean breeze and coastal serenity."
-  },
-  {
-    id: 4,
-    name: "Amber Mystique",
-    price: 165.00,
-    scentType: "Oriental",
-    image: "https://images.unsplash.com/photo-1551028679-ca459b363f98",
-    alt: "Ornate gold perfume bottle with intricate patterns on burgundy velvet with amber crystals",
-    topNotes: ["Saffron", "Cinnamon", "Orange Blossom"],
-    heartNotes: ["Rose", "Oud", "Incense"],
-    baseNotes: ["Amber", "Vanilla", "Benzoin"],
-    sizes: [50, 100],
-    description: "An opulent oriental fragrance with rich amber and exotic spices that create an aura of mystery."
-  },
-  {
-    id: 5,
-    name: "Lavender Fields Forever",
-    price: 110.00,
-    scentType: "Floral",
-    image: "https://images.unsplash.com/photo-1599599810907-47da438b0404",
-    alt: "Purple glass perfume bottle with silver cap on white surface surrounded by fresh lavender sprigs",
-    topNotes: ["Lavender", "Bergamot", "Lemon"],
-    heartNotes: ["Geranium", "Clary Sage", "Violet"],
-    baseNotes: ["Vanilla", "Tonka Bean", "Musk"],
-    sizes: [50, 100],
-    description: "A timeless floral fragrance featuring the calming essence of French lavender fields in full bloom."
-  },
-  {
-    id: 6,
-    name: "Sandalwood Serenity",
-    price: 135.00,
-    scentType: "Woody",
-    image: "https://images.unsplash.com/photo-1597142177539-ca0e89ba8a11",
-    alt: "Minimalist beige perfume bottle with wooden cap on natural wood surface with sandalwood pieces",
-    topNotes: ["Cardamom", "Neroli", "Bergamot"],
-    heartNotes: ["Sandalwood", "Cedar", "Iris"],
-    baseNotes: ["Musk", "Amber", "Vanilla"],
-    sizes: [50, 100],
-    description: "A warm woody fragrance centered around creamy sandalwood with subtle spice and floral undertones."
-  },
-  {
-    id: 7,
-    name: "Citrus Sunrise",
-    price: 85.00,
-    scentType: "Fresh",
-    image: "https://images.unsplash.com/photo-1596702874967-7e9e5c286604",
-    alt: "Bright yellow perfume bottle with gold cap on white surface with fresh citrus fruits and green leaves",
-    topNotes: ["Grapefruit", "Lemon", "Mandarin"],
-    heartNotes: ["Neroli", "Petitgrain", "Basil"],
-    baseNotes: ["White Musk", "Vetiver", "Cedarwood"],
-    sizes: [50, 100],
-    description: "An energizing fresh fragrance bursting with vibrant citrus notes perfect for daytime wear."
-  },
-  {
-    id: 8,
-    name: "Spice Bazaar",
-    price: 155.00,
-    scentType: "Oriental",
-    image: "https://images.unsplash.com/photo-1733348874609-6db37f57e60d",
-    alt: "Red and gold ornate perfume bottle on dark wooden surface with exotic spices and silk fabric",
-    topNotes: ["Cardamom", "Black Pepper", "Bergamot"],
-    heartNotes: ["Cinnamon", "Clove", "Rose"],
-    baseNotes: ["Oud", "Patchouli", "Amber"],
-    sizes: [50, 100],
-    description: "An exotic oriental fragrance inspired by ancient spice markets with rich, warm, and sensual notes."
-  },
-  {
-    id: 9,
-    name: "White Gardenia Dream",
-    price: 120.00,
-    scentType: "Floral",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_15ac54666-1768927507132.png",
-    alt: "White frosted perfume bottle with silver cap on marble surface with white gardenia flowers",
-    topNotes: ["Gardenia", "Tuberose", "Green Notes"],
-    heartNotes: ["Jasmine", "Ylang-Ylang", "Orange Blossom"],
-    baseNotes: ["Sandalwood", "Musk", "Coconut"],
-    sizes: [50, 100],
-    description: "A luxurious floral fragrance featuring the intoxicating scent of white gardenia in full bloom."
-  },
-  {
-    id: 10,
-    name: "Pine Forest Escape",
-    price: 130.00,
-    scentType: "Woody",
-    image: "https://images.unsplash.com/photo-1670700000151-e150b17fd140",
-    alt: "Green glass perfume bottle with wooden cap on moss-covered surface with pine cones and evergreen branches",
-    topNotes: ["Pine", "Juniper", "Eucalyptus"],
-    heartNotes: ["Cypress", "Fir Balsam", "Rosemary"],
-    baseNotes: ["Cedarwood", "Oakmoss", "Musk"],
-    sizes: [50, 100],
-    description: "A crisp woody fragrance that transports you to a serene pine forest with every spray."
-  },
-  {
-    id: 11,
-    name: "Mint Mojito Fresh",
-    price: 90.00,
-    scentType: "Fresh",
-    image: "https://images.unsplash.com/photo-1622978147891-70dc125a4727",
-    alt: "Clear glass perfume bottle with chrome cap on white surface with fresh mint leaves and lime slices",
-    topNotes: ["Mint", "Lime", "Ginger"],
-    heartNotes: ["Green Tea", "Basil", "Cucumber"],
-    baseNotes: ["White Musk", "Vetiver", "Amber"],
-    sizes: [50, 100],
-    description: "A refreshing and invigorating fragrance with cool mint and zesty lime notes perfect for summer."
-  },
-  {
-    id: 12,
-    name: "Velvet Oud Royale",
-    price: 185.00,
-    scentType: "Oriental",
-    image: "https://images.unsplash.com/photo-1723391962166-6d9bb8a3d3e7",
-    alt: "Luxurious black and gold perfume bottle with jeweled cap on purple velvet with gold chains",
-    topNotes: ["Saffron", "Nutmeg", "Cardamom"],
-    heartNotes: ["Oud", "Rose", "Jasmine"],
-    baseNotes: ["Amber", "Leather", "Musk"],
-    sizes: [50, 100],
-    description: "An opulent oriental masterpiece featuring rare oud wood and precious saffron for ultimate luxury."
-  }];
+  // Fetch products from Supabase
+  useEffect(() => {
+    async function loadProducts() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('products')
+        .select('*, product_sizes(*), scent_notes(*)')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
+      if (data) {
+        setProducts(
+          data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            scentType: p.scent_type || '',
+            image: p.image_url || '',
+            alt: p.image_alt || p.name,
+            topNotes: (p.scent_notes || [])
+              .filter((n: { note_type: string }) => n.note_type === 'top')
+              .map((n: { note_name: string }) => n.note_name),
+            heartNotes: (p.scent_notes || [])
+              .filter((n: { note_type: string }) => n.note_type === 'heart')
+              .map((n: { note_name: string }) => n.note_name),
+            baseNotes: (p.scent_notes || [])
+              .filter((n: { note_type: string }) => n.note_type === 'base')
+              .map((n: { note_name: string }) => n.note_name),
+            sizes: (p.product_sizes || []).map((s: { volume_ml: number }) => s.volume_ml),
+            description: p.description || '',
+          }))
+        );
+      }
+    }
+    loadProducts();
+  }, []);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -211,7 +91,7 @@ const ShopCatalogInteractive: React.FC = () => {
   }, [isHydrated, searchParams]);
 
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts;
+    let filtered = products;
 
     if (searchQuery) {
       filtered = filtered.filter((product) =>
@@ -226,7 +106,7 @@ const ShopCatalogInteractive: React.FC = () => {
     }
 
     return filtered;
-  }, [searchQuery, selectedFilters]);
+  }, [searchQuery, selectedFilters, products]);
 
   const filterCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -237,17 +117,19 @@ const ShopCatalogInteractive: React.FC = () => {
     };
 
     const searchFiltered = searchQuery ?
-    mockProducts.filter((product) =>
+    products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) :
-    mockProducts;
+    products;
 
     searchFiltered.forEach((product) => {
-      counts[product.scentType]++;
+      if (counts[product.scentType] !== undefined) {
+        counts[product.scentType]++;
+      }
     });
 
     return counts;
-  }, [searchQuery]);
+  }, [searchQuery, products]);
 
   const handleSearchChange = (query: string) => {
     if (!isHydrated) return;
@@ -319,7 +201,6 @@ const ShopCatalogInteractive: React.FC = () => {
           <LoadingSkeleton />
         </div>
       </div>);
-
   }
 
   return (
@@ -349,7 +230,6 @@ const ShopCatalogInteractive: React.FC = () => {
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
               resultCount={filteredProducts.length} />
-
           </div>
 
           <div className="mb-6 hidden items-center justify-between md:flex">
@@ -362,7 +242,6 @@ const ShopCatalogInteractive: React.FC = () => {
             <button
               onClick={handleClearAllFilters}
               className="font-body text-sm font-medium text-primary transition-luxury hover:text-accent">
-
                 Clear All Filters
               </button>
             }
@@ -370,7 +249,7 @@ const ShopCatalogInteractive: React.FC = () => {
 
           <div className="mb-4 flex items-center justify-between">
             <p className="font-body text-sm text-text-secondary">
-              Showing {filteredProducts.length} of {mockProducts.length} perfumes
+              Showing {filteredProducts.length} of {products.length} perfumes
             </p>
           </div>
         </div>
@@ -385,9 +264,7 @@ const ShopCatalogInteractive: React.FC = () => {
         onFilterToggle={handleFilterToggle}
         filterCounts={filterCounts}
         onClearAll={handleClearAllFilters} />
-
     </div>);
-
 };
 
 export default ShopCatalogInteractive;

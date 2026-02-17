@@ -3,7 +3,7 @@ import Header from '@/components/common/Header';
 import HomeInteractive from './components/HomeInteractive';
 
 export const metadata: Metadata = {
-  title: 'Home - LuxuryPerfumeShop',
+  title: 'Home - Al Safa Global',
   description: 'Discover luxury fragrances crafted by master perfumers. Explore our curated collection of premium perfumes featuring floral, woody, fresh, and oriental scents.',
 };
 

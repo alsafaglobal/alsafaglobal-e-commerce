@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProductImageGallery from './ProductImageGallery';
 import ProductInfo from './ProductInfo';
 import ScentNotes from './ScentNotes';
@@ -9,6 +10,7 @@ import QuantitySelector from './QuantitySelector';
 import AddToCartButton from './AddToCartButton';
 import RelatedProducts from './RelatedProducts';
 import Breadcrumb from './Breadcrumb';
+import { createClient } from '@/lib/supabase/client';
 
 interface Size {
   volume: string;
@@ -36,89 +38,115 @@ interface BreadcrumbItem {
 }
 
 const ProductDetailInteractive: React.FC = () => {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get('id');
+
   const [selectedSize, setSelectedSize] = useState<Size>({
     volume: '50ml',
     price: 85.0
   });
   const [quantity, setQuantity] = useState(1);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Product data state
+  const [productName, setProductName] = useState('');
+  const [productBrand, setProductBrand] = useState('');
+  const [productDescription, setProductDescription] = useState('');
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [sizes, setSizes] = useState<Size[]>([]);
+  const [topNotes, setTopNotes] = useState<string[]>([]);
+  const [heartNotes, setHeartNotes] = useState<string[]>([]);
+  const [baseNotes, setBaseNotes] = useState<string[]>([]);
+  const [occasions, setOccasions] = useState<string[]>([]);
+  const [scentType, setScentType] = useState('');
+  const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  const productImages: ProductImage[] = [
-  {
-    url: "https://img.rocket.new/generatedImages/rocket_gen_img_15ac54666-1768927507132.png",
-    alt: 'Elegant glass perfume bottle with gold cap on white marble surface with soft lighting'
-  },
-  {
-    url: "https://images.unsplash.com/photo-1594125396325-23d8db4b8623",
-    alt: 'Close-up of luxury perfume bottle showing intricate glass details and amber liquid'
-  },
-  {
-    url: "https://images.unsplash.com/photo-1730564798031-55dc12cef48a",
-    alt: 'Perfume bottle surrounded by fresh pink roses and white flowers on cream background'
-  },
-  {
-    url: "https://img.rocket.new/generatedImages/rocket_gen_img_102d9474f-1767210518253.png",
-    alt: 'Luxury perfume bottle with ornate gold detailing on dark velvet surface'
-  }];
+  useEffect(() => {
+    async function loadProduct() {
+      const supabase = createClient();
 
+      // If no product ID, load first product as default
+      let query = supabase
+        .from('products')
+        .select('*, product_sizes(*), scent_notes(*), product_occasions(*)')
+        .eq('is_active', true);
 
-  const sizes: Size[] = [
-  { volume: '50ml', price: 85.0 },
-  { volume: '100ml', price: 145.0 }];
+      if (productId) {
+        query = query.eq('id', productId);
+      }
 
+      const { data } = await query.limit(1).single();
 
-  const relatedProducts: RelatedProduct[] = [
-  {
-    id: 2,
-    name: 'Midnight Rose Eau de Parfum',
-    brand: 'Maison Lumière',
-    price: 92.0,
-    image:
-    "https://images.unsplash.com/photo-1684762870187-47219389c8f7",
-    alt: 'Dark purple perfume bottle with silver accents on black marble surface',
-    rating: 4.7
-  },
-  {
-    id: 3,
-    name: 'Ocean Breeze Fresh Cologne',
-    brand: 'Aqua Essence',
-    price: 68.0,
-    image:
-    "https://images.unsplash.com/photo-1614590297794-0224f7e1e240",
-    alt: 'Light blue perfume bottle with wave design on sandy beach background',
-    rating: 4.5
-  },
-  {
-    id: 4,
-    name: 'Amber Woods Intense',
-    brand: 'Terra Luxe',
-    price: 110.0,
-    image:
-    "https://images.unsplash.com/photo-1676994904360-94f50f3870d3",
-    alt: 'Brown amber perfume bottle with wooden cap on rustic wood surface',
-    rating: 4.9
-  },
-  {
-    id: 5,
-    name: 'Citrus Garden Eau Fraîche',
-    brand: 'Jardin Parfums',
-    price: 75.0,
-    image:
-    "https://images.unsplash.com/photo-1601808138313-f8fc2a971d15",
-    alt: 'Yellow-tinted perfume bottle surrounded by fresh citrus fruits and green leaves',
-    rating: 4.6
-  }];
+      if (data) {
+        setProductName(data.name);
+        setProductBrand(data.brand || '');
+        setProductDescription(data.description || '');
+        setScentType(data.scent_type || '');
 
+        // Images
+        const imgs: ProductImage[] = [];
+        if (data.image_url) {
+          imgs.push({ url: data.image_url, alt: data.image_alt || data.name });
+        }
+        setProductImages(imgs.length > 0 ? imgs : [{ url: 'https://images.unsplash.com/photo-1541643600914-78b084683601', alt: data.name }]);
+
+        // Sizes
+        const productSizes = (data.product_sizes || []).map((s: { volume_ml: number; price: number }) => ({
+          volume: `${s.volume_ml}ml`,
+          price: s.price,
+        }));
+        setSizes(productSizes);
+        if (productSizes.length > 0) {
+          setSelectedSize(productSizes[0]);
+        }
+
+        // Scent notes
+        const notes = data.scent_notes || [];
+        setTopNotes(notes.filter((n: { note_type: string }) => n.note_type === 'top').map((n: { note_name: string }) => n.note_name));
+        setHeartNotes(notes.filter((n: { note_type: string }) => n.note_type === 'heart').map((n: { note_name: string }) => n.note_name));
+        setBaseNotes(notes.filter((n: { note_type: string }) => n.note_type === 'base').map((n: { note_name: string }) => n.note_name));
+
+        // Occasions
+        setOccasions((data.product_occasions || []).map((o: { occasion: string }) => o.occasion));
+
+        // Load related products (same scent type, different ID)
+        const { data: related } = await supabase
+          .from('products')
+          .select('id, name, brand, price, image_url, image_alt')
+          .eq('is_active', true)
+          .eq('scent_type', data.scent_type)
+          .neq('id', data.id)
+          .limit(4);
+
+        if (related) {
+          setRelatedProducts(
+            related.map((p) => ({
+              id: p.id,
+              name: p.name,
+              brand: p.brand || '',
+              price: p.price,
+              image: p.image_url || '',
+              alt: p.image_alt || p.name,
+              rating: 4.5,
+            }))
+          );
+        }
+      }
+      setLoading(false);
+    }
+    loadProduct();
+  }, [productId]);
 
   const breadcrumbItems: BreadcrumbItem[] = [
-  { label: 'Home', path: '/home' },
-  { label: 'Shop', path: '/shop-catalog' },
-  { label: 'Velvet Noir Eau de Parfum', path: '/product-detail' }];
-
+    { label: 'Home', path: '/home' },
+    { label: 'Shop', path: '/shop-catalog' },
+    { label: productName || 'Product', path: '/product-detail' }
+  ];
 
   const handleSizeChange = (size: Size) => {
     setSelectedSize(size);
@@ -128,7 +156,7 @@ const ProductDetailInteractive: React.FC = () => {
     setQuantity(newQuantity);
   };
 
-  if (!isHydrated) {
+  if (!isHydrated || loading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">
@@ -143,7 +171,6 @@ const ProductDetailInteractive: React.FC = () => {
           </div>
         </div>
       </div>);
-
   }
 
   return (
@@ -154,49 +181,46 @@ const ProductDetailInteractive: React.FC = () => {
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           <ProductImageGallery
             images={productImages}
-            productName="Velvet Noir Eau de Parfum" />
-
+            productName={productName} />
 
           <div className="space-y-6">
             <ProductInfo
-              name="Velvet Noir Eau de Parfum"
-              brand="Élégance Royale"
+              name={productName}
+              brand={productBrand}
               price={selectedSize.price}
               rating={4.8}
               reviewCount={342}
-              description="Experience the captivating allure of Velvet Noir, a sophisticated fragrance that embodies timeless elegance and modern luxury. This exquisite eau de parfum opens with vibrant citrus notes, transitions into a heart of delicate florals, and settles into a warm, sensual base that lingers throughout the day."
-              fragranceFamily="Oriental Floral"
+              description={productDescription}
+              fragranceFamily={scentType}
               longevity="8-10 hours"
-              occasions={['Evening Events', 'Special Occasions', 'Date Night']} />
-
+              occasions={occasions} />
 
             <div className="space-y-6 border-t border-border pt-6">
               <SizeSelector sizes={sizes} onSizeChange={handleSizeChange} />
               <QuantitySelector onQuantityChange={handleQuantityChange} />
               <AddToCartButton
-                productName="Velvet Noir Eau de Parfum"
+                productName={productName}
                 selectedSize={selectedSize.volume}
                 quantity={quantity}
                 price={selectedSize.price} />
-
             </div>
           </div>
         </div>
 
         <div className="mt-12 border-t border-border pt-12">
           <ScentNotes
-            topNotes={['Bergamot', 'Pink Pepper', 'Mandarin']}
-            heartNotes={['Rose', 'Jasmine', 'Violet']}
-            baseNotes={['Vanilla', 'Sandalwood', 'Musk', 'Amber']} />
-
+            topNotes={topNotes}
+            heartNotes={heartNotes}
+            baseNotes={baseNotes} />
         </div>
 
-        <div className="mt-12 border-t border-border pt-12">
-          <RelatedProducts products={relatedProducts} />
-        </div>
+        {relatedProducts.length > 0 && (
+          <div className="mt-12 border-t border-border pt-12">
+            <RelatedProducts products={relatedProducts} />
+          </div>
+        )}
       </div>
     </div>);
-
 };
 
 export default ProductDetailInteractive;

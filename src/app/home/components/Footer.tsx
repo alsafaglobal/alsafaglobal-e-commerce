@@ -1,9 +1,31 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
+import { createClient } from '@/lib/supabase/client';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const [content, setContent] = useState({
+    footer_tagline: 'Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.',
+  });
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('site_content')
+        .select('key, value')
+        .in('key', ['footer_tagline']);
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((row) => { map[row.key] = row.value; });
+        setContent((prev) => ({ ...prev, ...map }));
+      }
+    }
+    load();
+  }, []);
 
   const footerLinks = {
     shop: [
@@ -41,11 +63,11 @@ const Footer: React.FC = () => {
             <span className="mb-4 block font-heading text-xl font-semibold tracking-wide text-primary">
               Al Safa <span className="text-accent">Global</span>
             </span>
-            
+
             <p className="mb-6 max-w-sm font-body text-sm text-text-secondary">
-              Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.
+              {content.footer_tagline}
             </p>
-            
+
             <div className="flex gap-4">
               {socialLinks.map((social) => (
                 <a
@@ -59,7 +81,7 @@ const Footer: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
               Shop
@@ -77,7 +99,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          
+
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
               Company
@@ -95,7 +117,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          
+
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
               Support
@@ -114,13 +136,13 @@ const Footer: React.FC = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-12 border-t border-border pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="caption text-text-secondary">
               &copy; {currentYear} Al Safa Global e-commerce
             </p>
-            
+
             <div className="flex gap-6">
               <Link
                 href="/about"
