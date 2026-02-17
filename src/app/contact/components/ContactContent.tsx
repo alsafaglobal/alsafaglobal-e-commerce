@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { createClient } from '@/lib/supabase/client';
 
 const ContactContent: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,27 @@ const ContactContent: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    contact_email: 'info@alsafaglobal.com',
+    contact_phone: '00971 4 3741 969',
+    contact_address: 'Al Safa Global General Trading FZ LLC FDBC3472\nCompass Building, Al Shohada Road\nAl Hamra Industrial Zone-FZ\nP.O. Box 10055\nRas Al Khaimah, United Arab Emirates',
+  });
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('site_content')
+        .select('key, value')
+        .in('key', ['contact_email', 'contact_phone', 'contact_address']);
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((row) => { map[row.key] = row.value; });
+        setContactInfo((prev) => ({ ...prev, ...map }));
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -27,29 +49,22 @@ const ContactContent: React.FC = () => {
     {
       icon: 'EnvelopeIcon',
       label: 'Email',
-      lines: ['info@alsafaglobal.com'],
+      lines: [contactInfo.contact_email],
     },
     {
       icon: 'PhoneIcon',
       label: 'Phone',
-      lines: ['00971 4 3741 969'],
+      lines: [contactInfo.contact_phone],
     },
     {
       icon: 'MapPinIcon',
       label: 'Address',
-      lines: [
-        'Al Safa Global General Trading FZ LLC FDBC3472',
-        'Compass Building, Al Shohada Road',
-        'Al Hamra Industrial Zone-FZ',
-        'P.O. Box 10055',
-        'Ras Al Khaimah, United Arab Emirates',
-      ],
+      lines: contactInfo.contact_address.split('\n'),
     },
   ];
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8">
-      {/* Page heading */}
       <div className="mb-12 text-center">
         <h1 className="font-heading text-4xl font-semibold text-text-primary md:text-5xl">
           Contact Us
@@ -61,7 +76,6 @@ const ContactContent: React.FC = () => {
       </div>
 
       <div className="grid gap-12 lg:grid-cols-3">
-        {/* Contact details */}
         <div className="space-y-8">
           {contactDetails.map((detail) => (
             <div key={detail.label} className="flex items-start gap-4">
@@ -84,7 +98,6 @@ const ContactContent: React.FC = () => {
           ))}
         </div>
 
-        {/* Contact form */}
         <div className="lg:col-span-2">
           {submitted ? (
             <div className="flex flex-col items-center justify-center rounded-lg bg-success/10 px-8 py-16 text-center shadow-luxury-sm">

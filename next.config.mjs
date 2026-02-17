@@ -26,6 +26,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'img.rocket.new',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
   },
   async redirects() {
