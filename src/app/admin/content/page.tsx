@@ -59,11 +59,8 @@ export default function AdminContentPage() {
     async function load() {
       const res = await fetch('/api/admin/content');
       const data = await res.json();
-      const map: Record<string, string> = {};
-      (data.items || []).forEach((item: ContentItem) => {
-        map[item.key] = item.value;
-      });
-      setContent(map);
+      // API returns flat {key: value} object
+      setContent(data || {});
       setLoading(false);
     }
     load();
@@ -76,11 +73,11 @@ export default function AdminContentPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const items = Object.entries(content).map(([key, value]) => ({ key, value }));
+    // API expects flat {key: value} object
     await fetch('/api/admin/content', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items }),
+      body: JSON.stringify(content),
     });
     setSaving(false);
     setSaved(true);
