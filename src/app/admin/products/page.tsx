@@ -92,7 +92,7 @@ export default function AdminProductsPage() {
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Product</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Type</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Price</th>
-                <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Active</th>
+                <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Visibility</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Featured</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-right">Actions</th>
               </tr>
@@ -122,36 +122,46 @@ export default function AdminProductsPage() {
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => toggleField(product.id, 'is_active', !product.is_active)}
-                      className={`rounded-full px-3 py-1 font-body text-xs font-medium transition-luxury ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-body text-xs font-medium transition-luxury ${
                         product.is_active
-                          ? 'bg-success/10 text-success'
-                          : 'bg-error/10 text-error'
+                          ? 'bg-success/10 text-success hover:bg-success/20'
+                          : 'bg-error/10 text-error hover:bg-error/20'
                       }`}
+                      title={product.is_active ? 'Click to hide from shop' : 'Click to show on shop'}
                     >
-                      {product.is_active ? 'Active' : 'Disabled'}
+                      <Icon name={product.is_active ? 'EyeIcon' : 'EyeSlashIcon'} size={14} />
+                      {product.is_active ? 'Visible' : 'Hidden'}
                     </button>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => toggleField(product.id, 'is_featured', !product.is_featured)}
-                      className={`transition-luxury ${product.is_featured ? 'text-warning' : 'text-muted-foreground'}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-body text-xs font-medium transition-luxury ${
+                        product.is_featured
+                          ? 'bg-warning/10 text-warning hover:bg-warning/20'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                      title={product.is_featured ? 'Remove from homepage' : 'Show on homepage'}
                     >
-                      <Icon name={product.is_featured ? 'StarIcon' : 'StarIcon'} size={20} variant={product.is_featured ? 'solid' : 'outline'} />
+                      <Icon name="StarIcon" size={14} variant={product.is_featured ? 'solid' : 'outline'} />
+                      {product.is_featured ? 'Featured' : 'Normal'}
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="rounded-md p-1.5 text-text-secondary transition-luxury hover:bg-muted hover:text-primary"
+                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-body text-xs font-medium text-primary transition-luxury hover:bg-primary/10"
                       >
-                        <Icon name="PencilIcon" size={16} />
+                        <Icon name="PencilIcon" size={14} />
+                        Edit
                       </Link>
                       <button
                         onClick={() => deleteProduct(product.id, product.name)}
-                        className="rounded-md p-1.5 text-text-secondary transition-luxury hover:bg-error/10 hover:text-error"
+                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-body text-xs font-medium text-error transition-luxury hover:bg-error/10"
                       >
-                        <Icon name="TrashIcon" size={16} />
+                        <Icon name="TrashIcon" size={14} />
+                        Delete
                       </button>
                     </div>
                   </td>
