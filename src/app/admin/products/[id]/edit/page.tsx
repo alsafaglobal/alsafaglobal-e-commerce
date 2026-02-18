@@ -34,7 +34,7 @@ export default function EditProductPage() {
     async function load() {
       const res = await fetch(`/api/admin/products/${id}`);
       if (!res.ok) { router.push('/admin/products'); return; }
-      const { product } = await res.json();
+      const product = await res.json();
 
       const sizes = product.product_sizes || [];
       const notes = product.scent_notes || [];
