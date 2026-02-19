@@ -49,6 +49,13 @@ const tabs: Tab[] = [
         ],
       },
       {
+        title: 'Product Card',
+        keys: [
+          { key: 'product_view_details', label: 'View Details Button', type: 'text' },
+          { key: 'product_btn_add', label: 'Add Button', type: 'text' },
+        ],
+      },
+      {
         title: 'Newsletter',
         keys: [
           { key: 'newsletter_title', label: 'Title', type: 'text' },
@@ -69,6 +76,8 @@ const tabs: Tab[] = [
           { key: 'footer_links_company', label: 'Company Links', type: 'json_links' },
           { key: 'footer_heading_support', label: 'Support Column Heading', type: 'text' },
           { key: 'footer_links_support', label: 'Support Links', type: 'json_links' },
+          { key: 'footer_terms', label: 'Terms Link Text', type: 'text' },
+          { key: 'footer_privacy', label: 'Privacy Link Text', type: 'text' },
         ],
       },
     ],
@@ -83,6 +92,18 @@ const tabs: Tab[] = [
           { key: 'shop_search_placeholder', label: 'Search Placeholder', type: 'text' },
           { key: 'shop_empty_title', label: 'Empty State Title', type: 'text' },
           { key: 'shop_empty_subtitle', label: 'Empty State Subtitle', type: 'text' },
+          { key: 'shop_btn_filters', label: 'Filters Button', type: 'text' },
+          { key: 'shop_btn_clear_filters', label: 'Clear All Filters Button', type: 'text' },
+          { key: 'shop_showing_text', label: 'Showing Results Text (use {count} and {total})', type: 'text' },
+        ],
+      },
+      {
+        title: 'Shop Filters (Mobile)',
+        keys: [
+          { key: 'shop_filter_title', label: 'Filter Panel Title', type: 'text' },
+          { key: 'shop_filter_scent_type', label: 'Scent Type Label', type: 'text' },
+          { key: 'shop_btn_clear_all', label: 'Clear All Button', type: 'text' },
+          { key: 'shop_btn_view_results', label: 'View Results Button', type: 'text' },
         ],
       },
       {
@@ -95,8 +116,145 @@ const tabs: Tab[] = [
           { key: 'product_label_longevity', label: 'Label: Longevity', type: 'text' },
           { key: 'product_label_occasions', label: 'Label: Occasions', type: 'text' },
           { key: 'product_label_select_size', label: 'Label: Select Size', type: 'text' },
+          { key: 'product_label_quantity', label: 'Label: Quantity', type: 'text' },
           { key: 'product_add_to_cart_text', label: 'Add to Cart Button', type: 'text' },
           { key: 'product_buy_now_text', label: 'Buy Now Button', type: 'text' },
+          { key: 'product_adding_text', label: 'Adding... Text', type: 'text' },
+          { key: 'product_added_text', label: 'Added to Cart! Text', type: 'text' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'cart', label: 'Cart & Checkout', icon: 'ShoppingCartIcon',
+    sections: [
+      {
+        title: 'Empty Cart',
+        keys: [
+          { key: 'cart_empty_title', label: 'Empty Cart Title', type: 'text' },
+          { key: 'cart_empty_description', label: 'Empty Cart Description', type: 'textarea' },
+          { key: 'cart_empty_button', label: 'Explore Button Text', type: 'text' },
+          { key: 'cart_benefit_1', label: 'Benefit 1', type: 'text' },
+          { key: 'cart_benefit_2', label: 'Benefit 2', type: 'text' },
+          { key: 'cart_benefit_3', label: 'Benefit 3', type: 'text' },
+        ],
+      },
+      {
+        title: 'Cart Items & Summary',
+        keys: [
+          { key: 'cart_label_size', label: 'Size Label', type: 'text' },
+          { key: 'cart_btn_remove', label: 'Remove Button', type: 'text' },
+          { key: 'cart_summary_title', label: 'Order Summary Title', type: 'text' },
+          { key: 'cart_label_subtotal', label: 'Subtotal Label', type: 'text' },
+          { key: 'cart_label_tax', label: 'Tax Label', type: 'text' },
+          { key: 'cart_label_total', label: 'Total Label', type: 'text' },
+          { key: 'cart_btn_checkout', label: 'Checkout Button', type: 'text' },
+          { key: 'cart_btn_continue', label: 'Continue Shopping Button', type: 'text' },
+          { key: 'cart_secure_text', label: 'Secure Checkout Text', type: 'text' },
+          { key: 'cart_shipping_text', label: 'Free Shipping Text', type: 'text' },
+        ],
+      },
+      {
+        title: 'Checkout Steps',
+        keys: [
+          { key: 'checkout_step_personal', label: 'Step 1 Label', type: 'text' },
+          { key: 'checkout_step_shipping', label: 'Step 2 Label', type: 'text' },
+          { key: 'checkout_step_payment', label: 'Step 3 Label', type: 'text' },
+        ],
+      },
+      {
+        title: 'Checkout - Personal Info',
+        keys: [
+          { key: 'checkout_heading_personal', label: 'Section Heading', type: 'text' },
+          { key: 'checkout_label_first_name', label: 'First Name Label', type: 'text' },
+          { key: 'checkout_label_last_name', label: 'Last Name Label', type: 'text' },
+          { key: 'checkout_label_email', label: 'Email Label', type: 'text' },
+          { key: 'checkout_label_phone', label: 'Phone Label', type: 'text' },
+        ],
+      },
+      {
+        title: 'Checkout - Shipping',
+        keys: [
+          { key: 'checkout_heading_shipping', label: 'Section Heading', type: 'text' },
+          { key: 'checkout_label_address', label: 'Address Label', type: 'text' },
+          { key: 'checkout_label_city', label: 'City Label', type: 'text' },
+          { key: 'checkout_label_state', label: 'State Label', type: 'text' },
+          { key: 'checkout_label_zip', label: 'ZIP Code Label', type: 'text' },
+          { key: 'checkout_label_country', label: 'Country Label', type: 'text' },
+        ],
+      },
+      {
+        title: 'Checkout - Payment',
+        keys: [
+          { key: 'checkout_heading_payment', label: 'Section Heading', type: 'text' },
+          { key: 'checkout_label_card_number', label: 'Card Number Label', type: 'text' },
+          { key: 'checkout_label_card_name', label: 'Cardholder Name Label', type: 'text' },
+          { key: 'checkout_label_expiry', label: 'Expiry Date Label', type: 'text' },
+          { key: 'checkout_label_cvv', label: 'CVV Label', type: 'text' },
+          { key: 'checkout_security_text', label: 'Security Info Text', type: 'textarea' },
+        ],
+      },
+      {
+        title: 'Checkout - Buttons & Summary',
+        keys: [
+          { key: 'checkout_btn_previous', label: 'Previous Button', type: 'text' },
+          { key: 'checkout_btn_next', label: 'Next Button', type: 'text' },
+          { key: 'checkout_btn_place_order', label: 'Place Order Button', type: 'text' },
+          { key: 'checkout_btn_processing', label: 'Processing Text', type: 'text' },
+          { key: 'checkout_summary_title', label: 'Order Summary Title', type: 'text' },
+          { key: 'checkout_label_size', label: 'Size Label', type: 'text' },
+          { key: 'checkout_label_qty', label: 'Qty Label', type: 'text' },
+          { key: 'checkout_label_subtotal', label: 'Subtotal Label', type: 'text' },
+          { key: 'checkout_label_shipping', label: 'Shipping Label', type: 'text' },
+          { key: 'checkout_label_tax', label: 'Tax Label', type: 'text' },
+          { key: 'checkout_label_total', label: 'Total Label', type: 'text' },
+          { key: 'checkout_secure_badge', label: 'Secure Badge Text', type: 'text' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'order', label: 'Order Confirm', icon: 'CheckCircleIcon',
+    sections: [
+      {
+        title: 'Order Confirmed',
+        keys: [
+          { key: 'order_confirmed_title', label: 'Title', type: 'text' },
+          { key: 'order_confirmed_message', label: 'Message (use {name} for customer name)', type: 'textarea' },
+        ],
+      },
+      {
+        title: 'Order Summary Labels',
+        keys: [
+          { key: 'order_summary_title', label: 'Summary Heading', type: 'text' },
+          { key: 'order_label_subtotal', label: 'Subtotal', type: 'text' },
+          { key: 'order_label_shipping', label: 'Shipping', type: 'text' },
+          { key: 'order_label_tax', label: 'Tax', type: 'text' },
+          { key: 'order_label_total', label: 'Total', type: 'text' },
+        ],
+      },
+      {
+        title: 'Shipping & Payment',
+        keys: [
+          { key: 'order_shipping_title', label: 'Shipping Address Heading', type: 'text' },
+          { key: 'order_payment_title', label: 'Payment Heading', type: 'text' },
+          { key: 'order_card_ending', label: 'Card Ending Text', type: 'text' },
+          { key: 'order_confirmation_email', label: 'Email Confirmation Text', type: 'text' },
+        ],
+      },
+      {
+        title: 'Buttons',
+        keys: [
+          { key: 'order_btn_continue', label: 'Continue Shopping', type: 'text' },
+          { key: 'order_btn_home', label: 'Back to Home', type: 'text' },
+        ],
+      },
+      {
+        title: 'No Order State',
+        keys: [
+          { key: 'order_no_order_title', label: 'No Order Title', type: 'text' },
+          { key: 'order_no_order_message', label: 'No Order Message', type: 'textarea' },
+          { key: 'order_no_order_button', label: 'Browse Button Text', type: 'text' },
         ],
       },
     ],
@@ -240,7 +398,9 @@ const tabs: Tab[] = [
       {
         title: 'Brand Identity',
         keys: [
-          { key: 'site_name', label: 'Brand Name', type: 'text' },
+          { key: 'brand_name_primary', label: 'Brand Name (Primary)', type: 'text' },
+          { key: 'brand_name_accent', label: 'Brand Name (Accent)', type: 'text' },
+          { key: 'site_name', label: 'Full Site Name', type: 'text' },
           { key: 'site_tagline', label: 'Tagline', type: 'text' },
         ],
       },
@@ -258,6 +418,7 @@ const tabs: Tab[] = [
           { key: 'nav_shop', label: 'Shop', type: 'text' },
           { key: 'nav_about', label: 'About', type: 'text' },
           { key: 'nav_contact', label: 'Contact', type: 'text' },
+          { key: 'nav_shopping_cart', label: 'Shopping Cart', type: 'text' },
         ],
       },
       {

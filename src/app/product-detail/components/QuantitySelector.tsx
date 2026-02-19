@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface QuantitySelectorProps {
   onQuantityChange: (quantity: number) => void;
@@ -12,6 +13,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [isHydrated, setIsHydrated] = useState(false);
+  const quantityLabel = useSiteContent('product_label_quantity', 'Quantity');
 
   useEffect(() => {
     setIsHydrated(true);
@@ -38,7 +40,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   if (!isHydrated) {
     return (
       <div className="space-y-3">
-        <p className="caption font-medium text-text-secondary">Quantity</p>
+        <p className="caption font-medium text-text-secondary">{quantityLabel}</p>
         <div className="h-12 w-32 animate-pulse rounded-md bg-muted" />
       </div>
     );
@@ -46,7 +48,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
 
   return (
     <div className="space-y-3">
-      <p className="caption font-medium text-text-secondary">Quantity</p>
+      <p className="caption font-medium text-text-secondary">{quantityLabel}</p>
       <div className="flex items-center gap-3">
         <button
           onClick={handleDecrement}

@@ -24,6 +24,9 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
   const navShop = useSiteContent('nav_shop', 'Shop');
   const navAbout = useSiteContent('nav_about', 'About');
   const navContact = useSiteContent('nav_contact', 'Contact');
+  const brandPrimary = useSiteContent('brand_name_primary', 'Al Safa');
+  const brandAccent = useSiteContent('brand_name_accent', 'Global');
+  const navCart = useSiteContent('nav_shopping_cart', 'Shopping Cart');
 
   const navigationItems: NavigationItem[] = [
     { label: navHome, path: '/home', icon: 'HomeIcon' },
@@ -78,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
             className="flex items-center transition-luxury hover:opacity-80"
           >
             <span className="font-heading text-xl font-semibold tracking-wide text-primary">
-              Al Safa <span className="text-accent">Global</span>
+              {brandPrimary} <span className="text-accent">{brandAccent}</span>
             </span>
           </Link>
 
@@ -204,7 +207,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
                     size={20}
                     className="text-primary-foreground"
                   />
-                  Shopping Cart
+                  {navCart}
                 </span>
                 {cartItemCount > 0 && (
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent font-data text-sm font-medium text-accent-foreground">

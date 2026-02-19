@@ -34,6 +34,10 @@ const Footer: React.FC = () => {
   const shopLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_shop', defaultShopLinks);
   const companyLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_company', defaultCompanyLinks);
   const supportLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_support', defaultSupportLinks);
+  const brandPrimary = useSiteContent('brand_name_primary', 'Al Safa');
+  const brandAccent = useSiteContent('brand_name_accent', 'Global');
+  const termsText = useSiteContent('footer_terms', 'Terms of Service');
+  const privacyText = useSiteContent('footer_privacy', 'Privacy Policy');
 
   const socialLinks = [
     { name: 'Facebook', icon: 'ShareIcon', href: '#' },
@@ -48,7 +52,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <span className="mb-4 block font-heading text-xl font-semibold tracking-wide text-primary">
-              Al Safa <span className="text-accent">Global</span>
+              {brandPrimary} <span className="text-accent">{brandAccent}</span>
             </span>
 
             <p className="mb-6 max-w-sm font-body text-sm text-text-secondary">
@@ -135,13 +139,13 @@ const Footer: React.FC = () => {
                 href="/about"
                 className="caption text-text-secondary transition-luxury hover:text-primary"
               >
-                Terms of Service
+                {termsText}
               </Link>
               <Link
                 href="/about"
                 className="caption text-text-secondary transition-luxury hover:text-primary"
               >
-                Privacy Policy
+                {privacyText}
               </Link>
             </div>
           </div>
