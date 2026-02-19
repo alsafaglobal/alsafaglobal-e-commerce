@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface ProductInfoProps {
   name: string;
@@ -24,6 +27,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   longevity,
   occasions,
 }) => {
+  const labelFragrance = useSiteContent('product_label_fragrance_family', 'Fragrance Family');
+  const labelLongevity = useSiteContent('product_label_longevity', 'Longevity');
+  const labelOccasions = useSiteContent('product_label_occasions', 'Recommended Occasions');
+
   return (
     <div className="space-y-6">
       <div>
@@ -67,19 +74,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       <div className="grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
         <div>
           <p className="caption font-medium text-text-secondary">
-            Fragrance Family
+            {labelFragrance}
           </p>
           <p className="mt-1 font-body text-text-primary">{fragranceFamily}</p>
         </div>
         <div>
-          <p className="caption font-medium text-text-secondary">Longevity</p>
+          <p className="caption font-medium text-text-secondary">{labelLongevity}</p>
           <p className="mt-1 font-body text-text-primary">{longevity}</p>
         </div>
       </div>
 
       <div className="border-t border-border pt-6">
         <p className="caption font-medium text-text-secondary">
-          Recommended Occasions
+          {labelOccasions}
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {occasions.map((occasion, index) => (

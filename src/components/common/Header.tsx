@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface NavigationItem {
   label: string;
@@ -19,12 +20,16 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const navHome = useSiteContent('nav_home', 'Home');
+  const navShop = useSiteContent('nav_shop', 'Shop');
+  const navAbout = useSiteContent('nav_about', 'About');
+  const navContact = useSiteContent('nav_contact', 'Contact');
 
   const navigationItems: NavigationItem[] = [
-    { label: 'Home', path: '/home', icon: 'HomeIcon' },
-    { label: 'Shop', path: '/shop-catalog', icon: 'ShoppingBagIcon' },
-    { label: 'About', path: '/about', icon: 'InformationCircleIcon' },
-    { label: 'Contact', path: '/contact', icon: 'EnvelopeIcon' },
+    { label: navHome, path: '/home', icon: 'HomeIcon' },
+    { label: navShop, path: '/shop-catalog', icon: 'ShoppingBagIcon' },
+    { label: navAbout, path: '/about', icon: 'InformationCircleIcon' },
+    { label: navContact, path: '/contact', icon: 'EnvelopeIcon' },
   ];
 
   useEffect(() => {

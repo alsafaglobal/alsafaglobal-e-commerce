@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Value {
   icon: string;
@@ -12,15 +15,17 @@ interface ValuesGridProps {
 }
 
 const ValuesGrid: React.FC<ValuesGridProps> = ({ values }) => {
+  const heading = useSiteContent('about_values_heading', 'Our Core Values');
+  const subtitle = useSiteContent('about_values_subtitle', 'The principles that guide every fragrance we create and every experience we deliver');
+
   return (
     <section className="py-12 md:py-16">
       <div className="text-center">
         <h2 className="font-heading text-3xl font-semibold text-text-primary md:text-4xl">
-          Our Core Values
+          {heading}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-          The principles that guide every fragrance we create and every
-          experience we deliver
+          {subtitle}
         </p>
       </div>
 

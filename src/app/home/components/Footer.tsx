@@ -1,52 +1,39 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
-import { createClient } from '@/lib/supabase/client';
+import { useSiteContent, useSiteContentJSON } from '@/lib/content/SiteContentContext';
+
+const defaultShopLinks = [
+  { label: 'All Products', href: '/shop-catalog' },
+  { label: 'New Arrivals', href: '/shop-catalog?sort=newest' },
+  { label: 'Best Sellers', href: '/shop-catalog?sort=popular' },
+  { label: 'Gift Sets', href: '/shop-catalog?category=gifts' },
+];
+const defaultCompanyLinks = [
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Store Locator', href: '/contact' },
+  { label: 'Careers', href: '/about' },
+];
+const defaultSupportLinks = [
+  { label: 'Shipping Info', href: '/about' },
+  { label: 'Returns', href: '/about' },
+  { label: 'FAQ', href: '/about' },
+  { label: 'Privacy Policy', href: '/about' },
+];
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const [content, setContent] = useState({
-    footer_tagline: 'Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.',
-  });
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('site_content')
-        .select('key, value')
-        .in('key', ['footer_tagline']);
-      if (data) {
-        const map: Record<string, string> = {};
-        data.forEach((row) => { map[row.key] = row.value; });
-        setContent((prev) => ({ ...prev, ...map }));
-      }
-    }
-    load();
-  }, []);
-
-  const footerLinks = {
-    shop: [
-      { label: 'All Products', href: '/shop-catalog' },
-      { label: 'New Arrivals', href: '/shop-catalog?sort=newest' },
-      { label: 'Best Sellers', href: '/shop-catalog?sort=popular' },
-      { label: 'Gift Sets', href: '/shop-catalog?category=gifts' }
-    ],
-    company: [
-      { label: 'About Us', href: '/about' },
-      { label: 'Contact', href: '/contact' },
-      { label: 'Store Locator', href: '/contact' },
-      { label: 'Careers', href: '/about' }
-    ],
-    support: [
-      { label: 'Shipping Info', href: '/about' },
-      { label: 'Returns', href: '/about' },
-      { label: 'FAQ', href: '/about' },
-      { label: 'Privacy Policy', href: '/about' }
-    ]
-  };
+  const footerTagline = useSiteContent('footer_tagline', 'Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.');
+  const copyrightText = useSiteContent('footer_copyright_text', 'Al Safa Global e-commerce');
+  const headingShop = useSiteContent('footer_heading_shop', 'Shop');
+  const headingCompany = useSiteContent('footer_heading_company', 'Company');
+  const headingSupport = useSiteContent('footer_heading_support', 'Support');
+  const shopLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_shop', defaultShopLinks);
+  const companyLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_company', defaultCompanyLinks);
+  const supportLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_support', defaultSupportLinks);
 
   const socialLinks = [
     { name: 'Facebook', icon: 'ShareIcon', href: '#' },
@@ -65,7 +52,7 @@ const Footer: React.FC = () => {
             </span>
 
             <p className="mb-6 max-w-sm font-body text-sm text-text-secondary">
-              {content.footer_tagline}
+              {footerTagline}
             </p>
 
             <div className="flex gap-4">
@@ -84,10 +71,10 @@ const Footer: React.FC = () => {
 
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
-              Shop
+              {headingShop}
             </h3>
             <ul className="space-y-3">
-              {footerLinks.shop.map((link) => (
+              {shopLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -102,10 +89,10 @@ const Footer: React.FC = () => {
 
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
-              Company
+              {headingCompany}
             </h3>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
+              {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -120,10 +107,10 @@ const Footer: React.FC = () => {
 
           <div>
             <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
-              Support
+              {headingSupport}
             </h3>
             <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
+              {supportLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -140,7 +127,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 border-t border-border pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="caption text-text-secondary">
-              &copy; {currentYear} Al Safa Global e-commerce
+              &copy; {currentYear} {copyrightText}
             </p>
 
             <div className="flex gap-6">

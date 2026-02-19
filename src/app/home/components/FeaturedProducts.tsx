@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
 import { createClient } from '@/lib/supabase/client';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 interface Product {
   id: string;
@@ -17,6 +18,9 @@ interface Product {
 const FeaturedProducts: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const title = useSiteContent('featured_title', 'Featured Collection');
+  const subtitle = useSiteContent('featured_subtitle', 'Handpicked luxury fragrances that define elegance and sophistication');
+  const visible = useSectionVisible('featured_products');
 
   useEffect(() => {
     async function load() {
@@ -46,6 +50,8 @@ const FeaturedProducts: React.FC = () => {
     load();
   }, []);
 
+  if (!visible) return null;
+
   if (loading) {
     return (
       <section className="w-full bg-background py-16 md:py-24">
@@ -71,10 +77,10 @@ const FeaturedProducts: React.FC = () => {
       <div className="mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h2 className="mb-4 font-heading text-4xl font-bold text-text-primary md:text-5xl">
-            Featured Collection
+            {title}
           </h2>
           <p className="mx-auto max-w-2xl font-body text-lg text-text-secondary">
-            Handpicked luxury fragrances that define elegance and sophistication
+            {subtitle}
           </p>
         </div>
 

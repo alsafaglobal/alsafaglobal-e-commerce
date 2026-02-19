@@ -1,31 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const HeroSection: React.FC = () => {
-  const [content, setContent] = useState({
-    hero_title: 'Discover Your Signature Scent',
-    hero_subtitle: 'Explore our curated collection of luxury perfumes crafted by master perfumers from around the world',
-    hero_button_text: 'Explore Collection',
-  });
+  const heroTitle = useSiteContent('hero_title', 'Discover Your Signature Scent');
+  const heroSubtitle = useSiteContent('hero_subtitle', 'Explore our curated collection of luxury perfumes crafted by master perfumers from around the world');
+  const heroButton = useSiteContent('hero_button_text', 'Explore Collection');
+  const visible = useSectionVisible('hero');
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('site_content')
-        .select('key, value')
-        .in('key', ['hero_title', 'hero_subtitle', 'hero_button_text']);
-      if (data) {
-        const map: Record<string, string> = {};
-        data.forEach((row) => { map[row.key] = row.value; });
-        setContent((prev) => ({ ...prev, ...map }));
-      }
-    }
-    load();
-  }, []);
+  if (!visible) return null;
 
   return (
     <section className="relative h-[600px] w-full overflow-hidden bg-gradient-to-br from-secondary/30 to-background">
@@ -33,18 +18,18 @@ const HeroSection: React.FC = () => {
 
       <div className="relative mx-auto flex h-full max-w-[1440px] flex-col items-center justify-center px-4 text-center md:px-6 lg:px-8">
         <h1 className="mb-6 font-heading text-5xl font-bold text-text-primary md:text-6xl lg:text-7xl">
-          {content.hero_title}
+          {heroTitle}
         </h1>
 
         <p className="mb-8 max-w-2xl font-body text-lg text-text-secondary md:text-xl">
-          {content.hero_subtitle}
+          {heroSubtitle}
         </p>
 
         <Link
           href="/shop-catalog"
           className="rounded-lg bg-primary px-8 py-4 font-body text-base font-medium text-primary-foreground shadow-luxury transition-luxury hover:bg-primary/90 hover:shadow-luxury-md"
         >
-          {content.hero_button_text}
+          {heroButton}
         </Link>
       </div>
     </section>

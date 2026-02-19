@@ -11,6 +11,7 @@ import AddToCartButton from './AddToCartButton';
 import RelatedProducts from './RelatedProducts';
 import Breadcrumb from './Breadcrumb';
 import { createClient } from '@/lib/supabase/client';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Size {
   volume: string;
@@ -40,6 +41,8 @@ interface BreadcrumbItem {
 const ProductDetailInteractive: React.FC = () => {
   const searchParams = useSearchParams();
   const productId = searchParams.get('id');
+  const bcHome = useSiteContent('product_breadcrumb_home', 'Home');
+  const bcShop = useSiteContent('product_breadcrumb_shop', 'Shop');
 
   const [selectedSize, setSelectedSize] = useState<Size>({
     volume: '50ml',
@@ -143,8 +146,8 @@ const ProductDetailInteractive: React.FC = () => {
   }, [productId]);
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Home', path: '/home' },
-    { label: 'Shop', path: '/shop-catalog' },
+    { label: bcHome, path: '/home' },
+    { label: bcShop, path: '/shop-catalog' },
     { label: productName || 'Product', path: '/product-detail' }
   ];
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface SearchBarProps {
   searchQuery: string;
@@ -14,6 +15,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearchChange,
   resultCount,
 }) => {
+  const searchPlaceholder = useSiteContent('shop_search_placeholder', 'Search perfumes by name...');
   return (
     <div className="w-full">
       <div className="relative">
@@ -26,7 +28,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search perfumes by name..."
+          placeholder={searchPlaceholder}
           className="w-full rounded-lg border border-border bg-input px-12 py-3 font-body text-base text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring transition-luxury"
           aria-label="Search perfumes"
         />
