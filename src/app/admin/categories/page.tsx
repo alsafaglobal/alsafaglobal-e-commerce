@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import ImageUpload from '@/app/admin/components/ImageUpload';
 
 interface Category {
   id: string;
@@ -93,10 +94,12 @@ export default function AdminCategoriesPage() {
               <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                 className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
-            <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Image URL</label>
-              <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+            <div className="sm:col-span-2">
+              <ImageUpload
+                currentUrl={form.image_url}
+                onUpload={(url) => setForm((prev) => ({ ...prev, image_url: url }))}
+                label="Category Photo"
+              />
             </div>
             <div>
               <label className="mb-1 block font-body text-sm font-medium text-text-primary">Sort Order</label>
