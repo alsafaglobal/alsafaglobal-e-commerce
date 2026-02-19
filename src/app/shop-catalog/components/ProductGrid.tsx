@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductCard from './ProductCard';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Product {
   id: number;
@@ -20,14 +21,17 @@ interface ProductGridProps {
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
+  const emptyTitle = useSiteContent('shop_empty_title', 'No perfumes found');
+  const emptySubtitle = useSiteContent('shop_empty_subtitle', 'Try adjusting your search or filters to find what you\'re looking for');
+
   if (products.length === 0) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg bg-muted p-12 text-center">
         <p className="mb-2 font-heading text-2xl font-semibold text-text-primary">
-          No perfumes found
+          {emptyTitle}
         </p>
         <p className="font-body text-base text-text-secondary">
-          Try adjusting your search or filters to find what you're looking for
+          {emptySubtitle}
         </p>
       </div>
     );

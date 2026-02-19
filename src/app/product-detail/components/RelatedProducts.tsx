@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 interface RelatedProduct {
   id: number;
@@ -18,10 +21,15 @@ interface RelatedProductsProps {
 }
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ products }) => {
+  const relatedTitle = useSiteContent('product_related_title', 'You May Also Like');
+  const visible = useSectionVisible('related_products');
+
+  if (!visible) return null;
+
   return (
     <div className="space-y-6">
       <h2 className="font-heading text-2xl font-semibold text-text-primary lg:text-3xl">
-        You May Also Like
+        {relatedTitle}
       </h2>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
-import { createClient } from '@/lib/supabase/client';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 const ContactContent: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,27 +12,24 @@ const ContactContent: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
-  const [contactInfo, setContactInfo] = useState({
-    contact_email: 'info@alsafaglobal.com',
-    contact_phone: '00971 4 3741 969',
-    contact_address: 'Al Safa Global General Trading FZ LLC FDBC3472\nCompass Building, Al Shohada Road\nAl Hamra Industrial Zone-FZ\nP.O. Box 10055\nRas Al Khaimah, United Arab Emirates',
-  });
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('site_content')
-        .select('key, value')
-        .in('key', ['contact_email', 'contact_phone', 'contact_address']);
-      if (data) {
-        const map: Record<string, string> = {};
-        data.forEach((row) => { map[row.key] = row.value; });
-        setContactInfo((prev) => ({ ...prev, ...map }));
-      }
-    }
-    load();
-  }, []);
+  const heading = useSiteContent('contact_heading', 'Contact Us');
+  const subtitle = useSiteContent('contact_subtitle', "We'd love to hear from you. Send us a message and we'll respond as soon as possible.");
+  const contactEmail = useSiteContent('contact_email', 'info@alsafaglobal.com');
+  const contactPhone = useSiteContent('contact_phone', '00971 4 3741 969');
+  const contactAddress = useSiteContent('contact_address', 'Al Safa Global General Trading FZ LLC FDBC3472\nCompass Building, Al Shohada Road\nAl Hamra Industrial Zone-FZ\nP.O. Box 10055\nRas Al Khaimah, United Arab Emirates');
+
+  const labelName = useSiteContent('contact_label_name', 'Full Name');
+  const labelEmail = useSiteContent('contact_label_email', 'Email Address');
+  const labelSubject = useSiteContent('contact_label_subject', 'Subject');
+  const labelMessage = useSiteContent('contact_label_message', 'Message');
+  const placeholderName = useSiteContent('contact_placeholder_name', 'Jane Doe');
+  const placeholderEmail = useSiteContent('contact_placeholder_email', 'jane@example.com');
+  const placeholderSubject = useSiteContent('contact_placeholder_subject', 'How can we help?');
+  const placeholderMessage = useSiteContent('contact_placeholder_message', 'Write your message here...');
+  const submitText = useSiteContent('contact_submit_text', 'Send Message');
+  const successTitle = useSiteContent('contact_success_title', 'Message Sent!');
+  const successMessage = useSiteContent('contact_success_message', "Thank you for reaching out. We'll get back to you within 1–2 business days.");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,32 +43,19 @@ const ContactContent: React.FC = () => {
   };
 
   const contactDetails = [
-    {
-      icon: 'EnvelopeIcon',
-      label: 'Email',
-      lines: [contactInfo.contact_email],
-    },
-    {
-      icon: 'PhoneIcon',
-      label: 'Phone',
-      lines: [contactInfo.contact_phone],
-    },
-    {
-      icon: 'MapPinIcon',
-      label: 'Address',
-      lines: contactInfo.contact_address.split('\n'),
-    },
+    { icon: 'EnvelopeIcon', label: 'Email', lines: [contactEmail] },
+    { icon: 'PhoneIcon', label: 'Phone', lines: [contactPhone] },
+    { icon: 'MapPinIcon', label: 'Address', lines: contactAddress.split('\n') },
   ];
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8">
       <div className="mb-12 text-center">
         <h1 className="font-heading text-4xl font-semibold text-text-primary md:text-5xl">
-          Contact Us
+          {heading}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-          We&apos;d love to hear from you. Send us a message and we&apos;ll
-          respond as soon as possible.
+          {subtitle}
         </p>
       </div>
 
@@ -101,17 +85,12 @@ const ContactContent: React.FC = () => {
         <div className="lg:col-span-2">
           {submitted ? (
             <div className="flex flex-col items-center justify-center rounded-lg bg-success/10 px-8 py-16 text-center shadow-luxury-sm">
-              <Icon
-                name="CheckCircleIcon"
-                size={56}
-                className="mb-4 text-success"
-              />
+              <Icon name="CheckCircleIcon" size={56} className="mb-4 text-success" />
               <h2 className="font-heading text-2xl font-semibold text-text-primary">
-                Message Sent!
+                {successTitle}
               </h2>
               <p className="mt-3 font-body text-base text-text-secondary">
-                Thank you for reaching out. We&apos;ll get back to you within
-                1–2 business days.
+                {successMessage}
               </p>
               <button
                 onClick={() => {
@@ -124,93 +103,47 @@ const ContactContent: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-lg bg-card p-8 shadow-luxury-sm"
-            >
+            <form onSubmit={handleSubmit} className="rounded-lg bg-card p-8 shadow-luxury-sm">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="mb-1 block font-body text-sm font-medium text-text-primary"
-                  >
-                    Full Name
+                  <label htmlFor="name" className="mb-1 block font-body text-sm font-medium text-text-primary">
+                    {labelName}
                   </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Jane Doe"
-                    className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
+                  <input id="name" name="name" type="text" required value={formData.name} onChange={handleChange}
+                    placeholder={placeholderName}
+                    className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-1 block font-body text-sm font-medium text-text-primary"
-                  >
-                    Email Address
+                  <label htmlFor="email" className="mb-1 block font-body text-sm font-medium text-text-primary">
+                    {labelEmail}
                   </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="jane@example.com"
-                    className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
+                  <input id="email" name="email" type="email" required value={formData.email} onChange={handleChange}
+                    placeholder={placeholderEmail}
+                    className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
               </div>
 
               <div className="mt-6">
-                <label
-                  htmlFor="subject"
-                  className="mb-1 block font-body text-sm font-medium text-text-primary"
-                >
-                  Subject
+                <label htmlFor="subject" className="mb-1 block font-body text-sm font-medium text-text-primary">
+                  {labelSubject}
                 </label>
-                <input
-                  id="subject"
-                  name="subject"
-                  type="text"
-                  required
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder="How can we help?"
-                  className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+                <input id="subject" name="subject" type="text" required value={formData.subject} onChange={handleChange}
+                  placeholder={placeholderSubject}
+                  className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
 
               <div className="mt-6">
-                <label
-                  htmlFor="message"
-                  className="mb-1 block font-body text-sm font-medium text-text-primary"
-                >
-                  Message
+                <label htmlFor="message" className="mb-1 block font-body text-sm font-medium text-text-primary">
+                  {labelMessage}
                 </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={6}
-                  required
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Write your message here..."
-                  className="w-full resize-none rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+                <textarea id="message" name="message" rows={6} required value={formData.message} onChange={handleChange}
+                  placeholder={placeholderMessage}
+                  className="w-full resize-none rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
 
-              <button
-                type="submit"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-base font-medium text-primary-foreground transition-luxury hover:opacity-90 sm:w-auto"
-              >
-                Send Message
+              <button type="submit"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-base font-medium text-primary-foreground transition-luxury hover:opacity-90 sm:w-auto">
+                {submitText}
                 <Icon name="PaperAirplaneIcon" size={18} className="text-primary-foreground" />
               </button>
             </form>

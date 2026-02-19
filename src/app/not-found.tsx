@@ -3,9 +3,14 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 export default function NotFound() {
     const router = useRouter();
+    const heading = useSiteContent('notfound_heading', 'Page Not Found');
+    const description = useSiteContent('notfound_description', "The page you're looking for doesn't exist. Let's get you back!");
+    const goBackText = useSiteContent('notfound_go_back', 'Go Back');
+    const backHomeText = useSiteContent('notfound_back_home', 'Back to Home');
 
     const handleGoHome = () => {
         router?.push('/');
@@ -26,9 +31,9 @@ export default function NotFound() {
                     </div>
                 </div>
 
-                <h2 className="text-2xl font-medium text-onBackground mb-2">Page Not Found</h2>
+                <h2 className="text-2xl font-medium text-onBackground mb-2">{heading}</h2>
                 <p className="text-onBackground/70 mb-8">
-                    The page you're looking for doesn't exist. Let's get you back!
+                    {description}
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -37,7 +42,7 @@ export default function NotFound() {
                         className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors duration-200"
                     >
                         <Icon name="ArrowLeftIcon" size={16} />
-                        Go Back
+                        {goBackText}
                     </button>
 
                     <button
@@ -45,7 +50,7 @@ export default function NotFound() {
                         className="inline-flex items-center justify-center gap-2 border border-border bg-background text-foreground px-6 py-3 rounded-lg font-medium hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
                     >
                         <Icon name="HomeIcon" size={16} />
-                        Back to Home
+                        {backHomeText}
                     </button>
                 </div>
             </div>

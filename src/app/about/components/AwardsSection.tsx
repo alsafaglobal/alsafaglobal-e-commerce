@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Award {
   year: string;
@@ -12,6 +15,9 @@ interface AwardsSectionProps {
 }
 
 const AwardsSection: React.FC<AwardsSectionProps> = ({ awards }) => {
+  const heading = useSiteContent('about_awards_heading', 'Recognition & Awards');
+  const subtitle = useSiteContent('about_awards_subtitle', 'Our commitment to excellence has been recognized by prestigious organizations worldwide');
+
   return (
     <section className="rounded-lg bg-gradient-to-br from-secondary/20 to-accent/10 py-12 md:py-16">
       <div className="text-center">
@@ -19,11 +25,10 @@ const AwardsSection: React.FC<AwardsSectionProps> = ({ awards }) => {
           <Icon name="TrophyIcon" size={48} className="text-accent" />
         </div>
         <h2 className="font-heading text-3xl font-semibold text-text-primary md:text-4xl">
-          Recognition & Awards
+          {heading}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-          Our commitment to excellence has been recognized by prestigious
-          organizations worldwide
+          {subtitle}
         </p>
       </div>
 

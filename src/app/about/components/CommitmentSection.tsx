@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Commitment {
   icon: string;
@@ -14,15 +17,17 @@ interface CommitmentSectionProps {
 const CommitmentSection: React.FC<CommitmentSectionProps> = ({
   commitments,
 }) => {
+  const heading = useSiteContent('about_commitments_heading', 'Our Commitment to Quality');
+  const subtitle = useSiteContent('about_commitments_subtitle', 'Every bottle represents our unwavering dedication to excellence and sustainability');
+
   return (
     <section className="py-12 md:py-16">
       <div className="text-center">
         <h2 className="font-heading text-3xl font-semibold text-text-primary md:text-4xl">
-          Our Commitment to Quality
+          {heading}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-          Every bottle represents our unwavering dedication to excellence and
-          sustainability
+          {subtitle}
         </p>
       </div>
 

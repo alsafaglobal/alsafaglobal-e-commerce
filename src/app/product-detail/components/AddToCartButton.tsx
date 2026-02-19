@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface AddToCartButtonProps {
   productName: string;
@@ -21,6 +22,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
+  const addToCartText = useSiteContent('product_add_to_cart_text', 'Add to Cart');
+  const buyNowText = useSiteContent('product_buy_now_text', 'Buy Now');
 
   useEffect(() => {
     setIsHydrated(true);
@@ -84,7 +87,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
               size={20}
               className="text-primary-foreground"
             />
-            <span>Add to Cart</span>
+            <span>{addToCartText}</span>
           </>
         )}
       </button>
@@ -93,7 +96,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         onClick={handleBuyNow}
         className="flex w-full items-center justify-center gap-2 rounded-md border-2 border-primary bg-background px-6 py-3 font-body font-medium text-primary transition-luxury hover:bg-primary hover:text-primary-foreground"
       >
-        <span>Buy Now</span>
+        <span>{buyNowText}</span>
         <Icon name="ArrowRightIcon" size={20} />
       </button>
 

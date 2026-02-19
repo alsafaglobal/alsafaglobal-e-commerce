@@ -9,6 +9,7 @@ import MobileFilterPanel from './MobileFilterPanel';
 import ProductGrid from './ProductGrid';
 import LoadingSkeleton from './LoadingSkeleton';
 import { createClient } from '@/lib/supabase/client';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface Product {
   id: number;
@@ -34,6 +35,7 @@ const ShopCatalogInteractive: React.FC = () => {
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const shopHeading = useSiteContent('shop_page_heading', 'Luxury Perfume Collection');
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -209,7 +211,7 @@ const ShopCatalogInteractive: React.FC = () => {
         <div className="mb-8">
           <div className="mb-6 flex items-center justify-between">
             <h1 className="font-heading text-3xl font-bold text-text-primary md:text-4xl">
-              Luxury Perfume Collection
+              {shopHeading}
             </h1>
             <button
               onClick={() => setIsMobileFilterOpen(true)}

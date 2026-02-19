@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import { createClient } from '@/lib/supabase/client';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 interface Category {
   name: string;
@@ -16,6 +17,9 @@ interface Category {
 const CategoryShowcase: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const title = useSiteContent('category_showcase_title', 'Explore by Scent');
+  const subtitle = useSiteContent('category_showcase_subtitle', 'Find your perfect fragrance family');
+  const visible = useSectionVisible('category_showcase');
 
   useEffect(() => {
     async function load() {
@@ -40,6 +44,8 @@ const CategoryShowcase: React.FC = () => {
     }
     load();
   }, []);
+
+  if (!visible) return null;
 
   if (loading) {
     return (
@@ -66,10 +72,10 @@ const CategoryShowcase: React.FC = () => {
       <div className="mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h2 className="mb-4 font-heading text-4xl font-bold text-text-primary md:text-5xl">
-            Explore by Scent
+            {title}
           </h2>
           <p className="mx-auto max-w-2xl font-body text-lg text-text-secondary">
-            Find your perfect fragrance family
+            {subtitle}
           </p>
         </div>
 

@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import AppImage from '@/components/ui/AppImage';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface CraftsmanshipStep {
   number: string;
@@ -18,15 +21,17 @@ const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
   imageSrc,
   imageAlt,
 }) => {
+  const heading = useSiteContent('about_craftsmanship_heading', 'The Art of Perfumery');
+  const subtitle = useSiteContent('about_craftsmanship_subtitle', 'Every fragrance is a masterpiece, crafted through meticulous attention to detail and time-honored techniques');
+
   return (
     <section className="py-12 md:py-16">
       <div className="text-center">
         <h2 className="font-heading text-3xl font-semibold text-text-primary md:text-4xl">
-          The Art of Perfumery
+          {heading}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-          Every fragrance is a masterpiece, crafted through meticulous attention
-          to detail and time-honored techniques
+          {subtitle}
         </p>
       </div>
 
