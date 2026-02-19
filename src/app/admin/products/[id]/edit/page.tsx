@@ -5,6 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import ImageUpload from '@/app/admin/components/ImageUpload';
 
+interface SizeEntry { volume_ml: string; price: string }
+interface NoteEntry { note_name: string }
+
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
@@ -23,13 +26,21 @@ export default function EditProductPage() {
     longevity: '',
     is_active: true,
     is_featured: false,
-    size_50_price: '',
-    size_100_price: '',
-    top_notes: '',
-    heart_notes: '',
-    base_notes: '',
-    occasions: '',
   });
+
+  const [sizes, setSizes] = useState<SizeEntry[]>([]);
+  const [topNotes, setTopNotes] = useState<NoteEntry[]>([]);
+  const [heartNotes, setHeartNotes] = useState<NoteEntry[]>([]);
+  const [baseNotes, setBaseNotes] = useState<NoteEntry[]>([]);
+  const [occasions, setOccasions] = useState<string[]>([]);
+
+  const [topInput, setTopInput] = useState('');
+  const [heartInput, setHeartInput] = useState('');
+  const [baseInput, setBaseInput] = useState('');
+  const [occasionInput, setOccasionInput] = useState('');
+
+  const inputCls = 'w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring';
+  const labelCls = 'mb-1 block font-body text-sm font-medium text-text-primary';
 
   useEffect(() => {
     async function load() {
@@ -37,9 +48,9 @@ export default function EditProductPage() {
       if (!res.ok) { router.push('/admin/products'); return; }
       const product = await res.json();
 
-      const sizes = product.product_sizes || [];
-      const notes = product.scent_notes || [];
-      const occasions = product.product_occasions || [];
+      const rawSizes = product.product_sizes || [];
+      const rawNotes = product.scent_notes || [];
+      const rawOccasions = product.product_occasions || [];
 
       setForm({
         name: product.name || '',
@@ -53,13 +64,13 @@ export default function EditProductPage() {
         longevity: product.longevity || '',
         is_active: product.is_active ?? true,
         is_featured: product.is_featured ?? false,
-        size_50_price: sizes.find((s: any) => s.volume_ml === 50)?.price?.toString() || '',
-        size_100_price: sizes.find((s: any) => s.volume_ml === 100)?.price?.toString() || '',
-        top_notes: notes.filter((n: any) => n.note_type === 'top').map((n: any) => n.note_name).join(', '),
-        heart_notes: notes.filter((n: any) => n.note_type === 'heart').map((n: any) => n.note_name).join(', '),
-        base_notes: notes.filter((n: any) => n.note_type === 'base').map((n: any) => n.note_name).join(', '),
-        occasions: occasions.map((o: any) => o.occasion).join(', '),
       });
+
+      setSizes(rawSizes.map((s: any) => ({ volume_ml: s.volume_ml?.toString() || '', price: s.price?.toString() || '' })));
+      setTopNotes(rawNotes.filter((n: any) => n.note_type === 'top').map((n: any) => ({ note_name: n.note_name })));
+      setHeartNotes(rawNotes.filter((n: any) => n.note_type === 'heart').map((n: any) => ({ note_name: n.note_name })));
+      setBaseNotes(rawNotes.filter((n: any) => n.note_type === 'base').map((n: any) => ({ note_name: n.note_name })));
+      setOccasions(rawOccasions.map((o: any) => o.occasion));
       setLoading(false);
     }
     load();
@@ -73,24 +84,54 @@ export default function EditProductPage() {
     }));
   };
 
+  // --- Size helpers ---
+  const addSize = () => setSizes((prev) => [...prev, { volume_ml: '', price: '' }]);
+  const removeSize = (i: number) => setSizes((prev) => prev.filter((_, idx) => idx !== i));
+  const updateSize = (i: number, field: keyof SizeEntry, value: string) =>
+    setSizes((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
+
+  // --- Tag helpers ---
+  const addTag = (value: string, list: NoteEntry[], setList: React.Dispatch<React.SetStateAction<NoteEntry[]>>, setInput: React.Dispatch<React.SetStateAction<string>>) => {
+    const trimmed = value.trim();
+    if (trimmed && !list.some((n) => n.note_name.toLowerCase() === trimmed.toLowerCase())) {
+      setList((prev) => [...prev, { note_name: trimmed }]);
+    }
+    setInput('');
+  };
+
+  const removeTag = (i: number, setList: React.Dispatch<React.SetStateAction<NoteEntry[]>>) =>
+    setList((prev) => prev.filter((_, idx) => idx !== i));
+
+  const addOccasion = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed && !occasions.some((o) => o.toLowerCase() === trimmed.toLowerCase())) {
+      setOccasions((prev) => [...prev, trimmed]);
+    }
+    setOccasionInput('');
+  };
+
+  const removeOccasion = (i: number) => setOccasions((prev) => prev.filter((_, idx) => idx !== i));
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
-    const sizes = [];
-    if (form.size_50_price) sizes.push({ volume_ml: 50, price: parseFloat(form.size_50_price) });
-    if (form.size_100_price) sizes.push({ volume_ml: 100, price: parseFloat(form.size_100_price) });
-
-    const parseNotes = (str: string, type: string) =>
-      str.split(',').filter(Boolean).map((n) => ({ note_type: type, note_name: n.trim() }));
+    const validSizes = sizes
+      .filter((s) => s.volume_ml && s.price)
+      .map((s) => ({ volume_ml: parseInt(s.volume_ml), price: parseFloat(s.price) }));
 
     const scent_notes = [
-      ...parseNotes(form.top_notes, 'top'),
-      ...parseNotes(form.heart_notes, 'heart'),
-      ...parseNotes(form.base_notes, 'base'),
+      ...topNotes.map((n) => ({ note_type: 'top', note_name: n.note_name })),
+      ...heartNotes.map((n) => ({ note_type: 'heart', note_name: n.note_name })),
+      ...baseNotes.map((n) => ({ note_type: 'base', note_name: n.note_name })),
     ];
-
-    const occasions = form.occasions.split(',').filter(Boolean).map((o) => o.trim());
 
     const body = {
       name: form.name,
@@ -104,9 +145,9 @@ export default function EditProductPage() {
       longevity: form.longevity,
       is_active: form.is_active,
       is_featured: form.is_featured,
-      sizes,
-      scent_notes,
-      occasions,
+      sizes: validSizes,
+      scent_notes: scent_notes,
+      occasions: occasions,
     };
 
     const res = await fetch(`/api/admin/products/${id}`, {
@@ -138,9 +179,7 @@ export default function EditProductPage() {
         <button onClick={() => router.back()} className="rounded-md p-1.5 text-text-secondary hover:bg-muted">
           <Icon name="ArrowLeftIcon" size={20} />
         </button>
-        <h1 className="font-heading text-2xl font-semibold text-text-primary">
-          Edit: {form.name}
-        </h1>
+        <h1 className="font-heading text-2xl font-semibold text-text-primary">Edit: {form.name}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -149,29 +188,25 @@ export default function EditProductPage() {
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Basic Info</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Product Name *</label>
-              <input name="name" required value={form.name} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Product Name *</label>
+              <input name="name" required value={form.name} onChange={handleChange} className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Brand</label>
-              <input name="brand" value={form.brand} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Brand</label>
+              <input name="brand" value={form.brand} onChange={handleChange} className={inputCls} />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Description</label>
+              <label className={labelCls}>Description</label>
               <textarea name="description" rows={3} value={form.description} onChange={handleChange}
-                className="w-full resize-none rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+                className={`${inputCls} resize-none`} />
             </div>
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Base Price ($) *</label>
-              <input name="price" type="number" step="0.01" required value={form.price} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Base Price ($) *</label>
+              <input name="price" type="number" step="0.01" required value={form.price} onChange={handleChange} className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Scent Type *</label>
-              <select name="scent_type" value={form.scent_type} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring">
+              <label className={labelCls}>Scent Type *</label>
+              <select name="scent_type" value={form.scent_type} onChange={handleChange} className={inputCls}>
                 <option>Floral</option>
                 <option>Woody</option>
                 <option>Fresh</option>
@@ -184,15 +219,10 @@ export default function EditProductPage() {
         {/* Image */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Image</h2>
-          <ImageUpload
-            currentUrl={form.image_url}
-            onUpload={(url) => setForm((prev) => ({ ...prev, image_url: url }))}
-            label="Product Photo"
-          />
+          <ImageUpload currentUrl={form.image_url} onUpload={(url) => setForm((prev) => ({ ...prev, image_url: url }))} label="Product Photo" />
           <div className="mt-4">
-            <label className="mb-1 block font-body text-sm font-medium text-text-primary">Image Description (for accessibility)</label>
-            <input name="image_alt" value={form.image_alt} onChange={handleChange} placeholder="e.g. Elegant rose perfume bottle"
-              className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+            <label className={labelCls}>Image Description (for accessibility)</label>
+            <input name="image_alt" value={form.image_alt} onChange={handleChange} placeholder="e.g. Elegant rose perfume bottle" className={inputCls} />
           </div>
         </div>
 
@@ -201,63 +231,129 @@ export default function EditProductPage() {
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Details</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Fragrance Family</label>
-              <input name="fragrance_family" value={form.fragrance_family} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Fragrance Family</label>
+              <input name="fragrance_family" value={form.fragrance_family} onChange={handleChange} placeholder="e.g. Oriental Floral" className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Longevity</label>
-              <input name="longevity" value={form.longevity} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Longevity</label>
+              <input name="longevity" value={form.longevity} onChange={handleChange} placeholder="e.g. 8-10 hours" className={inputCls} />
             </div>
           </div>
         </div>
 
-        {/* Sizes */}
+        {/* Sizes — Dynamic */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
-          <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Sizes & Pricing</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">50ml Price ($)</label>
-              <input name="size_50_price" type="number" step="0.01" value={form.size_50_price} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-            <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">100ml Price ($)</label>
-              <input name="size_100_price" type="number" step="0.01" value={form.size_100_price} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold text-text-primary">Sizes & Pricing</h2>
+            <button type="button" onClick={addSize}
+              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-3 py-1.5 font-body text-xs font-medium text-primary hover:bg-primary/20">
+              <Icon name="PlusIcon" size={14} /> Add Size
+            </button>
+          </div>
+          <div className="space-y-3">
+            {sizes.map((s, i) => (
+              <div key={i} className="flex items-end gap-3">
+                <div className="flex-1">
+                  <label className={labelCls}>Volume (ml)</label>
+                  <input type="number" min="1" value={s.volume_ml} onChange={(e) => updateSize(i, 'volume_ml', e.target.value)}
+                    placeholder="e.g. 50" className={inputCls} />
+                </div>
+                <div className="flex-1">
+                  <label className={labelCls}>Price ($)</label>
+                  <input type="number" step="0.01" min="0" value={s.price} onChange={(e) => updateSize(i, 'price', e.target.value)}
+                    placeholder="e.g. 165.00" className={inputCls} />
+                </div>
+                <button type="button" onClick={() => removeSize(i)}
+                  className="mb-0.5 rounded-md p-2 text-error hover:bg-error/10">
+                  <Icon name="TrashIcon" size={18} />
+                </button>
+              </div>
+            ))}
+            {sizes.length === 0 && (
+              <p className="font-body text-sm text-text-secondary">No sizes added. Click &quot;Add Size&quot; to add one.</p>
+            )}
           </div>
         </div>
 
-        {/* Scent Notes */}
+        {/* Scent Notes — Tag style */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Scent Notes</h2>
-          <p className="mb-3 font-body text-xs text-text-secondary">Separate multiple notes with commas</p>
+          <p className="mb-3 font-body text-xs text-text-secondary">Type a note and press Enter or comma to add it</p>
           <div className="grid gap-4 sm:grid-cols-3">
+            {/* Top Notes */}
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Top Notes</label>
-              <input name="top_notes" value={form.top_notes} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Top Notes</label>
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {topNotes.map((n, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 font-body text-xs text-primary">
+                    {n.note_name}
+                    <button type="button" onClick={() => removeTag(i, setTopNotes)} className="hover:text-error">
+                      <Icon name="XMarkIcon" size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <input value={topInput} onChange={(e) => setTopInput(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, () => addTag(topInput, topNotes, setTopNotes, setTopInput))}
+                onBlur={() => topInput.trim() && addTag(topInput, topNotes, setTopNotes, setTopInput)}
+                placeholder="Bergamot, Pink Pepper" className={inputCls} />
             </div>
+            {/* Heart Notes */}
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Heart Notes</label>
-              <input name="heart_notes" value={form.heart_notes} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Heart Notes</label>
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {heartNotes.map((n, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 font-body text-xs text-accent">
+                    {n.note_name}
+                    <button type="button" onClick={() => removeTag(i, setHeartNotes)} className="hover:text-error">
+                      <Icon name="XMarkIcon" size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <input value={heartInput} onChange={(e) => setHeartInput(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, () => addTag(heartInput, heartNotes, setHeartNotes, setHeartInput))}
+                onBlur={() => heartInput.trim() && addTag(heartInput, heartNotes, setHeartNotes, setHeartInput)}
+                placeholder="Rose, Jasmine" className={inputCls} />
             </div>
+            {/* Base Notes */}
             <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Base Notes</label>
-              <input name="base_notes" value={form.base_notes} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className={labelCls}>Base Notes</label>
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {baseNotes.map((n, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 rounded-full bg-secondary/20 px-2.5 py-1 font-body text-xs text-text-primary">
+                    {n.note_name}
+                    <button type="button" onClick={() => removeTag(i, setBaseNotes)} className="hover:text-error">
+                      <Icon name="XMarkIcon" size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, () => addTag(baseInput, baseNotes, setBaseNotes, setBaseInput))}
+                onBlur={() => baseInput.trim() && addTag(baseInput, baseNotes, setBaseNotes, setBaseInput)}
+                placeholder="Vanilla, Musk" className={inputCls} />
             </div>
           </div>
         </div>
 
-        {/* Occasions */}
+        {/* Occasions — Tag style */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Occasions</h2>
-          <input name="occasions" value={form.occasions} onChange={handleChange} placeholder="Evening Events, Date Night"
-            className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {occasions.map((o, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 font-body text-xs text-success">
+                {o}
+                <button type="button" onClick={() => removeOccasion(i)} className="hover:text-error">
+                  <Icon name="XMarkIcon" size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <input value={occasionInput} onChange={(e) => setOccasionInput(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, () => addOccasion(occasionInput))}
+            onBlur={() => occasionInput.trim() && addOccasion(occasionInput)}
+            placeholder="Type an occasion and press Enter" className={inputCls} />
         </div>
 
         {/* Toggles */}
