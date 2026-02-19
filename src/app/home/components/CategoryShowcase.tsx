@@ -79,21 +79,20 @@ const CategoryShowcase: React.FC = () => {
               key={category.name}
               href={`/shop-catalog?filters=${category.filterParam}`}
               className="group overflow-hidden rounded-xl bg-card shadow-luxury transition-luxury hover:shadow-luxury-lg">
-                <div className="relative h-64 w-full overflow-hidden">
+                <div className="h-52 w-full overflow-hidden">
                   <AppImage
                     src={category.image}
                     alt={category.alt}
                     className="h-full w-full object-cover transition-spring group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="mb-2 font-heading text-2xl font-semibold text-text-primary">
-                      {category.name}
-                    </h3>
-                    <p className="font-body text-sm text-text-secondary">
-                      {category.description}
-                    </p>
-                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="mb-1 font-heading text-xl font-semibold text-text-primary">
+                    {category.name}
+                  </h3>
+                  <p className="font-body text-sm text-text-secondary">
+                    {category.description}
+                  </p>
                 </div>
             </Link>
           )}
