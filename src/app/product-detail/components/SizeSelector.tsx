@@ -48,7 +48,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
 
   return (
     <div className="space-y-3">
-      <p className="caption font-medium text-text-secondary">Select Size</p>
+      <p className="caption font-medium text-text-secondary">{useSiteContent('product_label_select_size', 'Select Size')}</p>
       <div className="grid grid-cols-2 gap-3">
         {sizes.map((size, index) => (
           <button

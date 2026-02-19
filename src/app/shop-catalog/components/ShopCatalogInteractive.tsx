@@ -36,6 +36,9 @@ const ShopCatalogInteractive: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const shopHeading = useSiteContent('shop_page_heading', 'Luxury Perfume Collection');
+  const btnFilters = useSiteContent('shop_btn_filters', 'Filters');
+  const btnClearFilters = useSiteContent('shop_btn_clear_filters', 'Clear All Filters');
+  const showingTextTpl = useSiteContent('shop_showing_text', 'Showing {count} of {total} perfumes');
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -218,7 +221,7 @@ const ShopCatalogInteractive: React.FC = () => {
               className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body text-sm font-medium text-primary-foreground shadow-luxury transition-luxury hover:opacity-90 md:hidden">
 
               <Icon name="AdjustmentsHorizontalIcon" size={20} />
-              Filters
+              {btnFilters}
               {selectedFilters.length > 0 &&
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent font-data text-xs text-accent-foreground">
                   {selectedFilters.length}
@@ -244,14 +247,14 @@ const ShopCatalogInteractive: React.FC = () => {
             <button
               onClick={handleClearAllFilters}
               className="font-body text-sm font-medium text-primary transition-luxury hover:text-accent">
-                Clear All Filters
+                {btnClearFilters}
               </button>
             }
           </div>
 
           <div className="mb-4 flex items-center justify-between">
             <p className="font-body text-sm text-text-secondary">
-              Showing {filteredProducts.length} of {products.length} perfumes
+              {showingTextTpl.replace('{count}', String(filteredProducts.length)).replace('{total}', String(products.length))}
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface ProductCardProps {
   id: string;
@@ -25,6 +26,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   scentType,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const viewDetailsText = useSiteContent('product_view_details', 'View Details');
+  const addText = useSiteContent('product_btn_add', 'Add');
 
   return (
     <div
@@ -43,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {isHovered && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80 transition-luxury">
               <button className="rounded-lg bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground shadow-luxury transition-luxury hover:bg-primary/90">
-                View Details
+                {viewDetailsText}
               </button>
             </div>
           )}
@@ -78,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               }}
             >
               <Icon name="ShoppingCartIcon" size={16} />
-              Add
+              {addText}
             </button>
           </div>
         </div>

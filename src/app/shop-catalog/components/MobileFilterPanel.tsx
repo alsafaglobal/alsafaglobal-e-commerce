@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface MobileFilterPanelProps {
   isOpen: boolean;
@@ -21,6 +22,10 @@ const MobileFilterPanel: React.FC<MobileFilterPanelProps> = ({
   onClearAll,
 }) => {
   const scentTypes = ['Floral', 'Woody', 'Fresh', 'Oriental'];
+  const filterTitle = useSiteContent('shop_filter_title', 'Filter Perfumes');
+  const filterScentType = useSiteContent('shop_filter_scent_type', 'Scent Type');
+  const btnClearAll = useSiteContent('shop_btn_clear_all', 'Clear All');
+  const btnViewResults = useSiteContent('shop_btn_view_results', 'View Results');
 
   useEffect(() => {
     if (isOpen) {
@@ -51,7 +56,7 @@ const MobileFilterPanel: React.FC<MobileFilterPanelProps> = ({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-6 py-4">
           <h2 id="filter-panel-title" className="font-heading text-xl font-semibold text-text-primary">
-            Filter Perfumes
+            {filterTitle}
           </h2>
           <button
             onClick={onClose}
@@ -72,14 +77,14 @@ const MobileFilterPanel: React.FC<MobileFilterPanelProps> = ({
                 onClick={onClearAll}
                 className="font-body text-sm font-medium text-primary transition-luxury hover:text-accent"
               >
-                Clear All
+                {btnClearAll}
               </button>
             )}
           </div>
 
           <div className="space-y-3">
             <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-text-secondary">
-              Scent Type
+              {filterScentType}
             </h3>
             {scentTypes.map((scent) => {
               const isSelected = selectedFilters.includes(scent);
@@ -109,7 +114,7 @@ const MobileFilterPanel: React.FC<MobileFilterPanelProps> = ({
             onClick={onClose}
             className="w-full rounded-lg bg-primary px-6 py-3 font-body text-base font-semibold text-primary-foreground shadow-luxury transition-luxury hover:opacity-90"
           >
-            View Results
+            {btnViewResults}
           </button>
         </div>
       </div>

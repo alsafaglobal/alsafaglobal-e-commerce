@@ -24,6 +24,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const router = useRouter();
   const addToCartText = useSiteContent('product_add_to_cart_text', 'Add to Cart');
   const buyNowText = useSiteContent('product_buy_now_text', 'Buy Now');
+  const addingText = useSiteContent('product_adding_text', 'Adding...');
+  const addedText = useSiteContent('product_added_text', 'Added to Cart!');
 
   useEffect(() => {
     setIsHydrated(true);
@@ -69,7 +71,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
               size={20}
               className="animate-spin text-primary-foreground"
             />
-            <span>Adding...</span>
+            <span>{addingText}</span>
           </>
         ) : showSuccess ? (
           <>
@@ -78,7 +80,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
               size={20}
               className="text-primary-foreground"
             />
-            <span>Added to Cart!</span>
+            <span>{addedText}</span>
           </>
         ) : (
           <>
