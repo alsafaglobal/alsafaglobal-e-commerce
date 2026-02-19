@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
+import ImageUpload from '@/app/admin/components/ImageUpload';
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -183,17 +184,15 @@ export default function EditProductPage() {
         {/* Image */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
           <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Image</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Image URL</label>
-              <input name="image_url" value={form.image_url} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-            <div>
-              <label className="mb-1 block font-body text-sm font-medium text-text-primary">Image Alt Text</label>
-              <input name="image_alt" value={form.image_alt} onChange={handleChange}
-                className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
+          <ImageUpload
+            currentUrl={form.image_url}
+            onUpload={(url) => setForm((prev) => ({ ...prev, image_url: url }))}
+            label="Product Photo"
+          />
+          <div className="mt-4">
+            <label className="mb-1 block font-body text-sm font-medium text-text-primary">Image Description (for accessibility)</label>
+            <input name="image_alt" value={form.image_alt} onChange={handleChange} placeholder="e.g. Elegant rose perfume bottle"
+              className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
         </div>
 
