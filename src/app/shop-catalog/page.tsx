@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function ShopCatalogPage() {
   return (
     <>
-      <Header cartItemCount={0} />
+      <Header />
       <main>
         <Suspense fallback={
           <div className="min-h-screen bg-background">

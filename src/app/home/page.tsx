@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
-      <Header cartItemCount={0} />
+      <Header />
       <HomeInteractive />
     </main>
   );

@@ -4,24 +4,32 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCart } from '@/lib/cart/CartContext';
 
 interface AddToCartButtonProps {
+  productId: string;
   productName: string;
   selectedSize: string;
   quantity: number;
   price: number;
+  image: string;
+  imageAlt: string;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
+  productId,
   productName,
   selectedSize,
   quantity,
   price,
+  image,
+  imageAlt,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
+  const { addItem } = useCart();
   const addToCartText = useSiteContent('product_add_to_cart_text', 'Add to Cart');
   const buyNowText = useSiteContent('product_buy_now_text', 'Buy Now');
   const addingText = useSiteContent('product_adding_text', 'Adding...');
@@ -34,6 +42,16 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const handleAddToCart = () => {
     setIsAdding(true);
 
+    addItem({
+      id: productId,
+      name: productName,
+      size: selectedSize,
+      price,
+      quantity,
+      image,
+      alt: imageAlt,
+    });
+
     setTimeout(() => {
       setIsAdding(false);
       setShowSuccess(true);
@@ -41,10 +59,19 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       setTimeout(() => {
         setShowSuccess(false);
       }, 2000);
-    }, 800);
+    }, 500);
   };
 
   const handleBuyNow = () => {
+    addItem({
+      id: productId,
+      name: productName,
+      size: selectedSize,
+      price,
+      quantity,
+      image,
+      alt: imageAlt,
+    });
     router.push('/shopping-cart');
   };
 

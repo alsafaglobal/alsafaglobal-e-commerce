@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function CheckoutPage() {
   return (
     <>
-      <Header cartItemCount={2} />
+      <Header />
       <main className="min-h-screen bg-background">
         <CheckoutInteractive />
       </main>

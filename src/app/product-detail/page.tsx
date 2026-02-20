@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function ProductDetailPage() {
   return (
     <>
-      <Header cartItemCount={0} />
+      <Header />
       <Suspense fallback={
         <div className="min-h-screen bg-background">
           <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">

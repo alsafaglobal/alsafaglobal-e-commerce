@@ -202,10 +202,13 @@ const ProductDetailInteractive: React.FC = () => {
               <SizeSelector sizes={sizes} onSizeChange={handleSizeChange} />
               <QuantitySelector onQuantityChange={handleQuantityChange} />
               <AddToCartButton
+                productId={productId || 'default'}
                 productName={productName}
                 selectedSize={selectedSize.volume}
                 quantity={quantity}
-                price={selectedSize.price} />
+                price={selectedSize.price}
+                image={productImages[0]?.url || ''}
+                imageAlt={productImages[0]?.alt || productName} />
             </div>
           </div>
         </div>

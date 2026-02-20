@@ -5,7 +5,7 @@ import AppImage from '@/components/ui/AppImage';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
