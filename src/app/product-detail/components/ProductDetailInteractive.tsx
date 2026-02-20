@@ -70,6 +70,10 @@ const ProductDetailInteractive: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
+    setQuantity(1);
+    window.scrollTo(0, 0);
+
     async function loadProduct() {
       const supabase = createClient();
 
