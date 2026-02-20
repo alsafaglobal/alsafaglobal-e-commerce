@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Header cartItemCount={0} />
+      <Header />
       <AboutContent />
     </>
   );

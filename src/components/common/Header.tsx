@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCart } from '@/lib/cart/CartContext';
 
 interface NavigationItem {
   label: string;
@@ -12,14 +13,11 @@ interface NavigationItem {
   icon?: string;
 }
 
-interface HeaderProps {
-  cartItemCount?: number;
-}
-
-const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
+const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const { itemCount } = useCart();
   const navHome = useSiteContent('nav_home', 'Home');
   const navShop = useSiteContent('nav_shop', 'Shop');
   const navAbout = useSiteContent('nav_about', 'About');
@@ -113,9 +111,9 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
                 size={24}
                 className="text-text-primary"
               />
-              {cartItemCount > 0 && (
+              {itemCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent font-data text-xs font-medium text-accent-foreground">
-                  {cartItemCount > 9 ? '9+' : cartItemCount}
+                  {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}
             </Link>
@@ -209,9 +207,9 @@ const Header: React.FC<HeaderProps> = ({ cartItemCount = 0 }) => {
                   />
                   {navCart}
                 </span>
-                {cartItemCount > 0 && (
+                {itemCount > 0 && (
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent font-data text-sm font-medium text-accent-foreground">
-                    {cartItemCount > 9 ? '9+' : cartItemCount}
+                    {itemCount > 9 ? '9+' : itemCount}
                   </span>
                 )}
               </Link>

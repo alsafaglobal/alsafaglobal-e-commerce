@@ -5,76 +5,28 @@ import Header from '@/components/common/Header';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 import EmptyCart from './EmptyCart';
-
-interface CartItemData {
-  id: string;
-  name: string;
-  size: string;
-  price: number;
-  quantity: number;
-  image: string;
-  alt: string;
-}
+import { useCart } from '@/lib/cart/CartContext';
 
 const ShoppingCartInteractive: React.FC = () => {
   const [isHydrated, setIsHydrated] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItemData[]>([]);
+  const { items, updateQuantity, removeItem } = useCart();
 
   useEffect(() => {
     setIsHydrated(true);
-
-    const mockCartItems: CartItemData[] = [
-    {
-      id: '1',
-      name: 'Midnight Rose Eau de Parfum',
-      size: '100ml',
-      price: 145.0,
-      quantity: 1,
-      image:
-      "https://img.rocket.new/generatedImages/rocket_gen_img_15ac54666-1768927507132.png",
-      alt: 'Elegant black perfume bottle with gold accents and rose design on white marble surface'
-    },
-    {
-      id: '2',
-      name: 'Ocean Breeze Cologne',
-      size: '50ml',
-      price: 85.0,
-      quantity: 2,
-      image:
-      "https://images.unsplash.com/photo-1725182524566-e640cc061a27",
-      alt: 'Blue glass cologne bottle with silver cap surrounded by seashells and ocean elements'
-    },
-    {
-      id: '3',
-      name: 'Amber Woods Intense',
-      size: '100ml',
-      price: 165.0,
-      quantity: 1,
-      image:
-      "https://images.unsplash.com/photo-1676994904360-94f50f3870d3",
-      alt: 'Amber-colored perfume bottle with wooden cap on rustic wood background with dried flowers'
-    }];
-
-
-    setCartItems(mockCartItems);
   }, []);
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    setCartItems((prevItems) =>
-    prevItems.map((item) =>
-    item.id === id ? { ...item, quantity: newQuantity } : item
-    )
-    );
+    updateQuantity(id, newQuantity);
   };
 
   const handleRemove = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    removeItem(id);
   };
 
   if (!isHydrated) {
     return (
       <>
-        <Header cartItemCount={0} />
+        <Header />
         <div className="mx-auto min-h-screen max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">
           <div className="mb-8 h-10 w-48 animate-pulse rounded bg-muted" />
           <div className="grid gap-8 lg:grid-cols-3">
@@ -83,7 +35,6 @@ const ShoppingCartInteractive: React.FC = () => {
               <div
                 key={i}
                 className="flex gap-4 border-b border-border pb-6">
-
                   <div className="h-32 w-32 animate-pulse rounded bg-muted" />
                   <div className="flex-1 space-y-3">
                     <div className="h-6 w-3/4 animate-pulse rounded bg-muted" />
@@ -100,17 +51,17 @@ const ShoppingCartInteractive: React.FC = () => {
     );
   }
 
-  const subtotal = cartItems.reduce(
+  const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <>
-        <Header cartItemCount={0} />
+        <Header />
         <EmptyCart />
       </>
     );
@@ -118,27 +69,26 @@ const ShoppingCartInteractive: React.FC = () => {
 
   return (
     <>
-      <Header cartItemCount={cartItems.length} />
+      <Header />
       <div className="mx-auto min-h-screen max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="font-heading text-4xl font-medium text-text-primary md:text-5xl">
             Shopping Cart
           </h1>
           <p className="mt-2 text-base text-text-secondary">
-            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in
+            {items.length} {items.length === 1 ? 'item' : 'items'} in
             your cart
           </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            {cartItems.map((item) =>
+            {items.map((item) =>
             <CartItem
               key={item.id}
               {...item}
               onQuantityChange={handleQuantityChange}
               onRemove={handleRemove} />
-
             )}
           </div>
 

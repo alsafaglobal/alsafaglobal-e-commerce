@@ -4,16 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CheckoutForm from './CheckoutForm';
 import OrderSummary from './OrderSummary';
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  size: string;
-  image: string;
-  alt: string;
-}
+import { useCart } from '@/lib/cart/CartContext';
 
 interface FormData {
   firstName: string;
@@ -34,44 +25,15 @@ interface FormData {
 const CheckoutInteractive: React.FC = () => {
   const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { items, clearCart } = useCart();
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    const mockCartItems: CartItem[] = [
-    {
-      id: 1,
-      name: 'Midnight Rose Eau de Parfum',
-      price: 145.0,
-      quantity: 1,
-      size: '100ml',
-      image:
-      "https://img.rocket.new/generatedImages/rocket_gen_img_15ac54666-1768927507132.png",
-      alt: 'Elegant black perfume bottle with gold accents and rose design on white marble surface'
-    },
-    {
-      id: 2,
-      name: 'Ocean Breeze Cologne',
-      price: 95.0,
-      quantity: 2,
-      size: '50ml',
-      image:
-      "https://images.unsplash.com/photo-1725182524566-e640cc061a27",
-      alt: 'Blue glass cologne bottle with silver cap on light blue background with water droplets'
-    }];
-
-
-    setCartItems(mockCartItems);
-  }, [isHydrated]);
-
   const calculateSubtotal = (): number => {
-    return cartItems.reduce(
+    return items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
@@ -97,7 +59,7 @@ const CheckoutInteractive: React.FC = () => {
     const orderNumber = `ORD-${Date.now()}`;
     const orderData = {
       orderNumber,
-      items: cartItems,
+      items,
       customer: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -124,9 +86,9 @@ const CheckoutInteractive: React.FC = () => {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('lastOrder', JSON.stringify(orderData));
-      localStorage.removeItem('cart');
     }
 
+    clearCart();
     setIsProcessing(false);
     router.push('/order-confirmation');
   };
@@ -144,10 +106,9 @@ const CheckoutInteractive: React.FC = () => {
           </div>
         </div>
       </div>);
-
   }
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="mx-auto min-h-screen max-w-[1440px] px-4 py-16 md:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center text-center">
@@ -156,13 +117,11 @@ const CheckoutInteractive: React.FC = () => {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor">
-
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={1.5}
               d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-
           </svg>
           <h2 className="mb-4 font-heading text-2xl font-semibold text-text-primary">
             Your Cart is Empty
@@ -173,12 +132,10 @@ const CheckoutInteractive: React.FC = () => {
           <button
             onClick={() => router.push('/shop-catalog')}
             className="rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90">
-
             Continue Shopping
           </button>
         </div>
       </div>);
-
   }
 
   return (
@@ -195,17 +152,15 @@ const CheckoutInteractive: React.FC = () => {
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-24">
             <OrderSummary
-              cartItems={cartItems}
+              cartItems={items}
               subtotal={calculateSubtotal()}
               shipping={calculateShipping()}
               tax={calculateTax()}
               total={calculateTotal()} />
-
           </div>
         </div>
       </div>
     </div>);
-
 };
 
 export default CheckoutInteractive;
