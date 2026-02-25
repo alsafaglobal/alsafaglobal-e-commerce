@@ -45,6 +45,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [stripeError, setStripeError] = useState('');
+  const [isElementReady, setIsElementReady] = useState(false);
 
   // CMS content
   const stepPersonal = useSiteContent('checkout_step_personal', 'Personal Info');
@@ -271,6 +272,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete }) => {
           layout: 'tabs',
           paymentMethodOrder: ['card', 'apple_pay', 'google_pay'],
         }}
+        onReady={() => setIsElementReady(true)}
       />
 
       {stripeError && (
@@ -309,7 +311,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete }) => {
             <Icon name="ArrowRightIcon" size={16} />
           </button>
         ) : (
-          <button type="submit" disabled={isProcessing || !stripe || !elements}
+          <button type="submit" disabled={isProcessing || !stripe || !elements || !isElementReady}
             className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
             {isProcessing ? (
               <>
