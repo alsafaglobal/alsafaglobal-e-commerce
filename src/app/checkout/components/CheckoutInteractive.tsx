@@ -29,9 +29,9 @@ const CheckoutInteractive: React.FC = () => {
   const [isHydrated, setIsHydrated] = useState(false);
   const [paymentError, setPaymentError] = useState('');
 
-  const shipping = 15.0;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+  const shipping = 0;
+  const tax = 0;
+  const total = subtotal;
 
   useEffect(() => {
     setIsHydrated(true);
