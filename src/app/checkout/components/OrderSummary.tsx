@@ -69,14 +69,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <span className="font-body text-sm text-text-secondary">{labelSubtotal}</span>
           <span className="font-data text-sm text-text-primary">${subtotal.toFixed(2)}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
-          <span className="font-data text-sm text-text-primary">${shipping.toFixed(2)}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-body text-sm text-text-secondary">{labelTax}</span>
-          <span className="font-data text-sm text-text-primary">${tax.toFixed(2)}</span>
-        </div>
+        {shipping > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
+            <span className="font-data text-sm text-text-primary">${shipping.toFixed(2)}</span>
+          </div>
+        )}
+        {tax > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-text-secondary">{labelTax}</span>
+            <span className="font-data text-sm text-text-primary">${tax.toFixed(2)}</span>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
