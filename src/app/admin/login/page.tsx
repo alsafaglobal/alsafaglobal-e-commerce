@@ -28,8 +28,9 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push('/admin');
-    router.refresh();
+    // Hard redirect ensures Supabase session cookies are set before page loads
+    // router.push() doesn't work reliably on Safari (Mac)
+    window.location.href = '/admin';
   };
 
   return (
