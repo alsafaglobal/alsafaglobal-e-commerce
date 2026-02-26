@@ -117,7 +117,7 @@ export default function AdminProductsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 font-data text-sm text-text-primary">
-                    ${product.price?.toFixed(2)}
+                    AED {product.price?.toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
