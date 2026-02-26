@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,21 +14,36 @@ export default function AdminLoginPage() {
     setError('');
     setLoading(true);
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError) {
-      setError(authError.message);
+    // Auto-reset if stuck for more than 15 seconds (slow network / any browser issue)
+    const timeout = setTimeout(() => {
       setLoading(false);
-      return;
-    }
+      setError('Request timed out. Please check your internet connection and try again.');
+    }, 15000);
 
-    // Hard redirect ensures Supabase session cookies are set before page loads
-    // router.push() doesn't work reliably on Safari (Mac)
-    window.location.href = '/admin';
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      clearTimeout(timeout);
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Hard redirect — works on all browsers (Safari, Chrome, Firefox, Edge)
+      // Ensures Supabase session cookies are fully set before the next page loads
+      window.location.href = '/admin';
+
+    } catch (err: any) {
+      clearTimeout(timeout);
+      setLoading(false);
+      setError('Network error. Please check your connection and try again.');
+    }
   };
 
   return (
