@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface RelatedProduct {
   id: number;
@@ -23,6 +24,7 @@ interface RelatedProductsProps {
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ products }) => {
   const relatedTitle = useSiteContent('product_related_title', 'You May Also Like');
   const visible = useSectionVisible('related_products');
+  const { formatPrice } = useCurrency();
 
   if (!visible) return null;
 
@@ -53,7 +55,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ products }) => {
               </h3>
               <div className="mt-2 flex items-center justify-between">
                 <p className="font-body font-semibold text-primary">
-                  ${product.price.toFixed(2)}
+                  {formatPrice(product.price)}
                 </p>
                 <div className="flex items-center gap-1">
                   <Icon

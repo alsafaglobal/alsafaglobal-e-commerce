@@ -3,6 +3,7 @@
 import React from 'react';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface ProductInfoProps {
   name: string;
@@ -27,6 +28,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   longevity,
   occasions,
 }) => {
+  const { formatPrice } = useCurrency();
   const labelFragrance = useSiteContent('product_label_fragrance_family', 'Fragrance Family');
   const labelLongevity = useSiteContent('product_label_longevity', 'Longevity');
   const labelOccasions = useSiteContent('product_label_occasions', 'Recommended Occasions');
@@ -61,7 +63,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
       <div className="border-t border-border pt-6">
         <p className="font-heading text-3xl font-semibold text-primary">
-          ${price.toFixed(2)}
+          {formatPrice(price)}
         </p>
       </div>
 

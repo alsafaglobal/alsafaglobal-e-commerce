@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface Size {
   volume: string;
@@ -18,6 +19,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
   onSizeChange,
 }) => {
   const [selectedSize, setSelectedSize] = useState<Size>(sizes[0]);
+  const { formatPrice } = useCurrency();
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
               {size.volume}
             </p>
             <p className="caption mt-1 text-text-secondary">
-              ${size.price.toFixed(2)}
+              {formatPrice(size.price)}
             </p>
           </button>
         ))}

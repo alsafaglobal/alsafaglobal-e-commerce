@@ -3,6 +3,7 @@
 import React from 'react';
 import AppImage from '@/components/ui/AppImage';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface CartItem {
   id: string;
@@ -29,6 +30,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   tax,
   total,
 }) => {
+  const { formatPrice } = useCurrency();
   const summaryTitle = useSiteContent('checkout_summary_title', 'Order Summary');
   const labelSize = useSiteContent('checkout_label_size', 'Size');
   const labelQty = useSiteContent('checkout_label_qty', 'Qty');
@@ -57,7 +59,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-data text-sm text-text-secondary">{labelQty}: {item.quantity}</span>
-                <span className="font-data text-sm font-medium text-text-primary">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-data text-sm font-medium text-text-primary">{formatPrice(item.price * item.quantity)}</span>
               </div>
             </div>
           </div>
@@ -67,25 +69,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="space-y-3 border-t border-border pt-4">
         <div className="flex items-center justify-between">
           <span className="font-body text-sm text-text-secondary">{labelSubtotal}</span>
-          <span className="font-data text-sm text-text-primary">${subtotal.toFixed(2)}</span>
+          <span className="font-data text-sm text-text-primary">{formatPrice(subtotal)}</span>
         </div>
         {shipping > 0 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
-            <span className="font-data text-sm text-text-primary">${shipping.toFixed(2)}</span>
+            <span className="font-data text-sm text-text-primary">{formatPrice(shipping)}</span>
           </div>
         )}
         {tax > 0 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-text-secondary">{labelTax}</span>
-            <span className="font-data text-sm text-text-primary">${tax.toFixed(2)}</span>
+            <span className="font-data text-sm text-text-primary">{formatPrice(tax)}</span>
           </div>
         )}
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
         <span className="font-heading text-lg font-semibold text-text-primary">{labelTotal}</span>
-        <span className="font-data text-xl font-bold text-primary">${total.toFixed(2)}</span>
+        <span className="font-data text-xl font-bold text-primary">{formatPrice(total)}</span>
       </div>
 
       <div className="mt-6 flex items-center justify-center gap-2 rounded-md bg-muted p-3">
