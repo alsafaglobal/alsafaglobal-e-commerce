@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -11,6 +12,7 @@ interface CartSummaryProps {
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, total }) => {
+  const { formatPrice } = useCurrency();
   const summaryTitle = useSiteContent('cart_summary_title', 'Order Summary');
   const labelSubtotal = useSiteContent('cart_label_subtotal', 'Subtotal');
   const labelTax = useSiteContent('cart_label_tax', 'Estimated Tax (8%)');
@@ -27,17 +29,17 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, total }) => {
       <div className="space-y-4 border-b border-border pb-4">
         <div className="flex items-center justify-between">
           <span className="text-base text-text-secondary">{labelSubtotal}</span>
-          <span className="font-data text-base font-medium text-text-primary">${subtotal.toFixed(2)}</span>
+          <span className="font-data text-base font-medium text-text-primary">{formatPrice(subtotal)}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-base text-text-secondary">{labelTax}</span>
-          <span className="font-data text-base font-medium text-text-primary">${tax.toFixed(2)}</span>
+          <span className="font-data text-base font-medium text-text-primary">{formatPrice(tax)}</span>
         </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
         <span className="font-heading text-xl font-medium text-text-primary">{labelTotal}</span>
-        <span className="font-data text-2xl font-medium text-primary">${total.toFixed(2)}</span>
+        <span className="font-data text-2xl font-medium text-primary">{formatPrice(total)}</span>
       </div>
 
       <Link href="/checkout"

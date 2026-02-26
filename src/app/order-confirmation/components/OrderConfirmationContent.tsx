@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface CartItem {
   id: number;
@@ -29,6 +30,7 @@ const OrderConfirmationContent: React.FC = () => {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  const { formatPrice } = useCurrency();
   const confirmedTitle = useSiteContent('order_confirmed_title', 'Order Confirmed!');
   const confirmedMessage = useSiteContent('order_confirmed_message', 'Thank you, {name}. Your order has been received and is being prepared.');
   const summaryTitle = useSiteContent('order_summary_title', 'Order Summary');
@@ -110,22 +112,22 @@ const OrderConfirmationContent: React.FC = () => {
                   <p className="font-body text-sm font-medium text-text-primary">{item.name}</p>
                   <p className="mt-0.5 font-body text-xs text-text-secondary">{item.size} · Qty {item.quantity}</p>
                 </div>
-                <p className="font-data text-sm font-medium text-text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="font-data text-sm font-medium text-text-primary">{formatPrice(item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
           <div className="space-y-2 border-t border-border px-6 py-4">
             <div className="flex justify-between font-body text-sm text-text-secondary">
-              <span>{labelSubtotal}</span><span>${order.totals.subtotal.toFixed(2)}</span>
+              <span>{labelSubtotal}</span><span>{formatPrice(order.totals.subtotal)}</span>
             </div>
             <div className="flex justify-between font-body text-sm text-text-secondary">
-              <span>{labelShipping}</span><span>${order.totals.shipping.toFixed(2)}</span>
+              <span>{labelShipping}</span><span>{formatPrice(order.totals.shipping)}</span>
             </div>
             <div className="flex justify-between font-body text-sm text-text-secondary">
-              <span>{labelTax}</span><span>${order.totals.tax.toFixed(2)}</span>
+              <span>{labelTax}</span><span>{formatPrice(order.totals.tax)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 font-body text-base font-semibold text-text-primary">
-              <span>{labelTotal}</span><span>${order.totals.total.toFixed(2)}</span>
+              <span>{labelTotal}</span><span>{formatPrice(order.totals.total)}</span>
             </div>
           </div>
         </div>

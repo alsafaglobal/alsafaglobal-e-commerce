@@ -4,6 +4,7 @@ import React from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface CartItemProps {
   id: string;
@@ -22,6 +23,7 @@ const CartItem: React.FC<CartItemProps> = ({
 }) => {
   const labelSize = useSiteContent('cart_label_size', 'Size');
   const btnRemove = useSiteContent('cart_btn_remove', 'Remove');
+  const { formatPrice } = useCurrency();
 
   const handleIncrement = () => onQuantityChange(id, quantity + 1);
   const handleDecrement = () => { if (quantity > 1) onQuantityChange(id, quantity - 1); };
@@ -36,7 +38,7 @@ const CartItem: React.FC<CartItemProps> = ({
       <div className="flex flex-1 flex-col gap-2">
         <h3 className="font-heading text-lg font-medium text-text-primary sm:text-xl">{name}</h3>
         <p className="caption text-text-secondary">{labelSize}: {size}</p>
-        <p className="font-data text-lg font-medium text-primary">${price.toFixed(2)}</p>
+        <p className="font-data text-lg font-medium text-primary">{formatPrice(price)}</p>
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface ProductCardProps {
   id: number;
@@ -24,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   topNotes,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { formatPrice } = useCurrency();
 
   return (
     <Link
@@ -69,7 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </h3>
 
           <p className="font-data text-xl font-semibold text-primary">
-            ${price.toFixed(2)}
+            {formatPrice(price)}
           </p>
         </div>
       </article>

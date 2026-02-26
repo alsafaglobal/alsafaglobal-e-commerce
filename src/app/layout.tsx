@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import '../styles/index.css';
 import { SiteContentProvider } from '@/lib/content/SiteContentContext';
 import { CartProvider } from '@/lib/cart/CartContext';
+import { CurrencyProvider } from '@/lib/currency/CurrencyContext';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -28,7 +29,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <SiteContentProvider>
-          <CartProvider>{children}</CartProvider>
+          <CurrencyProvider>
+            <CartProvider>{children}</CartProvider>
+          </CurrencyProvider>
         </SiteContentProvider>
       </body>
     </html>
