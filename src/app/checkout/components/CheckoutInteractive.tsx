@@ -53,7 +53,7 @@ const CheckoutInteractive: React.FC = () => {
       .catch(() => setPaymentError('Failed to initialize payment. Please refresh.'));
   }, [isHydrated, items.length]);
 
-  const handleOrderComplete = (formData: FormData, paymentIntentId: string) => {
+  const handleOrderComplete = async (formData: FormData, paymentIntentId: string) => {
     const orderNumber = `ORD-${Date.now()}`;
     const orderData = {
       orderNumber,
@@ -79,6 +79,25 @@ const CheckoutInteractive: React.FC = () => {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('lastOrder', JSON.stringify(orderData));
+    }
+
+    // Send order email to info@alsafaglobal.com
+    try {
+      await fetch('/api/checkout/send-order-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber,
+          customer: orderData.customer,
+          shipping: orderData.shipping,
+          items,
+          totals: orderData.totals,
+          paymentIntentId,
+        }),
+      });
+    } catch (e) {
+      // Email failure should not block order completion
+      console.error('Order email failed:', e);
     }
 
     clearCart();
