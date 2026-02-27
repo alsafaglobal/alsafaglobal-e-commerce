@@ -14,6 +14,9 @@ interface Product {
   baseNotes: string[];
   sizes: number[];
   description: string;
+  isFastMoving: boolean;
+  isBestSelling: boolean;
+  stock: number | null;
 }
 
 interface ProductGridProps {
@@ -49,6 +52,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           image={product.image}
           alt={product.alt}
           topNotes={product.topNotes}
+          badge={product.isFastMoving ? 'fast_moving' : product.isBestSelling ? 'best_selling' : undefined}
+          stock={product.stock}
         />
       ))}
     </div>

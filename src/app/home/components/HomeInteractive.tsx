@@ -3,6 +3,7 @@
 import React from 'react';
 import HeroSection from './HeroSection';
 import FeaturedProducts from './FeaturedProducts';
+import OffersSection from './OffersSection';
 import CategoryShowcase from './CategoryShowcase';
 import NewsletterSection from './NewsletterSection';
 import Footer from './Footer';
@@ -12,6 +13,7 @@ const HomeInteractive: React.FC = () => {
     <>
       <HeroSection />
       <FeaturedProducts />
+      <OffersSection />
       <CategoryShowcase />
       <NewsletterSection />
       <Footer />

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import ImageUpload from '@/app/admin/components/ImageUpload';
+import MediaGalleryManager from '@/app/admin/components/MediaGalleryManager';
 
 interface SizeEntry { volume_ml: string; price: string }
 interface NoteEntry { note_name: string }
@@ -218,12 +219,19 @@ export default function EditProductPage() {
 
         {/* Image */}
         <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
-          <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Image</h2>
+          <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">Cover Image</h2>
           <ImageUpload currentUrl={form.image_url} onUpload={(url) => setForm((prev) => ({ ...prev, image_url: url }))} label="Product Photo" />
           <div className="mt-4">
             <label className={labelCls}>Image Description (for accessibility)</label>
             <input name="image_alt" value={form.image_alt} onChange={handleChange} placeholder="e.g. Elegant rose perfume bottle" className={inputCls} />
           </div>
+        </div>
+
+        {/* Media Gallery */}
+        <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
+          <h2 className="mb-1 font-heading text-lg font-semibold text-text-primary">Photo & Video Gallery</h2>
+          <p className="mb-4 font-body text-xs text-text-secondary">Add multiple images and videos to showcase this product from every angle.</p>
+          <MediaGalleryManager productId={id} />
         </div>
 
         {/* Details */}

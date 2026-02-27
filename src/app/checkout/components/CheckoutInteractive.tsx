@@ -81,6 +81,24 @@ const CheckoutInteractive: React.FC = () => {
       localStorage.setItem('lastOrder', JSON.stringify(orderData));
     }
 
+    // Save order to Supabase
+    try {
+      await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber,
+          customer: orderData.customer,
+          shipping: orderData.shipping,
+          items,
+          totals: orderData.totals,
+          paymentIntentId,
+        }),
+      });
+    } catch (e) {
+      console.error('Order save failed:', e);
+    }
+
     // Send order email to info@alsafaglobal.com
     try {
       await fetch('/api/checkout/send-order-email', {

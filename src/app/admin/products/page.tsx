@@ -15,12 +15,17 @@ interface Product {
   scent_type: string;
   is_active: boolean;
   is_featured: boolean;
+  is_fast_moving: boolean;
+  is_best_selling: boolean;
+  stock: number | null;
 }
 
 export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingStock, setEditingStock] = useState<string | null>(null);
+  const [stockInput, setStockInput] = useState('');
 
   const fetchProducts = async () => {
     const res = await fetch('/api/admin/products');
@@ -33,7 +38,7 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, []);
 
-  const toggleField = async (id: string, field: 'is_active' | 'is_featured', value: boolean) => {
+  const toggleField = async (id: string, field: 'is_active' | 'is_featured' | 'is_fast_moving' | 'is_best_selling', value: boolean) => {
     await fetch(`/api/admin/products/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -42,6 +47,18 @@ export default function AdminProductsPage() {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
+  };
+
+  const saveStock = async (id: string) => {
+    const value = parseInt(stockInput);
+    if (isNaN(value) || value < 0) { setEditingStock(null); return; }
+    await fetch(`/api/admin/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stock: value }),
+    });
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, stock: value } : p)));
+    setEditingStock(null);
   };
 
   const deleteProduct = async (id: string, name: string) => {
@@ -94,6 +111,9 @@ export default function AdminProductsPage() {
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Price</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Visibility</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Featured</th>
+                <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Fast Moving</th>
+                <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Best Selling</th>
+                <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Stock</th>
                 <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-right">Actions</th>
               </tr>
             </thead>
@@ -146,6 +166,60 @@ export default function AdminProductsPage() {
                       <Icon name="StarIcon" size={14} variant={product.is_featured ? 'solid' : 'outline'} />
                       {product.is_featured ? 'Featured' : 'Normal'}
                     </button>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => toggleField(product.id, 'is_fast_moving', !product.is_fast_moving)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-body text-xs font-medium transition-luxury ${
+                        product.is_fast_moving
+                          ? 'bg-orange-500/10 text-orange-500 hover:bg-orange-500/20'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                      title={product.is_fast_moving ? 'Remove Fast Moving tag' : 'Mark as Fast Moving'}
+                    >
+                      <Icon name="BoltIcon" size={14} />
+                      {product.is_fast_moving ? 'Yes' : 'No'}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => toggleField(product.id, 'is_best_selling', !product.is_best_selling)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-body text-xs font-medium transition-luxury ${
+                        product.is_best_selling
+                          ? 'bg-success/10 text-success hover:bg-success/20'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                      title={product.is_best_selling ? 'Remove Best Selling tag' : 'Mark as Best Selling'}
+                    >
+                      <Icon name="TrophyIcon" size={14} />
+                      {product.is_best_selling ? 'Yes' : 'No'}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {editingStock === product.id ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <input
+                          type="number"
+                          min="0"
+                          value={stockInput}
+                          onChange={(e) => setStockInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveStock(product.id); if (e.key === 'Escape') setEditingStock(null); }}
+                          className="w-16 rounded border border-border bg-input px-2 py-1 text-center font-data text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-ring"
+                          autoFocus
+                        />
+                        <button onClick={() => saveStock(product.id)} className="text-success hover:opacity-80">
+                          <Icon name="CheckIcon" size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { setEditingStock(product.id); setStockInput(String(product.stock ?? '')); }}
+                        className={`font-data text-sm font-medium ${product.stock !== null && product.stock <= 5 ? 'text-error' : 'text-text-primary'} hover:underline`}
+                        title="Click to edit stock"
+                      >
+                        {product.stock === null ? '—' : product.stock === 0 ? 'Out' : product.stock}
+                      </button>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">

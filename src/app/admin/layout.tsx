@@ -8,9 +8,11 @@ import Icon from '@/components/ui/AppIcon';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: 'Squares2X2Icon' },
+  { label: 'Orders', href: '/admin/orders', icon: 'ClipboardDocumentListIcon' },
   { label: 'Products', href: '/admin/products', icon: 'ShoppingBagIcon' },
   { label: 'Categories', href: '/admin/categories', icon: 'TagIcon' },
   { label: 'Site Content', href: '/admin/content', icon: 'PencilSquareIcon' },
+  { label: 'Offers', href: '/admin/offers', icon: 'ReceiptPercentIcon' },
   { label: 'Subscribers', href: '/admin/subscribers', icon: 'EnvelopeIcon' },
 ];
 

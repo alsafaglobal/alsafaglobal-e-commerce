@@ -3,9 +3,14 @@ import Header from '@/components/common/Header';
 import AboutContent from './components/AboutContent';
 
 export const metadata: Metadata = {
-  title: 'About Us - LuxuryPerfumeShop',
-  description:
-    'Discover the heritage and craftsmanship behind LuxuryPerfumeShop. Learn about our commitment to excellence, sustainability, and the art of creating timeless fragrances since 1985.',
+  title: 'About Us — Al Safa Global',
+  description: 'Discover the heritage and craftsmanship behind Al Safa Global. Learn about our commitment to excellence and the art of creating timeless luxury fragrances.',
+  openGraph: {
+    title: 'About Al Safa Global — Luxury Fragrance House',
+    description: 'Our commitment to excellence and the art of creating timeless luxury fragrances.',
+    url: '/about',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'About Al Safa Global' }],
+  },
 };
 
 export default function AboutPage() {

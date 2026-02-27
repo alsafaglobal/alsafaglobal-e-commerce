@@ -63,6 +63,7 @@ const ProductDetailInteractive: React.FC = () => {
   const [baseNotes, setBaseNotes] = useState<string[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
   const [scentType, setScentType] = useState('');
+  const [stock, setStock] = useState<number | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
 
   useEffect(() => {
@@ -95,10 +96,20 @@ const ProductDetailInteractive: React.FC = () => {
         setProductDescription(data.description || '');
         setScentType(data.scent_type || '');
 
-        // Images
+        // Images — cover image + extra media from product_media table
         const imgs: ProductImage[] = [];
         if (data.image_url) {
           imgs.push({ url: data.image_url, alt: data.image_alt || data.name });
+        }
+        const { data: extraMedia } = await supabase
+          .from('product_media')
+          .select('url, alt')
+          .eq('product_id', data.id)
+          .order('sort_order', { ascending: true });
+        if (extraMedia) {
+          for (const m of extraMedia) {
+            imgs.push({ url: m.url, alt: m.alt || data.name });
+          }
         }
         setProductImages(imgs.length > 0 ? imgs : [{ url: 'https://images.unsplash.com/photo-1541643600914-78b084683601', alt: data.name }]);
 
@@ -120,6 +131,9 @@ const ProductDetailInteractive: React.FC = () => {
 
         // Occasions
         setOccasions((data.product_occasions || []).map((o: { occasion: string }) => o.occasion));
+
+        // Stock
+        setStock(data.stock ?? null);
 
         // Load related products (same scent type, different ID)
         const { data: related } = await supabase
@@ -205,6 +219,20 @@ const ProductDetailInteractive: React.FC = () => {
             <div className="space-y-6 border-t border-border pt-6">
               <SizeSelector sizes={sizes} onSizeChange={handleSizeChange} />
               <QuantitySelector onQuantityChange={handleQuantityChange} />
+              {stock !== null && stock <= 5 && stock > 0 && (
+                <div className="flex items-center gap-2 rounded-md bg-error/10 px-4 py-2.5">
+                  <span className="font-body text-sm font-semibold text-error">
+                    Only {stock} left in stock — order soon!
+                  </span>
+                </div>
+              )}
+              {stock === 0 && (
+                <div className="flex items-center gap-2 rounded-md bg-muted px-4 py-2.5">
+                  <span className="font-body text-sm font-medium text-muted-foreground">
+                    Out of stock
+                  </span>
+                </div>
+              )}
               <AddToCartButton
                 productId={productId || 'default'}
                 productName={productName}
