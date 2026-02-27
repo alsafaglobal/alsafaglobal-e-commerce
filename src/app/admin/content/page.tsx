@@ -56,6 +56,13 @@ const tabs: Tab[] = [
         ],
       },
       {
+        title: 'WhatsApp Button',
+        keys: [
+          { key: 'whatsapp_number', label: 'WhatsApp Number (with country code, no +)', type: 'text' },
+          { key: 'whatsapp_message', label: 'Pre-filled Message', type: 'text' },
+        ],
+      },
+      {
         title: 'Newsletter',
         keys: [
           { key: 'newsletter_title', label: 'Title', type: 'text' },

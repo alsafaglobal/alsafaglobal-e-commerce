@@ -13,6 +13,8 @@ interface ProductCardProps {
   image: string;
   alt: string;
   topNotes: string[];
+  badge?: 'fast_moving' | 'best_selling';
+  stock?: number | null;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -23,6 +25,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   image,
   alt,
   topNotes,
+  badge,
+  stock,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { formatPrice } = useCurrency();
@@ -36,6 +40,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
     >
       <article className="overflow-hidden rounded-lg bg-card shadow-luxury transition-luxury hover:shadow-luxury-lg">
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+          {badge && (
+            <div className="absolute left-2 top-2 z-10">
+              {badge === 'fast_moving' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-1 font-body text-xs font-bold text-white shadow">
+                  ⚡ Fast Moving
+                </span>
+              )}
+              {badge === 'best_selling' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 font-body text-xs font-bold text-white shadow">
+                  🏆 Best Selling
+                </span>
+              )}
+            </div>
+          )}
           <AppImage
             src={image}
             alt={alt}
@@ -73,6 +91,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className="font-data text-xl font-semibold text-primary">
             {formatPrice(price)}
           </p>
+          {stock !== null && stock !== undefined && stock <= 5 && stock > 0 && (
+            <p className="mt-1 font-body text-xs font-medium text-error">
+              Only {stock} left!
+            </p>
+          )}
+          {stock === 0 && (
+            <p className="mt-1 font-body text-xs font-medium text-muted-foreground">
+              Out of stock
+            </p>
+          )}
         </div>
       </article>
     </Link>

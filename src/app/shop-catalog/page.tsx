@@ -5,8 +5,14 @@ import ShopCatalogInteractive from './components/ShopCatalogInteractive';
 import LoadingSkeleton from './components/LoadingSkeleton';
 
 export const metadata: Metadata = {
-  title: 'Shop Catalog - LuxuryPerfumeShop',
-  description: 'Discover our exquisite collection of luxury perfumes with sophisticated filtering and search capabilities. Browse floral, woody, fresh, and oriental fragrances from premium brands.',
+  title: 'Shop Perfumes — Luxury Fragrance Collection',
+  description: 'Browse Al Safa Global\'s luxury perfume collection. Filter by floral, woody, oriental, and fresh scents. Premium fragrances with UAE delivery.',
+  openGraph: {
+    title: 'Shop Luxury Perfumes — Al Safa Global',
+    description: 'Browse our luxury perfume collection. Filter by floral, woody, oriental, and fresh scents.',
+    url: '/shop-catalog',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Al Safa Global Perfume Collection' }],
+  },
 };
 
 export default function ShopCatalogPage() {

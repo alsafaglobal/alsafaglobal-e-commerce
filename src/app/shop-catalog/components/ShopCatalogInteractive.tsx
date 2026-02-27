@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
+import Link from 'next/link';
+import AppImage from '@/components/ui/AppImage';
 import SearchBar from './SearchBar';
 import FilterChips from './FilterChips';
 import MobileFilterPanel from './MobileFilterPanel';
@@ -10,6 +12,7 @@ import ProductGrid from './ProductGrid';
 import LoadingSkeleton from './LoadingSkeleton';
 import { createClient } from '@/lib/supabase/client';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface Product {
   id: number;
@@ -23,6 +26,9 @@ interface Product {
   baseNotes: string[];
   sizes: number[];
   description: string;
+  isFastMoving: boolean;
+  isBestSelling: boolean;
+  stock: number | null;
 }
 
 const ShopCatalogInteractive: React.FC = () => {
@@ -39,6 +45,7 @@ const ShopCatalogInteractive: React.FC = () => {
   const btnFilters = useSiteContent('shop_btn_filters', 'Filters');
   const btnClearFilters = useSiteContent('shop_btn_clear_filters', 'Clear All Filters');
   const showingTextTpl = useSiteContent('shop_showing_text', 'Showing {count} of {total} perfumes');
+  const { formatPrice } = useCurrency();
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -70,6 +77,9 @@ const ShopCatalogInteractive: React.FC = () => {
               .map((n: { note_name: string }) => n.note_name),
             sizes: (p.product_sizes || []).map((s: { volume_ml: number }) => s.volume_ml),
             description: p.description || '',
+            isFastMoving: !!p.is_fast_moving,
+            isBestSelling: !!p.is_best_selling,
+            stock: p.stock ?? null,
           }))
         );
       }
@@ -112,6 +122,9 @@ const ShopCatalogInteractive: React.FC = () => {
 
     return filtered;
   }, [searchQuery, selectedFilters, products]);
+
+  const fastMovingProducts = useMemo(() => products.filter((p) => p.isFastMoving), [products]);
+  const bestSellingProducts = useMemo(() => products.filter((p) => p.isBestSelling), [products]);
 
   const filterCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -210,6 +223,105 @@ const ShopCatalogInteractive: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+
+      {/* Fast Moving Section */}
+      {fastMovingProducts.length > 0 && (
+        <div className="border-b border-border bg-orange-50/50 dark:bg-orange-950/10">
+          <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-6 lg:px-8">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-xl">⚡</span>
+              <h2 className="font-heading text-xl font-bold text-text-primary">Fast Moving</h2>
+              <span className="rounded-full bg-orange-500/10 px-2.5 py-0.5 font-body text-xs font-medium text-orange-600">
+                {fastMovingProducts.length} products
+              </span>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              {fastMovingProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/product-detail?id=${product.id}`}
+                  className="group flex-shrink-0 w-44"
+                >
+                  <div className="overflow-hidden rounded-lg bg-card shadow-luxury-sm transition-luxury hover:shadow-luxury">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                      <AppImage
+                        src={product.image}
+                        alt={product.alt}
+                        fill
+                        sizes="176px"
+                        className="object-cover transition-luxury group-hover:scale-105"
+                      />
+                      <div className="absolute left-1.5 top-1.5">
+                        <span className="inline-block rounded-full bg-orange-500 px-2 py-0.5 font-body text-xs font-bold text-white">
+                          ⚡ Fast
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate font-body text-sm font-medium text-text-primary group-hover:text-primary">
+                        {product.name}
+                      </p>
+                      <p className="font-data text-sm font-semibold text-primary">
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Best Selling Section */}
+      {bestSellingProducts.length > 0 && (
+        <div className="border-b border-border bg-emerald-50/50 dark:bg-emerald-950/10">
+          <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-6 lg:px-8">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-xl">🏆</span>
+              <h2 className="font-heading text-xl font-bold text-text-primary">Best Selling</h2>
+              <span className="rounded-full bg-success/10 px-2.5 py-0.5 font-body text-xs font-medium text-success">
+                {bestSellingProducts.length} products
+              </span>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              {bestSellingProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/product-detail?id=${product.id}`}
+                  className="group flex-shrink-0 w-44"
+                >
+                  <div className="overflow-hidden rounded-lg bg-card shadow-luxury-sm transition-luxury hover:shadow-luxury">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                      <AppImage
+                        src={product.image}
+                        alt={product.alt}
+                        fill
+                        sizes="176px"
+                        className="object-cover transition-luxury group-hover:scale-105"
+                      />
+                      <div className="absolute left-1.5 top-1.5">
+                        <span className="inline-block rounded-full bg-success px-2 py-0.5 font-body text-xs font-bold text-white">
+                          🏆 Best
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate font-body text-sm font-medium text-text-primary group-hover:text-primary">
+                        {product.name}
+                      </p>
+                      <p className="font-data text-sm font-semibold text-primary">
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">
         <div className="mb-8">
           <div className="mb-6 flex items-center justify-between">
