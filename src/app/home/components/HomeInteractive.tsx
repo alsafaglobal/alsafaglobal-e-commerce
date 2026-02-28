@@ -12,8 +12,8 @@ const HomeInteractive: React.FC = () => {
   return (
     <>
       <HeroSection />
-      <FeaturedProducts />
       <OffersSection />
+      <FeaturedProducts />
       <CategoryShowcase />
       <NewsletterSection />
       <Footer />
