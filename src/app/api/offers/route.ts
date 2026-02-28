@@ -40,21 +40,31 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { product_ids, ...offerFields } = body;
 
-  // Remove new columns if they cause issues (graceful degradation)
-  const safeFields = { ...offerFields };
-
-  const { data: offer, error } = await supabase
+  // Try insert with all fields first
+  let { data: offer, error } = await supabase
     .from('offers')
-    .insert([safeFields])
+    .insert([offerFields])
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // If new columns don't exist yet, retry without them
+  if (error) {
+    const { offer_type, discount_percent, ...legacyFields } = offerFields;
+    void offer_type; void discount_percent;
+    const retry = await supabase
+      .from('offers')
+      .insert([legacyFields])
+      .select()
+      .single();
+    if (retry.error) return NextResponse.json({ error: retry.error.message }, { status: 500 });
+    offer = retry.data;
+    error = null;
+  }
 
   // Link products if provided (silently ignore if table doesn't exist)
-  if (product_ids && product_ids.length > 0) {
+  if (offer && product_ids && product_ids.length > 0) {
     await supabase.from('offer_products').insert(
-      product_ids.map((pid: string) => ({ offer_id: offer.id, product_id: pid }))
+      product_ids.map((pid: string) => ({ offer_id: offer!.id, product_id: pid }))
     ).then(() => null).catch(() => null);
   }
 
