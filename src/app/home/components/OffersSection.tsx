@@ -95,7 +95,7 @@ export default function OffersSection() {
             return (
               <div
                 key={offer.id}
-                className="group relative overflow-hidden rounded-2xl shadow-luxury transition-luxury hover:-translate-y-1 hover:shadow-luxury-lg"
+                className="offer-card-bg group relative overflow-hidden rounded-2xl shadow-luxury transition-luxury hover:-translate-y-1 hover:shadow-luxury-lg"
                 style={{ background: offer.bg_color || 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)' }}
               >
                 {/* Discount % badge */}
