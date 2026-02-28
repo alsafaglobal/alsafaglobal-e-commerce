@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { id } = await params;
   const body = await req.json();
   const { product_ids, ...offerFields } = body;
@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { id } = await params;
   const { error } = await supabase.from('offers').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
