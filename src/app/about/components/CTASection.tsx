@@ -13,7 +13,7 @@ const CTASection: React.FC = () => {
 
   return (
     <section className="py-12 md:py-16">
-      <div className="rounded-lg bg-gradient-to-r from-primary to-accent p-8 text-center shadow-luxury-lg md:p-12">
+      <div className="rounded-lg bg-gradient-to-r from-primary to-accent p-8 text-center shadow-luxury-lg md:p-12 dark:bg-none dark:bg-[#111] dark:from-[#111] dark:to-[#111]">
         <h2 className="font-heading text-3xl font-semibold text-primary-foreground md:text-4xl">
           {ctaTitle}
         </h2>
