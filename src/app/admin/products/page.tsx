@@ -223,6 +223,14 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => router.push(`/admin/offers?add_product=${product.id}&name=${encodeURIComponent(product.name)}&price=${product.price}`)}
+                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-body text-xs font-medium text-accent transition-luxury hover:bg-accent/10"
+                        title="Add to Offers"
+                      >
+                        <Icon name="TagIcon" size={14} />
+                        Offer
+                      </button>
                       <Link
                         href={`/admin/products/${product.id}/edit`}
                         className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-body text-xs font-medium text-primary transition-luxury hover:bg-primary/10"

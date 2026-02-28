@@ -101,6 +101,17 @@ CREATE TABLE IF NOT EXISTS offers (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- New columns for product-linked offers
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS offer_type TEXT DEFAULT 'banner';
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS discount_percent DECIMAL(5,2);
+
+-- Junction table: links offers to products (for product/combo offer types)
+CREATE TABLE IF NOT EXISTS offer_products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  offer_id UUID REFERENCES offers(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE
+);
+
 -- Customer orders
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -167,6 +178,11 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
   CREATE POLICY "Public read offers" ON offers FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+ALTER TABLE offer_products ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "Public read offer_products" ON offer_products FOR SELECT USING (true);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
