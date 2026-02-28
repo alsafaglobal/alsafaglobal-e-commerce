@@ -5,7 +5,7 @@ import { useSiteContent } from '@/lib/content/SiteContentContext';
 
 export default function WhatsAppButton() {
   const [hovered, setHovered] = useState(false);
-  const phone = useSiteContent('whatsapp_number', '971500000000');
+  const phone = useSiteContent('whatsapp_number', '971501225501');
   const message = useSiteContent('whatsapp_message', 'Hi, I am interested in your fragrances.');
 
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
