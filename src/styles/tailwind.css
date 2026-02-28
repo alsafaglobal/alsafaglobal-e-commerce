@@ -71,7 +71,7 @@
     --color-primary-foreground: #FFFFFF; /* white */
     
     /* Secondary Colors */
-    --color-secondary: #3A342C; /* warm dark surface */
+    --color-secondary: #1a1a1a; /* dark surface */
     --color-secondary-foreground: #D4C4B0; /* soft champagne */
     
     /* Accent Colors */
@@ -79,23 +79,23 @@
     --color-accent-foreground: #FFFFFF; /* white */
     
     /* Background Colors */
-    --color-background: #1A1612; /* warm dark base */
+    --color-background: #0a0a0a; /* true black */
     --color-foreground: rgba(255, 255, 255, 0.88); /* reduced contrast white */
-    
+
     /* Surface Colors */
-    --color-card: #2A241F; /* elevated warm dark */
+    --color-card: #111111; /* dark card */
     --color-card-foreground: rgba(255, 255, 255, 0.88); /* reduced contrast white */
-    
-    --color-popover: #2A241F; /* elevated warm dark */
+
+    --color-popover: #111111; /* dark popover */
     --color-popover-foreground: rgba(255, 255, 255, 0.88); /* reduced contrast white */
-    
+
     /* Muted Colors */
-    --color-muted: #3A342C; /* warm dark surface */
+    --color-muted: #1a1a1a; /* dark muted surface */
     --color-muted-foreground: rgba(255, 255, 255, 0.6); /* muted white */
-    
+
     /* Border and Input */
-    --color-border: rgba(248, 246, 242, 0.2); /* surface with opacity */
-    --color-input: #2A241F; /* elevated warm dark */
+    --color-border: rgba(255, 255, 255, 0.12); /* subtle white border */
+    --color-input: #111111; /* dark input */
     --color-ring: #C49B7C; /* rose gold */
     
     /* Semantic Colors */
@@ -118,7 +118,7 @@
 
   /* Override offer card colored backgrounds in dark mode */
   .dark .offer-card-bg {
-    background: #1C1814 !important;
+    background: #111111 !important;
   }
 }
 
