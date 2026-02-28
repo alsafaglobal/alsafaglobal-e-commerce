@@ -16,6 +16,7 @@ interface NavigationItem {
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const pathname = usePathname();
   const { itemCount } = useCart();
   const navHome = useSiteContent('nav_home', 'Home');
@@ -41,6 +42,23 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Sync isDark state with the class already applied by the inline script
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+  }, []);
+
+  const toggleDark = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -102,6 +120,19 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleDark}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="flex items-center justify-center transition-luxury hover:scale-105"
+            >
+              <Icon
+                name={isDark ? 'SunIcon' : 'MoonIcon'}
+                size={22}
+                className="text-text-primary"
+              />
+            </button>
+
             <Link
               href="/shopping-cart"
               className="relative transition-luxury hover:scale-105"
@@ -161,13 +192,26 @@ const Header: React.FC = () => {
               </svg>
             </Link>
 
-            <button
-              onClick={toggleMobileMenu}
-              className="flex items-center justify-center transition-luxury hover:text-primary"
-              aria-label="Close mobile menu"
-            >
-              <Icon name="XMarkIcon" size={24} className="text-text-primary" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleDark}
+                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="flex items-center justify-center transition-luxury hover:scale-105"
+              >
+                <Icon
+                  name={isDark ? 'SunIcon' : 'MoonIcon'}
+                  size={22}
+                  className="text-text-primary"
+                />
+              </button>
+              <button
+                onClick={toggleMobileMenu}
+                className="flex items-center justify-center transition-luxury hover:text-primary"
+                aria-label="Close mobile menu"
+              >
+                <Icon name="XMarkIcon" size={24} className="text-text-primary" />
+              </button>
+            </div>
           </div>
 
           <nav className="flex flex-col gap-2 px-4 py-6">
