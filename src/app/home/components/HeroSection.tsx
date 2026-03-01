@@ -99,7 +99,7 @@ const HeroSection: React.FC = () => {
               className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: `url(${img})`,
-                animation: 'kenburns 9s ease-out forwards',
+                animation: isActive ? 'kenburns 9s ease-out forwards' : 'none',
                 willChange: 'transform',
               }}
             />
