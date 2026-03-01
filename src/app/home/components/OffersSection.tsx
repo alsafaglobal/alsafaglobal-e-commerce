@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface LinkedProduct {
   id: string;
@@ -34,6 +35,7 @@ interface Offer {
 
 export default function OffersSection() {
   const [offers, setOffers] = useState<Offer[]>([]);
+  const { formatPrice } = useCurrency();
   const sectionTitle = useSiteContent('offers_section_title', 'Exclusive Offers');
   const sectionSubtitle = useSiteContent('offers_section_subtitle', 'Limited time deals on our finest fragrances');
   const visible = useSectionVisible('offers');
@@ -149,10 +151,10 @@ export default function OffersSection() {
                   {isProductOffer && origTotal > 0 && (
                     <div className="mb-4 flex items-baseline gap-3">
                       <span className="font-body text-sm text-white/50 line-through">
-                        AED {origTotal.toFixed(2)}
+                        {formatPrice(origTotal)}
                       </span>
                       <span className="font-heading text-3xl font-bold text-accent">
-                        AED {(discTotal ?? origTotal).toFixed(2)}
+                        {formatPrice(discTotal ?? origTotal)}
                       </span>
                     </div>
                   )}
