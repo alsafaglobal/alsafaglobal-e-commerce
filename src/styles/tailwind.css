@@ -122,6 +122,11 @@
   }
 }
 
+@keyframes kenburns {
+  from { transform: scale(1.12); }
+  to   { transform: scale(1.0); }
+}
+
 @layer base {
   * {
     @apply border-border;
