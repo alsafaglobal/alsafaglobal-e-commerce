@@ -13,6 +13,12 @@ export const metadata: Metadata = {
     url: '/contact',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Contact Al Safa Global' }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact Al Safa Global',
+    description: 'Get in touch for inquiries, orders, and fragrance consultations.',
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default function ContactPage() {

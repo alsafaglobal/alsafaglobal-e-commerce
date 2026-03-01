@@ -11,6 +11,12 @@ export const metadata: Metadata = {
     url: '/about',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'About Al Safa Global' }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Al Safa Global — Luxury Fragrance House',
+    description: 'Discover our heritage and commitment to crafting timeless luxury fragrances.',
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default function AboutPage() {
