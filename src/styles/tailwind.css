@@ -123,7 +123,7 @@
 }
 
 @keyframes kenburns {
-  from { transform: scale(1.12); }
+  from { transform: scale(1.08); }
   to   { transform: scale(1.0); }
 }
 
