@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 import { useCurrency } from '@/lib/currency/CurrencyContext';
+import { useCart } from '@/lib/cart/CartContext';
 
 interface LinkedProduct {
   id: string;
@@ -35,10 +36,33 @@ interface Offer {
 
 export default function OffersSection() {
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [addedFeedback, setAddedFeedback] = useState<Record<string, boolean>>({});
   const { formatPrice } = useCurrency();
+  const { addItem } = useCart();
   const sectionTitle = useSiteContent('offers_section_title', 'Exclusive Offers');
   const sectionSubtitle = useSiteContent('offers_section_subtitle', 'Limited time deals on our finest fragrances');
   const visible = useSectionVisible('offers');
+
+  const handleAddToCart = (offer: Offer) => {
+    const linked = offer.offer_products || [];
+    if (linked.length === 0) return;
+    const multiplier = offer.discount_percent ? 1 - offer.discount_percent / 100 : 1;
+    linked.forEach((lp) => {
+      const p = lp.products;
+      if (!p) return;
+      addItem({
+        id: lp.product_id,
+        name: p.name,
+        size: 'Default',
+        price: Math.round(p.price * multiplier * 100) / 100,
+        quantity: 1,
+        image: p.image_url || '',
+        alt: p.image_alt || p.name,
+      });
+    });
+    setAddedFeedback((prev) => ({ ...prev, [offer.id]: true }));
+    setTimeout(() => setAddedFeedback((prev) => ({ ...prev, [offer.id]: false })), 2000);
+  };
 
   useEffect(() => {
     fetch('/api/offers')
@@ -172,15 +196,46 @@ export default function OffersSection() {
                   )}
 
                   {/* CTA */}
-                  <Link
-                    href={productLink}
-                    className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-body text-sm font-medium text-background transition-luxury hover:bg-accent/90"
-                  >
-                    {offer.offer_type === 'combo' ? 'Shop Bundle' : 'Shop Now'}
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Add to Cart — product & combo offers */}
+                    {isProductOffer && linked.length > 0 && (
+                      <button
+                        onClick={() => handleAddToCart(offer)}
+                        className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 font-body text-sm font-medium transition-luxury ${
+                          addedFeedback[offer.id]
+                            ? 'bg-green-600 text-white'
+                            : 'bg-accent text-background hover:bg-accent/90'
+                        }`}
+                      >
+                        {addedFeedback[offer.id] ? (
+                          <>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Added!
+                          </>
+                        ) : (
+                          <>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            {offer.offer_type === 'combo' ? 'Add All to Cart' : 'Add to Cart'}
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {/* View Details link */}
+                    <Link
+                      href={productLink}
+                      className="inline-flex items-center gap-1 font-body text-sm text-white/70 transition-luxury hover:text-white"
+                    >
+                      {isProductOffer ? 'View Details' : 'Shop Now'}
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
