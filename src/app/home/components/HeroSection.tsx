@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1920';
-const SLIDE_DURATION = 6000; // ms between slides
+const SLIDE_DURATION = 6000;
 
 const HeroSection: React.FC = () => {
   const heroTitle    = useSiteContent('hero_title',       'Discover Your Signature Scent');
@@ -14,16 +14,18 @@ const HeroSection: React.FC = () => {
   const heroButton   = useSiteContent('hero_button_text', 'Explore Collection');
   const visible      = useSectionVisible('hero');
 
-  const [images, setImages]               = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex]   = useState(0);
-  // Increments every time the active slide changes — used to restart the
-  // ken-burns animation only on the slide that just became active.
-  const [animKey, setAnimKey]             = useState(0);
+  const [images, setImages]             = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Per-slide activation counter.
+  // Increments ONLY for the slide that just became active.
+  // → that slide's inner div remounts (restarting kenburns from scale 1.08).
+  // → every OTHER slide's key stays the same → no remount → no snap.
+  const [activeCounts, setActiveCounts] = useState<number[]>([]);
 
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-
       const { data: products } = await supabase
         .from('products')
         .select('id, image_url')
@@ -55,9 +57,13 @@ const HeroSection: React.FC = () => {
     load();
   }, []);
 
-  // Restart ken-burns only on the newly active slide
+  // Only the newly active slide gets its counter incremented
   useEffect(() => {
-    setAnimKey((k) => k + 1);
+    setActiveCounts((prev) => {
+      const next = [...prev];
+      next[currentIndex] = (next[currentIndex] || 0) + 1;
+      return next;
+    });
   }, [currentIndex]);
 
   // Auto-advance
@@ -76,7 +82,6 @@ const HeroSection: React.FC = () => {
   return (
     <section className="relative h-[600px] w-full overflow-hidden">
 
-      {/* Slides */}
       {slides.map((img, i) => {
         const isActive = i === currentIndex;
         return (
@@ -90,16 +95,19 @@ const HeroSection: React.FC = () => {
             }}
           >
             {/*
-              key changes only when THIS slide becomes active (animKey increments
-              on every slide change, but the value only matters for the active slide).
-              Inactive slides keep key=0 — no remount, no wasted work.
+              key = activeCounts[i]: changes only when slide i becomes active.
+              Inactive slides keep the same key → no remount → no scale snap.
+              animationPlayState: inactive slides PAUSE the kenburns right where
+              they are → they freeze at their current scale while fading out,
+              with zero visual glitch.
             */}
             <div
-              key={isActive ? animKey : 0}
+              key={activeCounts[i] || 0}
               className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: `url(${img})`,
-                animation: isActive ? 'kenburns 9s ease-out forwards' : 'none',
+                animation: 'kenburns 9s ease-out forwards',
+                animationPlayState: isActive ? 'running' : 'paused',
                 willChange: 'transform',
               }}
             />
