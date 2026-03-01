@@ -4,9 +4,19 @@ import Header from '@/components/common/Header';
 import ProductDetailInteractive from './components/ProductDetailInteractive';
 
 export const metadata: Metadata = {
-  title: 'Product Detail - Al Safa Global',
-  description:
-    'Discover luxury fragrances with detailed scent profiles, sizes, and pricing. Shop premium perfumes from Al Safa Global.',
+  title: 'Luxury Perfume — Al Safa Global',
+  description: 'Discover the full scent profile, sizes, and pricing of our premium fragrances. Crafted by master perfumers — shop Al Safa Global.',
+  openGraph: {
+    title: 'Premium Fragrance — Al Safa Global',
+    description: 'Explore scent notes, sizes, and pricing for our luxury perfumes.',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Al Safa Global Luxury Fragrance' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Premium Fragrance — Al Safa Global',
+    description: 'Explore scent notes, sizes, and pricing for our luxury perfumes.',
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default function ProductDetailPage() {

@@ -4,13 +4,13 @@ import { createClient } from '@/lib/supabase/client';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://alsafaglobal.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${siteUrl}/home`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${siteUrl}/shop-catalog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${siteUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${siteUrl}/home`,        lastModified: now, changeFrequency: 'daily',   priority: 1   },
+    { url: `${siteUrl}/shop-catalog`,lastModified: now, changeFrequency: 'daily',   priority: 0.9 },
+    { url: `${siteUrl}/about`,       lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${siteUrl}/contact`,     lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
   ];
 
   // Dynamic product pages

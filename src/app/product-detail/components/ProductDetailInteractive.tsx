@@ -96,21 +96,26 @@ const ProductDetailInteractive: React.FC = () => {
         setProductDescription(data.description || '');
         setScentType(data.scent_type || '');
 
-        // Images — cover image + extra media from product_media table
+        // Fetch media gallery and related products in parallel
+        const [{ data: extraMedia }, { data: related }] = await Promise.all([
+          supabase
+            .from('product_media')
+            .select('url, alt')
+            .eq('product_id', data.id)
+            .order('sort_order', { ascending: true }),
+          supabase
+            .from('products')
+            .select('id, name, brand, price, image_url, image_alt')
+            .eq('is_active', true)
+            .eq('scent_type', data.scent_type)
+            .neq('id', data.id)
+            .limit(4),
+        ]);
+
+        // Images — cover + extra media
         const imgs: ProductImage[] = [];
-        if (data.image_url) {
-          imgs.push({ url: data.image_url, alt: data.image_alt || data.name });
-        }
-        const { data: extraMedia } = await supabase
-          .from('product_media')
-          .select('url, alt')
-          .eq('product_id', data.id)
-          .order('sort_order', { ascending: true });
-        if (extraMedia) {
-          for (const m of extraMedia) {
-            imgs.push({ url: m.url, alt: m.alt || data.name });
-          }
-        }
+        if (data.image_url) imgs.push({ url: data.image_url, alt: data.image_alt || data.name });
+        for (const m of extraMedia ?? []) imgs.push({ url: m.url, alt: m.alt || data.name });
         setProductImages(imgs.length > 0 ? imgs : [{ url: 'https://images.unsplash.com/photo-1541643600914-78b084683601', alt: data.name }]);
 
         // Sizes
@@ -119,9 +124,7 @@ const ProductDetailInteractive: React.FC = () => {
           price: s.price,
         }));
         setSizes(productSizes);
-        if (productSizes.length > 0) {
-          setSelectedSize(productSizes[0]);
-        }
+        if (productSizes.length > 0) setSelectedSize(productSizes[0]);
 
         // Scent notes
         const notes = data.scent_notes || [];
@@ -129,33 +132,17 @@ const ProductDetailInteractive: React.FC = () => {
         setHeartNotes(notes.filter((n: { note_type: string }) => n.note_type === 'heart').map((n: { note_name: string }) => n.note_name));
         setBaseNotes(notes.filter((n: { note_type: string }) => n.note_type === 'base').map((n: { note_name: string }) => n.note_name));
 
-        // Occasions
+        // Occasions & stock
         setOccasions((data.product_occasions || []).map((o: { occasion: string }) => o.occasion));
-
-        // Stock
         setStock(data.stock ?? null);
 
-        // Load related products (same scent type, different ID)
-        const { data: related } = await supabase
-          .from('products')
-          .select('id, name, brand, price, image_url, image_alt')
-          .eq('is_active', true)
-          .eq('scent_type', data.scent_type)
-          .neq('id', data.id)
-          .limit(4);
-
+        // Related products
         if (related) {
-          setRelatedProducts(
-            related.map((p) => ({
-              id: p.id,
-              name: p.name,
-              brand: p.brand || '',
-              price: p.price,
-              image: p.image_url || '',
-              alt: p.image_alt || p.name,
-              rating: 4.5,
-            }))
-          );
+          setRelatedProducts(related.map((p) => ({
+            id: p.id, name: p.name, brand: p.brand || '',
+            price: p.price, image: p.image_url || '',
+            alt: p.image_alt || p.name, rating: 4.5,
+          })));
         }
       }
       setLoading(false);

@@ -27,7 +27,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   alt,
   scentType,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [addedFeedback, setAddedFeedback] = useState(false);
   const viewDetailsText = useSiteContent('product_view_details', 'View Details');
@@ -60,8 +59,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       className="group relative overflow-hidden rounded-xl bg-card shadow-luxury transition-luxury hover:shadow-luxury-lg"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/product-detail?id=${id}`} className="block">
         <div className="relative h-80 w-full overflow-hidden bg-muted">
@@ -71,13 +68,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             className="h-full w-full object-cover transition-spring group-hover:scale-105"
           />
 
-          {isHovered && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80 transition-luxury">
-              <button className="rounded-lg bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground shadow-luxury transition-luxury hover:bg-primary/90">
-                {viewDetailsText}
-              </button>
-            </div>
-          )}
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 opacity-0 transition-luxury group-hover:opacity-100">
+            <button className="rounded-lg bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground shadow-luxury transition-luxury hover:bg-primary/90">
+              {viewDetailsText}
+            </button>
+          </div>
         </div>
 
         <div className="p-6">
