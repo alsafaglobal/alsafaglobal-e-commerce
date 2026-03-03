@@ -74,6 +74,7 @@ function OffersPageContent() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [sectionVisible, setSectionVisible] = useState(true);
   const [visibilityLoading, setVisibilityLoading] = useState(false);
   const [productSearch, setProductSearch] = useState('');
@@ -116,6 +117,25 @@ function OffersPageContent() {
       router.replace('/admin/offers');
     }
   }, [searchParams, router]);
+
+  const handleEdit = (offer: Offer) => {
+    setForm({
+      title: offer.title || '',
+      description: offer.description || '',
+      offer_type: offer.offer_type || 'product',
+      discount_percent: offer.discount_percent != null ? String(offer.discount_percent) : '',
+      badge: offer.badge || '',
+      link: offer.link || '',
+      valid_until: offer.valid_until ? offer.valid_until.slice(0, 10) : '',
+      is_active: offer.is_active,
+      bg_color: offer.bg_color || 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)',
+      discount: offer.discount || '',
+      selected_product_ids: (offer.offer_products || []).map((lp) => lp.product_id),
+    });
+    setEditingId(offer.id);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const toggleSectionVisibility = async () => {
     setVisibilityLoading(true);
@@ -164,12 +184,13 @@ function OffersPageContent() {
       payload.discount = form.discount_percent ? `${form.discount_percent}% OFF` : '';
       payload.product_ids = form.selected_product_ids;
     }
-    await fetch('/api/offers', {
-      method: 'POST',
+    await fetch(editingId ? `/api/offers/${editingId}` : '/api/offers', {
+      method: editingId ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     setForm(emptyForm);
+    setEditingId(null);
     setShowForm(false);
     fetchOffers();
     setSaving(false);
@@ -228,7 +249,7 @@ function OffersPageContent() {
             {sectionVisible ? 'Section Visible' : 'Section Hidden'}
           </button>
           <button
-            onClick={() => { setForm(emptyForm); setShowForm(true); }}
+            onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90"
           >
             <Icon name="PlusIcon" size={16} /> Add Offer
@@ -239,7 +260,7 @@ function OffersPageContent() {
       {/* New Offer Form */}
       {showForm && (
         <div className="mt-6 rounded-lg bg-card p-6 shadow-luxury">
-          <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">New Offer</h2>
+          <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">{editingId ? 'Edit Offer' : 'New Offer'}</h2>
 
           {/* Offer Type Selector */}
           <div className="mb-5">
@@ -443,7 +464,7 @@ function OffersPageContent() {
               <Icon name="CheckIcon" size={16} /> {saving ? 'Saving...' : 'Save Offer'}
             </button>
             <button
-              onClick={() => setShowForm(false)}
+              onClick={() => { setShowForm(false); setEditingId(null); setForm(emptyForm); }}
               className="rounded-md border border-border px-5 py-2.5 font-body text-sm font-medium text-text-primary transition-luxury hover:bg-muted"
             >
               Cancel
@@ -471,51 +492,58 @@ function OffersPageContent() {
             return (
               <div
                 key={offer.id}
-                className={`flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-luxury-sm ${!offer.is_active ? 'opacity-50' : ''}`}
+                className={`rounded-lg border border-border bg-card p-4 shadow-luxury-sm ${!offer.is_active ? 'opacity-60' : ''}`}
               >
-                <div className="h-14 w-14 flex-shrink-0 rounded-lg" style={{ background: offer.bg_color || '#1a1a2e' }} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-body text-sm font-medium text-text-primary">{offer.title}</p>
-                    {offer.badge && <span className="rounded-full bg-accent/10 px-2 py-0.5 font-body text-xs text-accent">{offer.badge}</span>}
-                    <span className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
-                      offer.offer_type === 'combo' ? 'bg-purple-100 text-purple-700' :
-                      offer.offer_type === 'product' ? 'bg-blue-100 text-blue-700' :
-                      'bg-muted text-text-secondary'
-                    }`}>
-                      {offer.offer_type === 'combo' ? 'Combo' : offer.offer_type === 'product' ? 'Product' : 'Banner'}
-                    </span>
-                  </div>
-
-                  {offer.offer_type !== 'banner' && linked.length > 0 && (
-                    <div className="mt-1 flex items-baseline gap-2">
-                      <span className="font-body text-xs text-text-secondary line-through">AED {origTotal.toFixed(2)}</span>
-                      {discTotal !== null && (
-                        <>
-                          <span className="font-body text-sm font-bold text-primary">AED {discTotal.toFixed(2)}</span>
-                          <span className="rounded-full bg-primary/10 px-1.5 py-0.5 font-body text-xs font-bold text-primary">{offer.discount_percent}% OFF</span>
-                        </>
-                      )}
+                {/* Top row: color swatch + info */}
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 flex-shrink-0 rounded-lg" style={{ background: offer.bg_color || '#1a1a2e' }} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-body text-sm font-semibold text-text-primary">{offer.title}</p>
+                      {offer.badge && <span className="rounded-full bg-accent/10 px-2 py-0.5 font-body text-xs text-accent">{offer.badge}</span>}
+                      <span className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
+                        offer.offer_type === 'combo' ? 'bg-purple-100 text-purple-700' :
+                        offer.offer_type === 'product' ? 'bg-blue-100 text-blue-700' :
+                        'bg-muted text-text-secondary'
+                      }`}>
+                        {offer.offer_type === 'combo' ? 'Combo' : offer.offer_type === 'product' ? 'Product' : 'Banner'}
+                      </span>
                     </div>
-                  )}
 
-                  {offer.offer_type === 'banner' && offer.discount && (
-                    <span className="font-data text-sm font-bold text-primary">{offer.discount}</span>
-                  )}
+                    {offer.offer_type !== 'banner' && linked.length > 0 && (
+                      <div className="mt-1 flex items-baseline gap-2">
+                        <span className="font-body text-xs text-text-secondary line-through">AED {origTotal.toFixed(2)}</span>
+                        {discTotal !== null && (
+                          <>
+                            <span className="font-body text-sm font-bold text-primary">AED {discTotal.toFixed(2)}</span>
+                            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 font-body text-xs font-bold text-primary">{offer.discount_percent}% OFF</span>
+                          </>
+                        )}
+                      </div>
+                    )}
 
-                  {linked.length > 0 && (
-                    <p className="font-body text-xs text-text-secondary truncate">
-                      {linked.map((lp) => lp.products?.name).filter(Boolean).join(' + ')}
-                    </p>
-                  )}
+                    {offer.offer_type === 'banner' && offer.discount && (
+                      <span className="font-body text-sm font-bold text-primary">{offer.discount}</span>
+                    )}
 
-                  <p className="mt-0.5 font-body text-xs text-text-secondary truncate">{offer.description}</p>
+                    {linked.length > 0 && (
+                      <p className="font-body text-xs text-text-secondary">
+                        {linked.map((lp) => lp.products?.name).filter(Boolean).join(' + ')}
+                      </p>
+                    )}
 
-                  {offer.valid_until && (
-                    <p className="font-body text-xs text-text-secondary">Valid until: {new Date(offer.valid_until).toLocaleDateString()}</p>
-                  )}
+                    {offer.description && (
+                      <p className="font-body text-xs text-text-secondary">{offer.description}</p>
+                    )}
+
+                    {offer.valid_until && (
+                      <p className="font-body text-xs text-text-secondary">Valid until: {new Date(offer.valid_until).toLocaleDateString()}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-shrink-0 items-center gap-2">
+
+                {/* Bottom row: action buttons */}
+                <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
                   <button
                     onClick={() => toggleActive(offer)}
                     className={`rounded-full px-3 py-1.5 font-body text-xs font-medium transition-luxury ${
@@ -524,8 +552,19 @@ function OffersPageContent() {
                   >
                     {offer.is_active ? 'Active' : 'Inactive'}
                   </button>
-                  <button onClick={() => deleteOffer(offer.id, offer.title)} className="rounded-md p-2 text-error transition-luxury hover:bg-error/10">
-                    <Icon name="TrashIcon" size={16} />
+                  <button
+                    onClick={() => handleEdit(offer)}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-4 py-1.5 font-body text-xs font-semibold text-primary transition-luxury hover:bg-primary/20"
+                  >
+                    <Icon name="PencilSquareIcon" size={14} />
+                    Edit Offer
+                  </button>
+                  <button
+                    onClick={() => deleteOffer(offer.id, offer.title)}
+                    className="ml-auto inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-body text-xs font-medium text-error transition-luxury hover:bg-error/10"
+                  >
+                    <Icon name="TrashIcon" size={14} />
+                    Delete
                   </button>
                 </div>
               </div>
