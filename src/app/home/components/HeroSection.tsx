@@ -15,6 +15,7 @@ const HeroSection: React.FC = () => {
   const visible      = useSectionVisible('hero');
 
   const [images, setImages]             = useState<string[]>([]);
+  const [loaded, setLoaded]             = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Per-slide activation counter.
@@ -54,7 +55,7 @@ const HeroSection: React.FC = () => {
 
       if (urls.length) setImages(urls);
     }
-    load();
+    load().finally(() => setLoaded(true));
   }, []);
 
   // Only the newly active slide gets its counter incremented
@@ -77,7 +78,9 @@ const HeroSection: React.FC = () => {
 
   if (!visible) return null;
 
-  const slides = images.length > 0 ? images : [FALLBACK];
+  // Don't show any image (not even the fallback) until fetch completes — prevents
+  // the 1-second flash of the old placeholder image on every page load/refresh.
+  const slides = loaded ? (images.length > 0 ? images : [FALLBACK]) : [];
 
   return (
     <section className="relative h-[600px] w-full overflow-hidden">
