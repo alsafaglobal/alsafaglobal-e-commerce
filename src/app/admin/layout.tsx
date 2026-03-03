@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Categories', href: '/admin/categories', icon: 'TagIcon' },
   { label: 'Site Content', href: '/admin/content', icon: 'PencilSquareIcon' },
   { label: 'Offers', href: '/admin/offers', icon: 'ReceiptPercentIcon' },
+  { label: 'Delivery', href: '/admin/delivery', icon: 'TruckIcon' },
   { label: 'Subscribers', href: '/admin/subscribers', icon: 'EnvelopeIcon' },
 ];
 

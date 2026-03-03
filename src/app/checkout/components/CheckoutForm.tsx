@@ -23,9 +23,10 @@ interface FormErrors {
 
 interface CheckoutFormProps {
   onOrderComplete: (data: FormData, paymentIntentId: string) => void;
+  onCountryChange?: (country: string) => void;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange }) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -97,6 +98,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (name === 'country') onCountryChange?.(value);
   };
 
   const handleNextStep = () => {
