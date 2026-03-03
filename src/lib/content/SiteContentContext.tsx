@@ -61,3 +61,7 @@ export function useSectionVisible(sectionKey: string): boolean {
   const val = content[`section_visible_${sectionKey}`];
   return val !== 'false';
 }
+
+export function useContentLoading(): boolean {
+  return useContext(SiteContentContext).loading;
+}
