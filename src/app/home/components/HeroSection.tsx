@@ -83,7 +83,7 @@ const HeroSection: React.FC = () => {
   const slides = loaded ? (images.length > 0 ? images : [FALLBACK]) : [];
 
   return (
-    <section className="relative h-[600px] w-full overflow-hidden">
+    <section className="relative h-[600px] w-full overflow-hidden bg-black">
 
       {slides.map((img, i) => {
         const isActive = i === currentIndex;
@@ -95,6 +95,7 @@ const HeroSection: React.FC = () => {
               opacity: isActive ? 1 : 0,
               transition: 'opacity 1.8s ease-in-out',
               zIndex: isActive ? 1 : 0,
+              animation: i === 0 ? 'fadeIn 0.8s ease-in forwards' : undefined,
             }}
           >
             {/*
