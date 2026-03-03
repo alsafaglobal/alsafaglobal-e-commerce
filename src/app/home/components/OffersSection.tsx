@@ -36,6 +36,7 @@ interface Offer {
 
 export default function OffersSection() {
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [addedFeedback, setAddedFeedback] = useState<Record<string, boolean>>({});
   const { formatPrice } = useCurrency();
   const { addItem } = useCart();
@@ -74,10 +75,17 @@ export default function OffersSection() {
             data.filter((o: Offer) => o.is_active && (!o.valid_until || new Date(o.valid_until) >= now))
           );
         }
-      });
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
-  if (!visible || offers.length === 0) return null;
+  // Hidden by admin toggle → never render
+  if (!visible) return null;
+  // Still fetching → render nothing yet (avoid flash)
+  if (!loaded) return null;
+  // Loaded but no active offers → hide cleanly
+  if (offers.length === 0) return null;
 
   return (
     <section className="bg-background py-16">
