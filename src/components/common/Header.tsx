@@ -176,20 +176,9 @@ const Header: React.FC = () => {
               className="flex items-center transition-luxury hover:opacity-80"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <svg
-                width="140"
-                height="32"
-                viewBox="0 0 140 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-auto"
-              >
-                <path
-                  d="M8 4h4v20H8V4zm8 0h12v4H16v4h10v4H16v8h-4V4zm20 0h4v20h-4V4zm8 0h12v4H44v4h10v4H44v4h12v4H40V4zm20 0h4l8 14V4h4v20h-4l-8-14v14h-4V4zm20 0h12v4H80v4h10v4H80v8h-4V4z"
-                  fill="var(--color-primary)"
-                />
-                <circle cx="126" cy="14" r="2" fill="var(--color-accent)" />
-              </svg>
+              <span className="font-heading text-xl font-semibold tracking-wide text-primary">
+                {brandPrimary} <span className="text-accent">{brandAccent}</span>
+              </span>
             </Link>
 
             <div className="flex items-center gap-3">
