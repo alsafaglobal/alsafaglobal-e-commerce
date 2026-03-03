@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
+import { useSiteContent, useSectionVisible, useContentLoading } from '@/lib/content/SiteContentContext';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1920';
 const SLIDE_DURATION = 6000;
@@ -12,7 +12,8 @@ const HeroSection: React.FC = () => {
   const heroTitle    = useSiteContent('hero_title',       'Discover Your Signature Scent');
   const heroSubtitle = useSiteContent('hero_subtitle',    'Explore our curated collection of luxury perfumes crafted by master perfumers from around the world');
   const heroButton   = useSiteContent('hero_button_text', 'Explore Collection');
-  const visible      = useSectionVisible('hero');
+  const visible        = useSectionVisible('hero');
+  const contentLoading = useContentLoading();
 
   const [images, setImages]             = useState<string[]>([]);
   const [loaded, setLoaded]             = useState(false);
@@ -122,10 +123,14 @@ const HeroSection: React.FC = () => {
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }} />
 
-      {/* Text */}
+      {/* Text — fades in after CMS content resolves to prevent default→actual text glitch */}
       <div
         className="relative mx-auto flex h-full max-w-[1440px] flex-col items-center justify-center px-4 text-center md:px-6 lg:px-8"
-        style={{ zIndex: 3 }}
+        style={{
+          zIndex: 3,
+          opacity: contentLoading ? 0 : 1,
+          transition: 'opacity 0.4s ease-in',
+        }}
       >
         <h1 className="mb-6 font-heading text-5xl font-bold text-white md:text-6xl lg:text-7xl">
           {heroTitle}
