@@ -15,6 +15,7 @@ interface ProductCardProps {
   topNotes: string[];
   badge?: 'fast_moving' | 'best_selling';
   stock?: number | null;
+  offerDiscount?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -27,6 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   topNotes,
   badge,
   stock,
+  offerDiscount,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { formatPrice } = useCurrency();
@@ -40,20 +42,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
     >
       <article className="overflow-hidden rounded-lg bg-card shadow-luxury transition-luxury hover:shadow-luxury-lg">
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-          {badge && (
-            <div className="absolute left-2 top-2 z-10">
-              {badge === 'fast_moving' && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-1 font-body text-xs font-bold text-white shadow">
-                  ⚡ Fast Moving
-                </span>
-              )}
-              {badge === 'best_selling' && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 font-body text-xs font-bold text-white shadow">
-                  🏆 Best Selling
-                </span>
-              )}
-            </div>
-          )}
+          <div className="absolute left-2 top-2 z-10 flex flex-col gap-1">
+            {badge === 'fast_moving' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-1 font-body text-xs font-bold text-white shadow">
+                ⚡ Fast Moving
+              </span>
+            )}
+            {badge === 'best_selling' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 font-body text-xs font-bold text-white shadow">
+                🏆 Best Selling
+              </span>
+            )}
+            {offerDiscount && (
+              <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 font-body text-xs font-bold text-white shadow">
+                {offerDiscount}% OFF
+              </span>
+            )}
+          </div>
           <AppImage
             src={image}
             alt={alt}
@@ -88,9 +93,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {name}
           </h3>
 
-          <p className="font-data text-xl font-semibold text-primary">
-            {formatPrice(price)}
-          </p>
+          {offerDiscount ? (
+            <div className="flex items-baseline gap-2">
+              <p className="font-data text-xl font-semibold text-primary">
+                {formatPrice(price * (1 - offerDiscount / 100))}
+              </p>
+              <p className="font-data text-sm text-text-secondary line-through">
+                {formatPrice(price)}
+              </p>
+            </div>
+          ) : (
+            <p className="font-data text-xl font-semibold text-primary">
+              {formatPrice(price)}
+            </p>
+          )}
           {stock !== null && stock !== undefined && stock <= 5 && stock > 0 && (
             <p className="mt-1 font-body text-xs font-medium text-error">
               Only {stock} left!

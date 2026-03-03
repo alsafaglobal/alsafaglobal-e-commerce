@@ -36,6 +36,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Decrement stock for each ordered item (fire-and-forget, don't block response)
+  if (Array.isArray(items)) {
+    const decrements = (items as Array<{ id: string; quantity: number }>).map(async (item) => {
+      if (!item.id) return;
+      const { data: prod } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', item.id)
+        .single();
+      if (prod && prod.stock !== null) {
+        await supabase
+          .from('products')
+          .update({ stock: Math.max(0, prod.stock - (item.quantity || 1)) })
+          .eq('id', item.id);
+      }
+    });
+    await Promise.all(decrements);
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
 
