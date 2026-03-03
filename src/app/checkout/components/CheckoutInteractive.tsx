@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -26,32 +26,65 @@ const CheckoutInteractive: React.FC = () => {
   const router = useRouter();
   const { items, clearCart, subtotal } = useCart();
   const [clientSecret, setClientSecret] = useState('');
+  const [paymentIntentId, setPaymentIntentId] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [shipping, setShipping] = useState(0);
+  const [deliveryCharges, setDeliveryCharges] = useState<Record<string, number>>({});
 
-  const shipping = 0;
   const tax = 0;
-  const total = subtotal;
+  const total = subtotal + shipping;
+  // Keep a ref to the latest total so the update callback always uses the right value
+  const totalRef = useRef(total);
+  useEffect(() => { totalRef.current = total; }, [total]);
 
+  useEffect(() => { setIsHydrated(true); }, []);
+
+  // Fetch delivery charges once
   useEffect(() => {
-    setIsHydrated(true);
+    fetch('/api/delivery-charges')
+      .then((r) => r.json())
+      .then((data: Array<{ country_name: string; charge_aed: number }>) => {
+        if (Array.isArray(data)) {
+          const map: Record<string, number> = {};
+          data.forEach((d) => { map[d.country_name] = Number(d.charge_aed); });
+          setDeliveryCharges(map);
+        }
+      })
+      .catch(() => {});
   }, []);
 
+  // Create payment intent once items are ready
   useEffect(() => {
     if (!isHydrated || items.length === 0) return;
-
     fetch('/api/checkout/payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: total }),
+      body: JSON.stringify({ amount: subtotal }),
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.clientSecret) setClientSecret(data.clientSecret);
+        if (data.paymentIntentId) setPaymentIntentId(data.paymentIntentId);
         if (data.error) setPaymentError(data.error);
       })
       .catch(() => setPaymentError('Failed to initialize payment. Please refresh.'));
   }, [isHydrated, items.length]);
+
+  // Called by CheckoutForm whenever the country dropdown changes
+  const handleCountryChange = async (country: string) => {
+    const charge = deliveryCharges[country] ?? 0;
+    setShipping(charge);
+    const newTotal = subtotal + charge;
+
+    if (paymentIntentId) {
+      await fetch('/api/checkout/payment-intent', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId, amount: newTotal }),
+      }).catch(() => {});
+    }
+  };
 
   const handleOrderComplete = async (formData: FormData, paymentIntentId: string) => {
     const orderNumber = `ORD-${Date.now()}`;
@@ -70,18 +103,13 @@ const CheckoutInteractive: React.FC = () => {
         zipCode: formData.zipCode,
         country: formData.country,
       },
-      payment: {
-        method: 'stripe',
-        paymentIntentId,
-      },
-      totals: { subtotal, shipping, tax, total },
+      totals: { subtotal, shipping, tax, total: totalRef.current },
     };
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('lastOrder', JSON.stringify(orderData));
     }
 
-    // Save order to Supabase
     try {
       await fetch('/api/orders', {
         method: 'POST',
@@ -99,7 +127,6 @@ const CheckoutInteractive: React.FC = () => {
       console.error('Order save failed:', e);
     }
 
-    // Send order email to info@alsafaglobal.com
     try {
       await fetch('/api/checkout/send-order-email', {
         method: 'POST',
@@ -114,7 +141,6 @@ const CheckoutInteractive: React.FC = () => {
         }),
       });
     } catch (e) {
-      // Email failure should not block order completion
       console.error('Order email failed:', e);
     }
 
@@ -169,19 +195,9 @@ const CheckoutInteractive: React.FC = () => {
       fontFamily: 'inherit',
     },
     rules: {
-      '.Input': {
-        border: '1px solid #3a3028',
-        backgroundColor: '#141414',
-      },
-      '.Input:focus': {
-        border: '1px solid #c9a96e',
-        boxShadow: '0 0 0 2px rgba(201,169,110,0.2)',
-      },
-      '.Label': {
-        color: '#a89880',
-        fontSize: '13px',
-        marginBottom: '6px',
-      },
+      '.Input': { border: '1px solid #3a3028', backgroundColor: '#141414' },
+      '.Input:focus': { border: '1px solid #c9a96e', boxShadow: '0 0 0 2px rgba(201,169,110,0.2)' },
+      '.Label': { color: '#a89880', fontSize: '13px', marginBottom: '6px' },
     },
   };
 
@@ -190,16 +206,17 @@ const CheckoutInteractive: React.FC = () => {
       <h1 className="mb-8 font-heading text-3xl font-bold text-text-primary md:text-4xl">Checkout</h1>
 
       {paymentError && (
-        <div className="mb-6 rounded-md bg-error/10 p-4 text-error">
-          {paymentError}
-        </div>
+        <div className="mb-6 rounded-md bg-error/10 p-4 text-error">{paymentError}</div>
       )}
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           {clientSecret ? (
             <Elements stripe={stripePromise} options={{ clientSecret, appearance: stripeAppearance }}>
-              <CheckoutForm onOrderComplete={handleOrderComplete} />
+              <CheckoutForm
+                onOrderComplete={handleOrderComplete}
+                onCountryChange={handleCountryChange}
+              />
             </Elements>
           ) : (
             <div className="h-[600px] animate-pulse rounded-lg bg-muted" />

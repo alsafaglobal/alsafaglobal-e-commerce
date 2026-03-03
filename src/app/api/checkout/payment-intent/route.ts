@@ -7,12 +7,28 @@ export async function POST(req: NextRequest) {
     const { amount } = await req.json();
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+      amount: Math.round(amount * 100),
       currency: 'aed',
       automatic_payment_methods: { enabled: true },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const { paymentIntentId, amount } = await req.json();
+    await stripe.paymentIntents.update(paymentIntentId, {
+      amount: Math.round(amount * 100),
+    });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
