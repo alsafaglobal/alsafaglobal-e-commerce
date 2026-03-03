@@ -29,6 +29,7 @@ interface Product {
   isFastMoving: boolean;
   isBestSelling: boolean;
   stock: number | null;
+  offerDiscount?: number;
 }
 
 const ShopCatalogInteractive: React.FC = () => {
@@ -47,15 +48,30 @@ const ShopCatalogInteractive: React.FC = () => {
   const showingTextTpl = useSiteContent('shop_showing_text', 'Showing {count} of {total} perfumes');
   const { formatPrice } = useCurrency();
 
-  // Fetch products from Supabase
+  // Fetch products + active product offers in parallel
   useEffect(() => {
     async function loadProducts() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from('products')
-        .select('*, product_sizes(*), scent_notes(*)')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      const [{ data }, offersRes] = await Promise.all([
+        supabase
+          .from('products')
+          .select('*, product_sizes(*), scent_notes(*)')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false }),
+        fetch('/api/offers').then((r) => r.json()).catch(() => []),
+      ]);
+
+      // Build map: product_id → discount_percent for active single-product offers
+      const offerMap: Record<string, number> = {};
+      if (Array.isArray(offersRes)) {
+        for (const offer of offersRes) {
+          if (offer.offer_type === 'product' && offer.is_active && offer.discount_percent) {
+            for (const lp of offer.offer_products || []) {
+              if (lp.product_id) offerMap[lp.product_id] = offer.discount_percent;
+            }
+          }
+        }
+      }
 
       if (data) {
         setProducts(
@@ -80,6 +96,7 @@ const ShopCatalogInteractive: React.FC = () => {
             isFastMoving: !!p.is_fast_moving,
             isBestSelling: !!p.is_best_selling,
             stock: p.stock ?? null,
+            offerDiscount: offerMap[String(p.id)],
           }))
         );
       }
