@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/AppIcon';
 
 interface MediaItem {
@@ -19,6 +19,14 @@ interface MediaGalleryManagerProps {
 export default function MediaGalleryManager({ productId, initialMedia = [] }: MediaGalleryManagerProps) {
   const [media, setMedia] = useState<MediaItem[]>(initialMedia);
   const [uploading, setUploading] = useState(false);
+
+  // Fetch existing media from the database on mount
+  useEffect(() => {
+    fetch(`/api/admin/products/${productId}/media`)
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setMedia(data); })
+      .catch(() => {});
+  }, [productId]);
   const [addingVideo, setAddingVideo] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
@@ -88,30 +96,37 @@ export default function MediaGalleryManager({ productId, initialMedia = [] }: Me
 
   return (
     <div>
-      {/* Grid of existing media */}
-      {media.length > 0 && (
+      {/* Image grid */}
+      {media.some((m) => m.type === 'image') && (
         <div className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-          {media.map((item) => (
+          {media.filter((m) => m.type === 'image').map((item) => (
             <div key={item.id} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-              {item.type === 'video' ? (
-                <div className="flex h-full flex-col items-center justify-center bg-black/80 p-2">
-                  <Icon name="PlayCircleIcon" size={32} className="text-white" />
-                  <p className="mt-1 truncate font-body text-xs text-white/70 w-full text-center">{item.url.split('/').pop()}</p>
-                </div>
-              ) : (
-                <img src={item.url} alt={item.alt} className="h-full w-full object-cover" />
-              )}
+              <img src={item.url} alt={item.alt} className="h-full w-full object-cover" />
               <button
                 onClick={() => removeMedia(item.id)}
-                className="absolute right-1 top-1 rounded-full bg-error p-1 text-white opacity-0 shadow transition-all group-hover:opacity-100"
+                className="absolute right-1 top-1 rounded-full bg-error p-1 text-white shadow opacity-0 transition-all group-hover:opacity-100"
               >
                 <Icon name="XMarkIcon" size={12} />
               </button>
-              {item.type === 'video' && (
-                <span className="absolute bottom-1 left-1 rounded-full bg-black/70 px-2 py-0.5 font-body text-xs text-white">
-                  Video
-                </span>
-              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Video list */}
+      {media.some((m) => m.type === 'video') && (
+        <div className="mb-4 flex flex-col gap-2">
+          {media.filter((m) => m.type === 'video').map((item) => (
+            <div key={item.id} className="flex items-center gap-3 rounded-lg border border-border bg-muted px-4 py-3">
+              <Icon name="PlayCircleIcon" size={20} className="flex-shrink-0 text-text-secondary" />
+              <p className="flex-1 font-body text-sm text-text-primary break-all">{item.url}</p>
+              <button
+                onClick={() => removeMedia(item.id)}
+                className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-md bg-error/10 px-3 py-1.5 font-body text-xs font-medium text-error transition-luxury hover:bg-error hover:text-white"
+              >
+                <Icon name="TrashIcon" size={13} />
+                Remove
+              </button>
             </div>
           ))}
         </div>
