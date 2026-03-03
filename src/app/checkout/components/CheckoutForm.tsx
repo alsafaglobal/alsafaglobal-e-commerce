@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { COUNTRIES } from '@/lib/countries';
 
 interface FormData {
   firstName: string;
@@ -246,19 +247,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryC
           <label htmlFor="country" className="mb-2 block font-body text-sm font-medium text-text-primary">{labelCountry}</label>
           <select id="country" name="country" value={formData.country} onChange={handleInputChange}
             className="w-full rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary transition-luxury focus:outline-none focus:ring-2 focus:ring-ring">
-            <option value="United Arab Emirates">United Arab Emirates</option>
-            <option value="Saudi Arabia">Saudi Arabia</option>
-            <option value="Kuwait">Kuwait</option>
-            <option value="Qatar">Qatar</option>
-            <option value="Bahrain">Bahrain</option>
-            <option value="Oman">Oman</option>
-            <option value="India">India</option>
-            <option value="Pakistan">Pakistan</option>
-            <option value="United Kingdom">United Kingdom</option>
-            <option value="United States">United States</option>
-            <option value="Canada">Canada</option>
-            <option value="Australia">Australia</option>
-            <option value="Other">Other</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
         </div>
       </div>

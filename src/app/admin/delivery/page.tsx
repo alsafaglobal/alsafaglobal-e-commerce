@@ -2,23 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { COUNTRIES } from '@/lib/countries';
 
-// Countries that match the checkout dropdown
-const COUNTRY_OPTIONS = [
-  'United Arab Emirates',
-  'Saudi Arabia',
-  'Kuwait',
-  'Qatar',
-  'Bahrain',
-  'Oman',
-  'India',
-  'Pakistan',
-  'United Kingdom',
-  'United States',
-  'Canada',
-  'Australia',
-  'Other',
-];
+const COUNTRY_OPTIONS = COUNTRIES;
 
 interface DeliveryCharge {
   id: string;
