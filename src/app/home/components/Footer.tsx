@@ -5,12 +5,6 @@ import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
 import { useSiteContent, useSiteContentJSON } from '@/lib/content/SiteContentContext';
 
-const defaultShopLinks = [
-  { label: 'All Products', href: '/shop-catalog' },
-  { label: 'New Arrivals', href: '/shop-catalog?sort=newest' },
-  { label: 'Best Sellers', href: '/shop-catalog?sort=popular' },
-  { label: 'Gift Sets', href: '/shop-catalog?category=gifts' },
-];
 const defaultCompanyLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
@@ -28,10 +22,8 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const footerTagline = useSiteContent('footer_tagline', 'Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.');
   const copyrightText = useSiteContent('footer_copyright_text', 'Al Safa Global e-commerce');
-  const headingShop = useSiteContent('footer_heading_shop', 'Shop');
   const headingCompany = useSiteContent('footer_heading_company', 'Company');
   const headingSupport = useSiteContent('footer_heading_support', 'Support');
-  const shopLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_shop', defaultShopLinks);
   const companyLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_company', defaultCompanyLinks);
   const supportLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_support', defaultSupportLinks);
   const brandPrimary = useSiteContent('brand_name_primary', 'Al Safa');
@@ -49,7 +41,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="w-full border-t border-border bg-card">
       <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <span className="mb-4 block font-heading text-xl font-semibold tracking-wide text-primary">
               {brandPrimary} <span className="text-accent">{brandAccent}</span>
@@ -71,24 +63,6 @@ const Footer: React.FC = () => {
                 </a>
               ))}
             </div>
-          </div>
-
-          <div>
-            <h3 className="mb-4 font-heading text-lg font-semibold text-text-primary">
-              {headingShop}
-            </h3>
-            <ul className="space-y-3">
-              {shopLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="font-body text-sm text-text-secondary transition-luxury hover:text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div>
