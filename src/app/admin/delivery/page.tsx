@@ -10,6 +10,7 @@ interface DeliveryCharge {
   id: string;
   country_name: string;
   charge_aed: number;
+  is_active: boolean;
   created_at: string;
 }
 
@@ -81,6 +82,19 @@ export default function DeliveryChargesPage() {
     await fetchCharges();
   };
 
+  const toggleActive = async (charge: DeliveryCharge) => {
+    await fetch(`/api/admin/delivery-charges/${charge.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        country_name: charge.country_name,
+        charge_aed: charge.charge_aed,
+        is_active: !charge.is_active,
+      }),
+    });
+    await fetchCharges();
+  };
+
   const handleCancel = () => {
     setForm(emptyForm);
     setEditingId(null);
@@ -88,7 +102,6 @@ export default function DeliveryChargesPage() {
     setError('');
   };
 
-  // Countries already configured
   const usedCountries = charges.map((c) => c.country_name);
   const availableCountries = COUNTRY_OPTIONS.filter(
     (c) => !usedCountries.includes(c) || c === form.country_name
@@ -103,7 +116,7 @@ export default function DeliveryChargesPage() {
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Delivery Charges</h1>
           <p className="mt-1 font-body text-sm text-text-secondary">
-            Set delivery charges per country (in AED). Automatically converted to the customer's local currency at checkout.
+            Set delivery charges per country (in AED). Toggle visibility to enable or disable per country.
           </p>
         </div>
         {!showForm && (
@@ -187,17 +200,31 @@ export default function DeliveryChargesPage() {
               <tr>
                 <th className="px-6 py-3 text-left font-body text-xs font-medium uppercase tracking-wide text-text-secondary">Country</th>
                 <th className="px-6 py-3 text-left font-body text-xs font-medium uppercase tracking-wide text-text-secondary">Charge (AED)</th>
+                <th className="px-6 py-3 text-left font-body text-xs font-medium uppercase tracking-wide text-text-secondary">Status</th>
                 <th className="px-6 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-text-secondary">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {charges.map((charge) => (
-                <tr key={charge.id} className="hover:bg-muted/30 transition-luxury">
+                <tr key={charge.id} className={`hover:bg-muted/30 transition-luxury ${!charge.is_active ? 'opacity-50' : ''}`}>
                   <td className="px-6 py-4 font-body text-sm font-medium text-text-primary">
                     {charge.country_name}
                   </td>
                   <td className="px-6 py-4 font-data text-sm text-text-primary">
                     AED {Number(charge.charge_aed).toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => toggleActive(charge)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-body text-xs font-medium transition-luxury ${
+                        charge.is_active
+                          ? 'bg-success/10 text-success hover:bg-success/20'
+                          : 'bg-muted text-text-secondary hover:bg-muted/80'
+                      }`}
+                    >
+                      <Icon name={charge.is_active ? 'EyeIcon' : 'EyeSlashIcon'} size={12} />
+                      {charge.is_active ? 'Active' : 'Hidden'}
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -226,7 +253,7 @@ export default function DeliveryChargesPage() {
 
       <div className="rounded-lg border border-border bg-muted/30 p-4">
         <p className="font-body text-xs text-text-secondary">
-          <strong className="text-text-primary">Note:</strong> Charges are stored in AED and automatically converted to the customer's local currency (USD, GBP, INR, etc.) at checkout using live exchange rates. Countries not listed here will have free delivery.
+          <strong className="text-text-primary">Note:</strong> Charges are stored in AED and automatically converted to the customer's local currency at checkout. Hidden countries will have free delivery applied.
         </p>
       </div>
     </div>
