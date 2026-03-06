@@ -6,6 +6,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from('delivery_charges')
     .select('*')
+    .eq('is_active', true)
     .order('country_name', { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

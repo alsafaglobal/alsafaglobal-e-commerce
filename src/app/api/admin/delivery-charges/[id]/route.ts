@@ -4,11 +4,16 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createAdminClient();
-  const { country_name, charge_aed } = await req.json();
+  const body = await req.json();
+  const { country_name, charge_aed, is_active } = body;
+
+  const update: Record<string, unknown> = { charge_aed: Number(charge_aed) };
+  if (country_name !== undefined) update.country_name = country_name.trim();
+  if (is_active !== undefined) update.is_active = is_active;
 
   const { data, error } = await supabase
     .from('delivery_charges')
-    .update({ country_name: country_name.trim(), charge_aed: Number(charge_aed) })
+    .update(update)
     .eq('id', id)
     .select()
     .single();
