@@ -16,7 +16,7 @@ const ContactContent: React.FC = () => {
   const heading = useSiteContent('contact_heading', 'Contact Us');
   const subtitle = useSiteContent('contact_subtitle', "We'd love to hear from you. Send us a message and we'll respond as soon as possible.");
   const contactEmail = useSiteContent('contact_email', 'info@alsafaglobal.com');
-  const contactPhone = useSiteContent('contact_phone', '00971 4 3741 969');
+  const contactPhone = useSiteContent('contact_phone', '00971501225501');
   const contactAddress = useSiteContent('contact_address', 'Al Safa Global General Trading FZ LLC FDBC3472\nCompass Building, Al Shohada Road\nAl Hamra Industrial Zone-FZ\nP.O. Box 10055\nRas Al Khaimah, United Arab Emirates');
 
   const labelName = useSiteContent('contact_label_name', 'Full Name');
