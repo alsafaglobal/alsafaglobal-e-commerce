@@ -95,6 +95,8 @@ const ShopCatalogInteractive: React.FC = () => {
           }))
         );
       }
+      // Mark loading done only after data is ready — not on a timer
+      setIsLoading(false);
     }
     loadProducts();
   }, []);
@@ -111,10 +113,6 @@ const ShopCatalogInteractive: React.FC = () => {
 
     setSearchQuery(query);
     setSelectedFilters(filters);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
   }, [isHydrated, searchParams]);
 
   const filteredProducts = useMemo(() => {
