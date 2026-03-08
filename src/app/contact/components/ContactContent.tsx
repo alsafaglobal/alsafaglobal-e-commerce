@@ -46,9 +46,9 @@ const ContactContent: React.FC = () => {
   };
 
   const contactDetails = [
-    { icon: 'EnvelopeIcon', label: 'Email', lines: [contactEmail] },
-    { icon: 'PhoneIcon', label: 'Phone', lines: [contactPhone] },
-    { icon: 'MapPinIcon', label: 'Address', lines: contactAddress.split('\n') },
+    { icon: 'EnvelopeIcon', label: 'Email', lines: [contactEmail], href: `mailto:${contactEmail}` },
+    { icon: 'PhoneIcon', label: 'Phone', lines: [contactPhone], href: `tel:${contactPhone}` },
+    { icon: 'MapPinIcon', label: 'Address', lines: contactAddress.split('\n'), href: undefined },
   ];
 
   return (
@@ -74,11 +74,17 @@ const ContactContent: React.FC = () => {
                   {detail.label}
                 </p>
                 <div className="mt-1 space-y-0.5">
-                  {detail.lines.map((line, i) => (
-                    <p key={i} className="font-body text-base text-text-primary">
-                      {line}
-                    </p>
-                  ))}
+                  {detail.lines.map((line, i) =>
+                    detail.href ? (
+                      <a key={i} href={detail.href} className="font-body text-base text-text-primary underline-offset-2 hover:text-primary hover:underline">
+                        {line}
+                      </a>
+                    ) : (
+                      <p key={i} className="font-body text-base text-text-primary">
+                        {line}
+                      </p>
+                    )
+                  )}
                 </div>
               </div>
             </div>
