@@ -270,85 +270,11 @@ const tabs: Tab[] = [
     id: 'about', label: 'About Page', icon: 'InformationCircleIcon',
     sections: [
       {
-        title: 'About Hero',
+        title: 'About Us Content',
         keys: [
-          { key: 'about_hero_title', label: 'Title', type: 'text' },
-          { key: 'about_hero_subtitle', label: 'Subtitle', type: 'textarea' },
-        ],
-      },
-      {
-        title: 'Our Story',
-        keys: [
-          { key: 'about_story_title', label: 'Section Title', type: 'text' },
-          { key: 'about_story_content', label: 'Story Paragraphs', type: 'json_array', fields: [
+          { key: 'about_story_content', label: 'Paragraphs', type: 'json_array', fields: [
             { name: 'text', label: 'Paragraph', type: 'textarea' },
           ]},
-        ],
-      },
-      {
-        title: 'Core Values',
-        keys: [
-          { key: 'about_values_heading', label: 'Section Heading', type: 'text' },
-          { key: 'about_values_subtitle', label: 'Section Subtitle', type: 'text' },
-          { key: 'about_values', label: 'Values', type: 'json_array', fields: [
-            { name: 'icon', label: 'Icon Name', type: 'text' },
-            { name: 'title', label: 'Title', type: 'text' },
-            { name: 'description', label: 'Description', type: 'textarea' },
-          ]},
-        ],
-      },
-      {
-        title: 'Craftsmanship',
-        keys: [
-          { key: 'about_craftsmanship_heading', label: 'Section Heading', type: 'text' },
-          { key: 'about_craftsmanship_subtitle', label: 'Section Subtitle', type: 'text' },
-          { key: 'about_craftsmanship_steps', label: 'Steps', type: 'json_array', fields: [
-            { name: 'number', label: 'Step Number', type: 'text' },
-            { name: 'title', label: 'Title', type: 'text' },
-            { name: 'description', label: 'Description', type: 'textarea' },
-          ]},
-        ],
-      },
-      {
-        title: 'Awards',
-        keys: [
-          { key: 'about_awards_heading', label: 'Section Heading', type: 'text' },
-          { key: 'about_awards_subtitle', label: 'Section Subtitle', type: 'text' },
-          { key: 'about_awards', label: 'Awards', type: 'json_array', fields: [
-            { name: 'year', label: 'Year', type: 'text' },
-            { name: 'title', label: 'Award Title', type: 'text' },
-            { name: 'organization', label: 'Organization', type: 'text' },
-          ]},
-        ],
-      },
-      {
-        title: 'Philosophy',
-        keys: [
-          { key: 'about_philosophy_title', label: 'Section Title', type: 'text' },
-          { key: 'about_philosophy_content', label: 'Philosophy Paragraphs', type: 'json_array', fields: [
-            { name: 'text', label: 'Paragraph', type: 'textarea' },
-          ]},
-        ],
-      },
-      {
-        title: 'Commitments',
-        keys: [
-          { key: 'about_commitments_heading', label: 'Section Heading', type: 'text' },
-          { key: 'about_commitments_subtitle', label: 'Section Subtitle', type: 'text' },
-          { key: 'about_commitments', label: 'Commitments', type: 'json_array', fields: [
-            { name: 'icon', label: 'Icon Name', type: 'text' },
-            { name: 'title', label: 'Title', type: 'text' },
-            { name: 'description', label: 'Description', type: 'textarea' },
-          ]},
-        ],
-      },
-      {
-        title: 'Call to Action',
-        keys: [
-          { key: 'about_cta_title', label: 'Heading', type: 'text' },
-          { key: 'about_cta_subtitle', label: 'Description', type: 'textarea' },
-          { key: 'about_cta_button1_text', label: 'Button 1 Text', type: 'text' },
-          { key: 'about_cta_button2_text', label: 'Button 2 Text', type: 'text' },
         ],
       },
     ],
@@ -449,18 +375,6 @@ const tabs: Tab[] = [
           { key: 'section_visible_category_showcase', label: 'Category Showcase', type: 'toggle' },
           { key: 'section_visible_featured_products', label: 'Featured Products', type: 'toggle' },
           { key: 'section_visible_newsletter', label: 'Newsletter Section', type: 'toggle' },
-        ],
-      },
-      {
-        title: 'About Page Sections',
-        keys: [
-          { key: 'section_visible_about_story', label: 'Our Story', type: 'toggle' },
-          { key: 'section_visible_about_values', label: 'Core Values', type: 'toggle' },
-          { key: 'section_visible_about_craftsmanship', label: 'Craftsmanship', type: 'toggle' },
-          { key: 'section_visible_about_awards', label: 'Awards', type: 'toggle' },
-          { key: 'section_visible_about_philosophy', label: 'Philosophy', type: 'toggle' },
-          { key: 'section_visible_about_commitments', label: 'Commitments', type: 'toggle' },
-          { key: 'section_visible_about_cta', label: 'Call to Action', type: 'toggle' },
         ],
       },
       {
