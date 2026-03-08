@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
 import JsonArrayEditor from './components/JsonArrayEditor';
 import JsonLinksEditor from './components/JsonLinksEditor';
+import ImageUploadField from './components/ImageUploadField';
 
 /* ------------------------------------------------------------------ */
 /*  Tab & field definitions                                           */
@@ -16,8 +17,9 @@ interface JsonArrayField {
 }
 interface JsonLinksField { key: string; label: string; type: 'json_links'; visibilityKey?: string }
 interface VisibilityOnlyField { key: string; label: string; type: 'visibility_only'; visibilityKey: string }
+interface ImageUploadFieldDef { key: string; label: string; type: 'image_upload'; visibilityKey?: string }
 
-type FieldDef = TextField | JsonArrayField | JsonLinksField | VisibilityOnlyField;
+type FieldDef = TextField | JsonArrayField | JsonLinksField | VisibilityOnlyField | ImageUploadFieldDef;
 
 interface Section { title: string; visibilityKey?: string; keys: FieldDef[] }
 interface Tab { id: string; label: string; icon: string; sections: Section[] }
@@ -291,7 +293,7 @@ const tabs: Tab[] = [
       {
         title: 'About Us Banner',
         keys: [
-          { key: 'about_banner_image', label: 'Banner Image URL (full-width image above content)', type: 'text' },
+          { key: 'about_banner_image', label: 'Banner Image (full-width image above content)', type: 'image_upload' },
         ],
       },
       {
@@ -519,7 +521,13 @@ export default function AdminContentPage() {
               <div className="space-y-4">
                 {section.keys.map((field) => (
                   <div key={field.key}>
-                    {field.type === 'visibility_only' ? (
+                    {field.type === 'image_upload' ? (
+                      <ImageUploadField
+                        label={field.label}
+                        value={content[field.key] || ''}
+                        onChange={(url) => handleChange(field.key, url)}
+                      />
+                    ) : field.type === 'visibility_only' ? (
                       <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
                         <span className="font-body text-sm font-medium text-text-primary">{field.label}</span>
                         <VisibilityToggle
