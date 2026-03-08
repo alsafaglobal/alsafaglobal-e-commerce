@@ -9,17 +9,17 @@ import JsonLinksEditor from './components/JsonLinksEditor';
 /*  Tab & field definitions                                           */
 /* ------------------------------------------------------------------ */
 
-interface TextField { key: string; label: string; type: 'text' | 'textarea' }
+interface TextField { key: string; label: string; type: 'text' | 'textarea'; visibilityKey?: string }
 interface JsonArrayField {
-  key: string; label: string; type: 'json_array';
+  key: string; label: string; type: 'json_array'; visibilityKey?: string;
   fields: { name: string; label: string; type: 'text' | 'textarea' }[];
 }
-interface JsonLinksField { key: string; label: string; type: 'json_links' }
-interface ToggleField { key: string; label: string; type: 'toggle' }
+interface JsonLinksField { key: string; label: string; type: 'json_links'; visibilityKey?: string }
+interface VisibilityOnlyField { key: string; label: string; type: 'visibility_only'; visibilityKey: string }
 
-type FieldDef = TextField | JsonArrayField | JsonLinksField | ToggleField;
+type FieldDef = TextField | JsonArrayField | JsonLinksField | VisibilityOnlyField;
 
-interface Section { title: string; keys: FieldDef[] }
+interface Section { title: string; visibilityKey?: string; keys: FieldDef[] }
 interface Tab { id: string; label: string; icon: string; sections: Section[] }
 
 const tabs: Tab[] = [
@@ -28,6 +28,7 @@ const tabs: Tab[] = [
     sections: [
       {
         title: 'Hero Section',
+        visibilityKey: 'section_visible_hero',
         keys: [
           { key: 'hero_title', label: 'Headline', type: 'text' },
           { key: 'hero_subtitle', label: 'Subtitle', type: 'textarea' },
@@ -36,13 +37,20 @@ const tabs: Tab[] = [
       },
       {
         title: 'Category Showcase',
+        visibilityKey: 'section_visible_category_showcase',
         keys: [
           { key: 'category_showcase_title', label: 'Section Title', type: 'text' },
           { key: 'category_showcase_subtitle', label: 'Section Subtitle', type: 'text' },
         ],
       },
       {
+        title: 'Offers Section',
+        visibilityKey: 'section_visible_offers',
+        keys: [],
+      },
+      {
         title: 'Featured Products',
+        visibilityKey: 'section_visible_featured_products',
         keys: [
           { key: 'featured_title', label: 'Section Title', type: 'text' },
           { key: 'featured_subtitle', label: 'Section Subtitle', type: 'text' },
@@ -57,6 +65,7 @@ const tabs: Tab[] = [
       },
       {
         title: 'WhatsApp Button',
+        visibilityKey: 'section_visible_whatsapp',
         keys: [
           { key: 'whatsapp_number', label: 'WhatsApp Number (with country code, no +)', type: 'text' },
           { key: 'whatsapp_message', label: 'Pre-filled Message', type: 'text' },
@@ -64,6 +73,7 @@ const tabs: Tab[] = [
       },
       {
         title: 'Newsletter',
+        visibilityKey: 'section_visible_newsletter',
         keys: [
           { key: 'newsletter_title', label: 'Title', type: 'text' },
           { key: 'newsletter_subtitle', label: 'Subtitle', type: 'textarea' },
@@ -74,11 +84,10 @@ const tabs: Tab[] = [
       },
       {
         title: 'Footer',
+        visibilityKey: 'section_visible_footer',
         keys: [
           { key: 'footer_tagline', label: 'Footer Description', type: 'textarea' },
           { key: 'footer_copyright_text', label: 'Copyright Text', type: 'text' },
-          { key: 'footer_heading_shop', label: 'Shop Column Heading', type: 'text' },
-          { key: 'footer_links_shop', label: 'Shop Links', type: 'json_links' },
           { key: 'footer_heading_company', label: 'Company Column Heading', type: 'text' },
           { key: 'footer_links_company', label: 'Company Links', type: 'json_links' },
           { key: 'footer_heading_support', label: 'Support Column Heading', type: 'text' },
@@ -118,7 +127,7 @@ const tabs: Tab[] = [
         keys: [
           { key: 'product_breadcrumb_home', label: 'Breadcrumb: Home', type: 'text' },
           { key: 'product_breadcrumb_shop', label: 'Breadcrumb: Shop', type: 'text' },
-          { key: 'product_related_title', label: 'Related Products Title', type: 'text' },
+          { key: 'product_related_title', label: 'Related Products Title', type: 'text', visibilityKey: 'section_visible_related_products' },
           { key: 'product_label_fragrance_family', label: 'Label: Fragrance Family', type: 'text' },
           { key: 'product_label_longevity', label: 'Label: Longevity', type: 'text' },
           { key: 'product_label_occasions', label: 'Label: Occasions', type: 'text' },
@@ -128,6 +137,16 @@ const tabs: Tab[] = [
           { key: 'product_buy_now_text', label: 'Buy Now Button', type: 'text' },
           { key: 'product_adding_text', label: 'Adding... Text', type: 'text' },
           { key: 'product_added_text', label: 'Added to Cart! Text', type: 'text' },
+        ],
+      },
+      {
+        title: 'Scent Notes',
+        visibilityKey: 'section_visible_product_scent_notes',
+        keys: [
+          { key: 'product_scent_notes_title', label: 'Section Title', type: 'text' },
+          { key: 'product_label_top_notes', label: 'Top Notes Label', type: 'text' },
+          { key: 'product_label_heart_notes', label: 'Heart Notes Label', type: 'text' },
+          { key: 'product_label_base_notes', label: 'Base Notes Label', type: 'text' },
         ],
       },
     ],
@@ -291,6 +310,7 @@ const tabs: Tab[] = [
       },
       {
         title: 'Contact Details',
+        visibilityKey: 'section_visible_contact_details',
         keys: [
           { key: 'contact_email', label: 'Email', type: 'text' },
           { key: 'contact_phone', label: 'Phone', type: 'text' },
@@ -298,26 +318,17 @@ const tabs: Tab[] = [
         ],
       },
       {
-        title: 'Form Labels',
+        title: 'Contact Form',
+        visibilityKey: 'section_visible_contact_form',
         keys: [
           { key: 'contact_label_name', label: 'Name Label', type: 'text' },
           { key: 'contact_label_email', label: 'Email Label', type: 'text' },
           { key: 'contact_label_subject', label: 'Subject Label', type: 'text' },
           { key: 'contact_label_message', label: 'Message Label', type: 'text' },
-        ],
-      },
-      {
-        title: 'Form Placeholders',
-        keys: [
           { key: 'contact_placeholder_name', label: 'Name Placeholder', type: 'text' },
           { key: 'contact_placeholder_email', label: 'Email Placeholder', type: 'text' },
           { key: 'contact_placeholder_subject', label: 'Subject Placeholder', type: 'text' },
           { key: 'contact_placeholder_message', label: 'Message Placeholder', type: 'text' },
-        ],
-      },
-      {
-        title: 'Form Actions',
-        keys: [
           { key: 'contact_submit_text', label: 'Submit Button Text', type: 'text' },
           { key: 'contact_success_title', label: 'Success Title', type: 'text' },
           { key: 'contact_success_message', label: 'Success Message', type: 'textarea' },
@@ -345,13 +356,14 @@ const tabs: Tab[] = [
         ],
       },
       {
-        title: 'Navigation Labels',
+        title: 'Navigation',
         keys: [
-          { key: 'nav_home', label: 'Home', type: 'text' },
-          { key: 'nav_shop', label: 'Shop', type: 'text' },
-          { key: 'nav_about', label: 'About', type: 'text' },
-          { key: 'nav_contact', label: 'Contact', type: 'text' },
+          { key: 'nav_home', label: 'Home', type: 'text', visibilityKey: 'section_visible_nav_home' },
+          { key: 'nav_shop', label: 'Shop', type: 'text', visibilityKey: 'section_visible_nav_shop' },
+          { key: 'nav_about', label: 'About', type: 'text', visibilityKey: 'section_visible_nav_about' },
+          { key: 'nav_contact', label: 'Contact', type: 'text', visibilityKey: 'section_visible_nav_contact' },
           { key: 'nav_shopping_cart', label: 'Shopping Cart', type: 'text' },
+          { key: 'section_visible_dark_mode_toggle', label: 'Dark Mode Toggle', type: 'visibility_only', visibilityKey: 'section_visible_dark_mode_toggle' },
         ],
       },
       {
@@ -365,48 +377,38 @@ const tabs: Tab[] = [
       },
     ],
   },
-  {
-    id: 'visibility', label: 'Visibility', icon: 'EyeIcon',
-    sections: [
-      {
-        title: 'Navigation',
-        keys: [
-          { key: 'section_visible_dark_mode_toggle', label: 'Dark Mode Toggle', type: 'toggle' },
-          { key: 'section_visible_nav_home', label: 'Nav — Home', type: 'toggle' },
-          { key: 'section_visible_nav_shop', label: 'Nav — Shop', type: 'toggle' },
-          { key: 'section_visible_nav_about', label: 'Nav — About', type: 'toggle' },
-          { key: 'section_visible_nav_contact', label: 'Nav — Contact', type: 'toggle' },
-        ],
-      },
-      {
-        title: 'Homepage Sections',
-        keys: [
-          { key: 'section_visible_hero', label: 'Hero Section', type: 'toggle' },
-          { key: 'section_visible_category_showcase', label: 'Category Showcase', type: 'toggle' },
-          { key: 'section_visible_offers', label: 'Offers Section', type: 'toggle' },
-          { key: 'section_visible_featured_products', label: 'Featured Products', type: 'toggle' },
-          { key: 'section_visible_newsletter', label: 'Newsletter Section', type: 'toggle' },
-          { key: 'section_visible_whatsapp', label: 'WhatsApp Button', type: 'toggle' },
-          { key: 'section_visible_footer', label: 'Footer', type: 'toggle' },
-        ],
-      },
-      {
-        title: 'Product Page Sections',
-        keys: [
-          { key: 'section_visible_product_scent_notes', label: 'Scent Notes', type: 'toggle' },
-          { key: 'section_visible_related_products', label: 'Related Products', type: 'toggle' },
-        ],
-      },
-      {
-        title: 'Contact Page Sections',
-        keys: [
-          { key: 'section_visible_contact_details', label: 'Contact Details (Email / Phone / Address)', type: 'toggle' },
-          { key: 'section_visible_contact_form', label: 'Contact Form', type: 'toggle' },
-        ],
-      },
-    ],
-  },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Inline Visibility Toggle                                           */
+/* ------------------------------------------------------------------ */
+
+function VisibilityToggle({
+  visibilityKey,
+  content,
+  onChange,
+}: {
+  visibilityKey: string;
+  content: Record<string, string>;
+  onChange: (key: string, value: string) => void;
+}) {
+  const isVisible = content[visibilityKey] !== 'false';
+  return (
+    <button
+      type="button"
+      title={isVisible ? 'Click to hide on site' : 'Click to show on site'}
+      onClick={() => onChange(visibilityKey, isVisible ? 'false' : 'true')}
+      className={`ml-2 inline-flex flex-shrink-0 items-center gap-1 rounded px-1.5 py-0.5 font-body text-xs font-medium transition-colors ${
+        isVisible
+          ? 'bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-600 dark:bg-green-900/30 dark:text-green-400'
+          : 'bg-red-100 text-red-600 hover:bg-green-100 hover:text-green-700 dark:bg-red-900/30 dark:text-red-400'
+      }`}
+    >
+      <Icon name={isVisible ? 'EyeIcon' : 'EyeSlashIcon'} size={12} />
+      {isVisible ? 'Visible' : 'Hidden'}
+    </button>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Page Component                                                     */
@@ -493,67 +495,105 @@ export default function AdminContentPage() {
       <div className="mt-6 space-y-6">
         {currentTab.sections.map((section) => (
           <div key={section.title} className="rounded-lg bg-card p-6 shadow-luxury-sm">
-            <h2 className="mb-4 font-heading text-lg font-semibold text-text-primary">
-              {section.title}
-            </h2>
-            <div className="space-y-4">
-              {section.keys.map((field) => (
-                <div key={field.key}>
-                  {field.type === 'toggle' ? (
-                    <label className="flex items-center justify-between rounded-md border border-border px-4 py-3">
-                      <div>
-                        <span className="font-body text-sm font-medium text-text-primary">{field.label}</span>
-                        <span className="ml-2 font-data text-xs text-text-secondary">({field.key})</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleChange(field.key, content[field.key] === 'false' ? 'true' : (content[field.key] === undefined || content[field.key] === 'true') ? 'false' : 'true')}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-                          content[field.key] !== 'false' ? 'bg-primary' : 'bg-muted'
-                        }`}>
-                        <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                          content[field.key] !== 'false' ? 'translate-x-5' : 'translate-x-0'
-                        }`} />
-                      </button>
-                    </label>
-                  ) : field.type === 'json_array' ? (
-                    <JsonArrayEditor
-                      value={content[field.key] || '[]'}
-                      onChange={(val) => handleChange(field.key, val)}
-                      fields={field.fields}
-                      label={field.label}
-                    />
-                  ) : field.type === 'json_links' ? (
-                    <JsonLinksEditor
-                      value={content[field.key] || '[]'}
-                      onChange={(val) => handleChange(field.key, val)}
-                      label={field.label}
-                    />
-                  ) : (
-                    <div>
-                      <label className="mb-1 block font-body text-sm font-medium text-text-primary">
-                        {field.label}
-                        <span className="ml-2 font-data text-xs text-text-secondary">({field.key})</span>
-                      </label>
-                      {field.type === 'textarea' ? (
-                        <textarea
-                          rows={3}
-                          value={content[field.key] || ''}
-                          onChange={(e) => handleChange(field.key, e.target.value)}
-                          className="w-full resize-none rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      ) : (
-                        <input
-                          value={content[field.key] || ''}
-                          onChange={(e) => handleChange(field.key, e.target.value)}
-                          className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+            {/* Section header with inline visibility toggle */}
+            <div className="mb-4 flex items-center gap-2">
+              <h2 className="font-heading text-lg font-semibold text-text-primary">
+                {section.title}
+              </h2>
+              {section.visibilityKey && (
+                <VisibilityToggle
+                  visibilityKey={section.visibilityKey}
+                  content={content}
+                  onChange={handleChange}
+                />
+              )}
             </div>
+
+            {section.keys.length > 0 && (
+              <div className="space-y-4">
+                {section.keys.map((field) => (
+                  <div key={field.key}>
+                    {field.type === 'visibility_only' ? (
+                      <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
+                        <span className="font-body text-sm font-medium text-text-primary">{field.label}</span>
+                        <VisibilityToggle
+                          visibilityKey={field.visibilityKey}
+                          content={content}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    ) : field.type === 'json_array' ? (
+                      <div>
+                        <div className="mb-1 flex items-center">
+                          <span className="font-body text-sm font-medium text-text-primary">{field.label}</span>
+                          {field.visibilityKey && (
+                            <VisibilityToggle
+                              visibilityKey={field.visibilityKey}
+                              content={content}
+                              onChange={handleChange}
+                            />
+                          )}
+                        </div>
+                        <JsonArrayEditor
+                          value={content[field.key] || '[]'}
+                          onChange={(val) => handleChange(field.key, val)}
+                          fields={field.fields}
+                          label=""
+                        />
+                      </div>
+                    ) : field.type === 'json_links' ? (
+                      <div>
+                        <div className="mb-1 flex items-center">
+                          <span className="font-body text-sm font-medium text-text-primary">{field.label}</span>
+                          {field.visibilityKey && (
+                            <VisibilityToggle
+                              visibilityKey={field.visibilityKey}
+                              content={content}
+                              onChange={handleChange}
+                            />
+                          )}
+                        </div>
+                        <JsonLinksEditor
+                          value={content[field.key] || '[]'}
+                          onChange={(val) => handleChange(field.key, val)}
+                          label=""
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="mb-1 flex items-center">
+                          <label className="font-body text-sm font-medium text-text-primary">
+                            {field.label}
+                            <span className="ml-2 font-data text-xs text-text-secondary">({field.key})</span>
+                          </label>
+                          {field.visibilityKey && (
+                            <VisibilityToggle
+                              visibilityKey={field.visibilityKey}
+                              content={content}
+                              onChange={handleChange}
+                            />
+                          )}
+                        </div>
+                        {field.type === 'textarea' ? (
+                          <textarea
+                            rows={3}
+                            value={content[field.key] || ''}
+                            onChange={(e) => handleChange(field.key, e.target.value)}
+                            className="w-full resize-none rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        ) : (
+                          <input
+                            value={content[field.key] || ''}
+                            onChange={(e) => handleChange(field.key, e.target.value)}
+                            className="w-full rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
