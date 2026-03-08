@@ -289,6 +289,12 @@ const tabs: Tab[] = [
     id: 'about', label: 'About Page', icon: 'InformationCircleIcon',
     sections: [
       {
+        title: 'About Us Banner',
+        keys: [
+          { key: 'about_banner_image', label: 'Banner Image URL (full-width image above content)', type: 'text' },
+        ],
+      },
+      {
         title: 'About Us Content',
         keys: [
           { key: 'about_story_content', label: 'Paragraphs', type: 'json_array', fields: [
