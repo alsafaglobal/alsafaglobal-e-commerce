@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 interface ScentNotesProps {
   topNotes: string[];
@@ -18,6 +18,8 @@ const ScentNotes: React.FC<ScentNotesProps> = ({
   const labelTop = useSiteContent('product_label_top_notes', 'Top Notes');
   const labelHeart = useSiteContent('product_label_heart_notes', 'Heart Notes');
   const labelBase = useSiteContent('product_label_base_notes', 'Base Notes');
+  const visible = useSectionVisible('product_scent_notes');
+  if (!visible) return null;
 
   return (
     <div className="space-y-6 rounded-lg bg-card p-6 shadow-luxury-sm">

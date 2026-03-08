@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
-import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const ContactContent: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +12,9 @@ const ContactContent: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+
+  const detailsVisible = useSectionVisible('contact_details');
+  const formVisible = useSectionVisible('contact_form');
 
   const heading = useSiteContent('contact_heading', 'Contact Us');
   const subtitle = useSiteContent('contact_subtitle', "We'd love to hear from you. Send us a message and we'll respond as soon as possible.");
@@ -60,7 +63,7 @@ const ContactContent: React.FC = () => {
       </div>
 
       <div className="grid gap-12 lg:grid-cols-3">
-        <div className="space-y-8">
+        {detailsVisible && <div className="space-y-8">
           {contactDetails.map((detail) => (
             <div key={detail.label} className="flex items-start gap-4">
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -80,9 +83,9 @@ const ContactContent: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
 
-        <div className="lg:col-span-2">
+        {formVisible && <div className="lg:col-span-2">
           {submitted ? (
             <div className="flex flex-col items-center justify-center rounded-lg bg-success/10 px-8 py-16 text-center shadow-luxury-sm">
               <Icon name="CheckCircleIcon" size={56} className="mb-4 text-success" />
@@ -148,7 +151,7 @@ const ContactContent: React.FC = () => {
               </button>
             </form>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );
