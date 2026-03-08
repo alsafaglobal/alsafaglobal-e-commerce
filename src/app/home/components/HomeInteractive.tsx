@@ -6,8 +6,6 @@ import FeaturedProducts from './FeaturedProducts';
 import OffersSection from './OffersSection';
 import CategoryShowcase from './CategoryShowcase';
 import NewsletterSection from './NewsletterSection';
-import Footer from './Footer';
-
 const HomeInteractive: React.FC = () => {
   return (
     <>
@@ -16,7 +14,6 @@ const HomeInteractive: React.FC = () => {
       <FeaturedProducts />
       <CategoryShowcase />
       <NewsletterSection />
-      <Footer />
     </>
   );
 };
