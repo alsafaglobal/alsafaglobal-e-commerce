@@ -6,16 +6,16 @@ import Icon from '@/components/ui/AppIcon';
 import { useSiteContent, useSiteContentJSON, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const defaultCompanyLinks = [
-  { label: 'About Us', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Store Locator', href: '/contact' },
-  { label: 'Careers', href: '/about' },
+  { label: 'About Us', href: '/about', visible: true },
+  { label: 'Contact', href: '/contact', visible: true },
+  { label: 'Store Locator', href: '/contact', visible: true },
+  { label: 'Careers', href: '/about', visible: true },
 ];
 const defaultSupportLinks = [
-  { label: 'Shipping Info', href: '/about' },
-  { label: 'Returns', href: '/about' },
-  { label: 'FAQ', href: '/about' },
-  { label: 'Privacy Policy', href: '/about' },
+  { label: 'Shipping Info', href: '/about', visible: true },
+  { label: 'Returns', href: '/about', visible: true },
+  { label: 'FAQ', href: '/about', visible: true },
+  { label: 'Privacy Policy', href: '/about', visible: true },
 ];
 
 const Footer: React.FC = () => {
@@ -26,8 +26,10 @@ const Footer: React.FC = () => {
   const copyrightText = useSiteContent('footer_copyright_text', 'Al Safa Global e-commerce');
   const headingCompany = useSiteContent('footer_heading_company', 'Company');
   const headingSupport = useSiteContent('footer_heading_support', 'Support');
-  const companyLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_company', defaultCompanyLinks);
-  const supportLinks = useSiteContentJSON<{ label: string; href: string }[]>('footer_links_support', defaultSupportLinks);
+  const companyLinksRaw = useSiteContentJSON<{ label: string; href: string; visible?: boolean }[]>('footer_links_company', defaultCompanyLinks);
+  const supportLinksRaw = useSiteContentJSON<{ label: string; href: string; visible?: boolean }[]>('footer_links_support', defaultSupportLinks);
+  const companyLinks = companyLinksRaw.filter((l) => l.visible !== false);
+  const supportLinks = supportLinksRaw.filter((l) => l.visible !== false);
   const brandPrimary = useSiteContent('brand_name_primary', 'Al Safa');
   const brandAccent = useSiteContent('brand_name_accent', 'Global');
   const termsText = useSiteContent('footer_terms', 'Terms of Service');
