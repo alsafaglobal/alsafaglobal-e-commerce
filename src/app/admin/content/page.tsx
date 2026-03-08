@@ -369,18 +369,39 @@ const tabs: Tab[] = [
     id: 'visibility', label: 'Visibility', icon: 'EyeIcon',
     sections: [
       {
+        title: 'Navigation',
+        keys: [
+          { key: 'section_visible_dark_mode_toggle', label: 'Dark Mode Toggle', type: 'toggle' },
+          { key: 'section_visible_nav_home', label: 'Nav — Home', type: 'toggle' },
+          { key: 'section_visible_nav_shop', label: 'Nav — Shop', type: 'toggle' },
+          { key: 'section_visible_nav_about', label: 'Nav — About', type: 'toggle' },
+          { key: 'section_visible_nav_contact', label: 'Nav — Contact', type: 'toggle' },
+        ],
+      },
+      {
         title: 'Homepage Sections',
         keys: [
           { key: 'section_visible_hero', label: 'Hero Section', type: 'toggle' },
           { key: 'section_visible_category_showcase', label: 'Category Showcase', type: 'toggle' },
+          { key: 'section_visible_offers', label: 'Offers Section', type: 'toggle' },
           { key: 'section_visible_featured_products', label: 'Featured Products', type: 'toggle' },
           { key: 'section_visible_newsletter', label: 'Newsletter Section', type: 'toggle' },
+          { key: 'section_visible_whatsapp', label: 'WhatsApp Button', type: 'toggle' },
+          { key: 'section_visible_footer', label: 'Footer', type: 'toggle' },
         ],
       },
       {
         title: 'Product Page Sections',
         keys: [
+          { key: 'section_visible_product_scent_notes', label: 'Scent Notes', type: 'toggle' },
           { key: 'section_visible_related_products', label: 'Related Products', type: 'toggle' },
+        ],
+      },
+      {
+        title: 'Contact Page Sections',
+        keys: [
+          { key: 'section_visible_contact_details', label: 'Contact Details (Email / Phone / Address)', type: 'toggle' },
+          { key: 'section_visible_contact_form', label: 'Contact Form', type: 'toggle' },
         ],
       },
     ],

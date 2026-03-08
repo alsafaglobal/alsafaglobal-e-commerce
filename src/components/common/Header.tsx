@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
-import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 import { useCart } from '@/lib/cart/CartContext';
 
 interface NavigationItem {
@@ -27,11 +27,17 @@ const Header: React.FC = () => {
   const brandAccent = useSiteContent('brand_name_accent', 'Global');
   const navCart = useSiteContent('nav_shopping_cart', 'Shopping Cart');
 
+  const darkModeVisible = useSectionVisible('dark_mode_toggle');
+  const navHomeVisible = useSectionVisible('nav_home');
+  const navShopVisible = useSectionVisible('nav_shop');
+  const navAboutVisible = useSectionVisible('nav_about');
+  const navContactVisible = useSectionVisible('nav_contact');
+
   const navigationItems: NavigationItem[] = [
-    { label: navHome, path: '/home', icon: 'HomeIcon' },
-    { label: navShop, path: '/shop-catalog', icon: 'ShoppingBagIcon' },
-    { label: navAbout, path: '/about', icon: 'InformationCircleIcon' },
-    { label: navContact, path: '/contact', icon: 'EnvelopeIcon' },
+    ...(navHomeVisible ? [{ label: navHome, path: '/home', icon: 'HomeIcon' }] : []),
+    ...(navShopVisible ? [{ label: navShop, path: '/shop-catalog', icon: 'ShoppingBagIcon' }] : []),
+    ...(navAboutVisible ? [{ label: navAbout, path: '/about', icon: 'InformationCircleIcon' }] : []),
+    ...(navContactVisible ? [{ label: navContact, path: '/contact', icon: 'EnvelopeIcon' }] : []),
   ];
 
   useEffect(() => {
@@ -121,17 +127,19 @@ const Header: React.FC = () => {
 
           <div className="flex items-center gap-3">
             {/* Dark mode toggle */}
-            <button
-              onClick={toggleDark}
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="flex items-center justify-center transition-luxury hover:scale-105"
-            >
-              <Icon
-                name={isDark ? 'SunIcon' : 'MoonIcon'}
-                size={22}
-                className="text-text-primary"
-              />
-            </button>
+            {darkModeVisible && (
+              <button
+                onClick={toggleDark}
+                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="flex items-center justify-center transition-luxury hover:scale-105"
+              >
+                <Icon
+                  name={isDark ? 'SunIcon' : 'MoonIcon'}
+                  size={22}
+                  className="text-text-primary"
+                />
+              </button>
+            )}
 
             <Link
               href="/shopping-cart"
@@ -182,17 +190,19 @@ const Header: React.FC = () => {
             </Link>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={toggleDark}
-                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                className="flex items-center justify-center transition-luxury hover:scale-105"
-              >
-                <Icon
-                  name={isDark ? 'SunIcon' : 'MoonIcon'}
-                  size={22}
-                  className="text-text-primary"
-                />
-              </button>
+              {darkModeVisible && (
+                <button
+                  onClick={toggleDark}
+                  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                  className="flex items-center justify-center transition-luxury hover:scale-105"
+                >
+                  <Icon
+                    name={isDark ? 'SunIcon' : 'MoonIcon'}
+                    size={22}
+                    className="text-text-primary"
+                  />
+                </button>
+              )}
               <button
                 onClick={toggleMobileMenu}
                 className="flex items-center justify-center transition-luxury hover:text-primary"

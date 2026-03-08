@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
-import { useSiteContent, useSiteContentJSON } from '@/lib/content/SiteContentContext';
+import { useSiteContent, useSiteContentJSON, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const defaultCompanyLinks = [
   { label: 'About Us', href: '/about' },
@@ -19,7 +19,9 @@ const defaultSupportLinks = [
 ];
 
 const Footer: React.FC = () => {
+  const footerVisible = useSectionVisible('footer');
   const currentYear = new Date().getFullYear();
+  if (!footerVisible) return null;
   const footerTagline = useSiteContent('footer_tagline', 'Discover luxury fragrances crafted by master perfumers. Each scent tells a unique story of elegance and sophistication.');
   const copyrightText = useSiteContent('footer_copyright_text', 'Al Safa Global e-commerce');
   const headingCompany = useSiteContent('footer_heading_company', 'Company');
