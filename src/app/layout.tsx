@@ -5,6 +5,7 @@ import { SiteContentProvider } from '@/lib/content/SiteContentContext';
 import { CartProvider } from '@/lib/cart/CartContext';
 import { CurrencyProvider } from '@/lib/currency/CurrencyContext';
 import WhatsAppButton from '@/components/common/WhatsAppButton';
+import GlobalFooter from '@/components/common/GlobalFooter';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -88,6 +89,7 @@ export default function RootLayout({
           <CurrencyProvider>
             <CartProvider>
               {children}
+              <GlobalFooter />
               <WhatsAppButton />
             </CartProvider>
           </CurrencyProvider>
