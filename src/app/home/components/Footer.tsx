@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Icon from '@/components/ui/AppIcon';
 import { useSiteContent, useSiteContentJSON, useSectionVisible } from '@/lib/content/SiteContentContext';
 
 const defaultCompanyLinks = [
@@ -35,13 +34,6 @@ const Footer: React.FC = () => {
   const termsText = useSiteContent('footer_terms', 'Terms of Service');
   const privacyText = useSiteContent('footer_privacy', 'Privacy Policy');
 
-  const socialLinks = [
-    { name: 'Facebook', icon: 'ShareIcon', href: '#' },
-    { name: 'Instagram', icon: 'CameraIcon', href: '#' },
-    { name: 'Twitter', icon: 'ChatBubbleLeftIcon', href: '#' },
-    { name: 'Pinterest', icon: 'PhotoIcon', href: '#' }
-  ];
-
   return (
     <footer className="w-full border-t border-border bg-card">
       <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8">
@@ -51,22 +43,9 @@ const Footer: React.FC = () => {
               {brandPrimary} <span className="text-accent">{brandAccent}</span>
             </span>
 
-            <p className="mb-6 max-w-sm font-body text-sm text-text-secondary">
+            <p className="max-w-sm font-body text-sm text-text-secondary">
               {footerTagline}
             </p>
-
-            <div className="flex gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-luxury hover:bg-primary hover:text-primary-foreground"
-                  aria-label={social.name}
-                >
-                  <Icon name={social.icon as any} size={20} />
-                </a>
-              ))}
-            </div>
           </div>
 
           <div>
