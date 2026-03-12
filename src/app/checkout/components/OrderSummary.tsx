@@ -35,8 +35,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const labelSize = useSiteContent('checkout_label_size', 'Size');
   const labelQty = useSiteContent('checkout_label_qty', 'Qty');
   const labelSubtotal = useSiteContent('checkout_label_subtotal', 'Subtotal');
-  const labelShipping = useSiteContent('checkout_label_shipping', 'Shipping');
-  const labelTax = useSiteContent('checkout_label_tax', 'Tax');
+  const labelShipping = useSiteContent('checkout_label_shipping', 'Delivery');
   const labelTotal = useSiteContent('checkout_label_total', 'Total');
   const secureText = useSiteContent('checkout_secure_badge', 'Secure SSL Encrypted Payment');
 
@@ -71,18 +70,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <span className="font-body text-sm text-text-secondary">{labelSubtotal}</span>
           <span className="font-data text-sm text-text-primary">{formatPrice(subtotal)}</span>
         </div>
-        {shipping > 0 && (
-          <div className="flex items-center justify-between">
-            <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
-            <span className="font-data text-sm text-text-primary">{formatPrice(shipping)}</span>
-          </div>
-        )}
-        {tax > 0 && (
-          <div className="flex items-center justify-between">
-            <span className="font-body text-sm text-text-secondary">{labelTax}</span>
-            <span className="font-data text-sm text-text-primary">{formatPrice(tax)}</span>
-          </div>
-        )}
+        <div className="flex items-center justify-between">
+          <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
+          <span className="font-data text-sm text-text-primary">
+            {shipping > 0 ? formatPrice(shipping) : 'Free'}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-border pt-4">

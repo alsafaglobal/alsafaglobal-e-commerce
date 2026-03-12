@@ -15,7 +15,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, total }) => {
   const { formatPrice } = useCurrency();
   const summaryTitle = useSiteContent('cart_summary_title', 'Order Summary');
   const labelSubtotal = useSiteContent('cart_label_subtotal', 'Subtotal');
-  const labelTax = useSiteContent('cart_label_tax', 'Estimated Tax (8%)');
+  const labelDelivery = useSiteContent('cart_label_delivery', 'Delivery');
   const labelTotal = useSiteContent('cart_label_total', 'Total');
   const btnCheckout = useSiteContent('cart_btn_checkout', 'Proceed to Checkout');
   const btnContinue = useSiteContent('cart_btn_continue', 'Continue Shopping');
@@ -32,8 +32,8 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, total }) => {
           <span className="font-data text-base font-medium text-text-primary">{formatPrice(subtotal)}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-base text-text-secondary">{labelTax}</span>
-          <span className="font-data text-base font-medium text-text-primary">{formatPrice(tax)}</span>
+          <span className="text-base text-text-secondary">{labelDelivery}</span>
+          <span className="font-data text-base font-medium text-text-secondary italic">Calculated at checkout</span>
         </div>
       </div>
 
