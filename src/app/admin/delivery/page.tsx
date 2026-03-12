@@ -83,7 +83,7 @@ export default function DeliveryChargesPage() {
   };
 
   const toggleActive = async (charge: DeliveryCharge) => {
-    await fetch(`/api/admin/delivery-charges/${charge.id}`, {
+    const res = await fetch(`/api/admin/delivery-charges/${charge.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -92,6 +92,10 @@ export default function DeliveryChargesPage() {
         is_active: !charge.is_active,
       }),
     });
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error || 'Failed to update status.');
+    }
     await fetchCharges();
   };
 
