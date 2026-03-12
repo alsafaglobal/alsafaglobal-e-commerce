@@ -25,9 +25,10 @@ const CartItem: React.FC<CartItemProps> = ({
   const btnRemove = useSiteContent('cart_btn_remove', 'Remove');
   const { formatPrice } = useCurrency();
 
-  const handleIncrement = () => onQuantityChange(id, quantity + 1);
-  const handleDecrement = () => { if (quantity > 1) onQuantityChange(id, quantity - 1); };
-  const handleRemove = () => { if (window.confirm(`Remove ${name} from cart?`)) onRemove(id); };
+  const cartKey = `${id}-${size}`;
+  const handleIncrement = () => onQuantityChange(cartKey, quantity + 1);
+  const handleDecrement = () => { if (quantity > 1) onQuantityChange(cartKey, quantity - 1); };
+  const handleRemove = () => { if (window.confirm(`Remove ${name} from cart?`)) onRemove(cartKey); };
 
   return (
     <div className="flex flex-col gap-4 border-b border-border pb-6 transition-luxury hover:bg-muted/30 sm:flex-row sm:items-center sm:gap-6 sm:pb-8">

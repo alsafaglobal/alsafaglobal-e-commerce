@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://alsafaglobal.com';
 
@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic product pages
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: products } = await supabase
       .from('products')
       .select('id, updated_at')
