@@ -55,7 +55,7 @@ const ShoppingCartInteractive: React.FC = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const tax = subtotal * 0.08;
+  const tax = 0;
   const total = subtotal + tax;
 
   if (items.length === 0) {
@@ -85,7 +85,7 @@ const ShoppingCartInteractive: React.FC = () => {
           <div className="space-y-6 lg:col-span-2">
             {items.map((item) =>
             <CartItem
-              key={item.id}
+              key={`${item.id}-${item.size}`}
               {...item}
               onQuantityChange={handleQuantityChange}
               onRemove={handleRemove} />
