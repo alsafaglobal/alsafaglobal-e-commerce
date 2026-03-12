@@ -30,10 +30,11 @@ const CheckoutInteractive: React.FC = () => {
   const [isHydrated, setIsHydrated] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [shipping, setShipping] = useState(0);
+  const [taxAmount, setTaxAmount] = useState(0);
   const [deliveryCharges, setDeliveryCharges] = useState<Record<string, number>>({});
+  const [taxRates, setTaxRates] = useState<Record<string, number>>({});
 
-  const tax = 0;
-  const total = subtotal + shipping;
+  const total = subtotal + shipping + taxAmount;
   // Keep a ref to the latest total so the update callback always uses the right value
   const totalRef = useRef(total);
   useEffect(() => { totalRef.current = total; }, [total]);
@@ -43,21 +44,34 @@ const CheckoutInteractive: React.FC = () => {
 
   useEffect(() => { setIsHydrated(true); }, []);
 
-  // Fetch delivery charges once, then apply charge for the default country
+  // Fetch delivery charges and tax rates, then apply for the default country
   useEffect(() => {
-    fetch('/api/delivery-charges')
-      .then((r) => r.json())
-      .then((data: Array<{ country_name: string; charge_aed: number }>) => {
-        if (Array.isArray(data)) {
-          const map: Record<string, number> = {};
-          data.forEach((d) => { map[d.country_name] = Number(d.charge_aed); });
-          setDeliveryCharges(map);
-          // Apply charge for the default/already-selected country
-          const charge = map[selectedCountry] ?? 0;
-          setShipping(charge);
-        }
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch('/api/delivery-charges').then((r) => r.json()),
+      fetch('/api/tax-rates').then((r) => r.json()),
+    ]).then(([deliveryData, taxData]) => {
+      const deliveryMap: Record<string, number> = {};
+      if (Array.isArray(deliveryData)) {
+        deliveryData.forEach((d: { country_name: string; charge_aed: number }) => {
+          deliveryMap[d.country_name] = Number(d.charge_aed);
+        });
+      }
+      setDeliveryCharges(deliveryMap);
+
+      const taxMap: Record<string, number> = {};
+      if (Array.isArray(taxData)) {
+        taxData.forEach((t: { country_name: string; tax_percent: number }) => {
+          taxMap[t.country_name] = Number(t.tax_percent);
+        });
+      }
+      setTaxRates(taxMap);
+
+      // Apply for the default country
+      const charge = deliveryMap[selectedCountry] ?? 0;
+      const taxPercent = taxMap[selectedCountry] ?? 0;
+      setShipping(charge);
+      setTaxAmount((subtotal * taxPercent) / 100);
+    }).catch(() => {});
   }, []);
 
   // Create payment intent once items are ready
@@ -81,8 +95,11 @@ const CheckoutInteractive: React.FC = () => {
   const handleCountryChange = async (country: string) => {
     setSelectedCountry(country);
     const charge = deliveryCharges[country] ?? 0;
+    const taxPercent = taxRates[country] ?? 0;
+    const newTaxAmount = (subtotal * taxPercent) / 100;
     setShipping(charge);
-    const newTotal = subtotal + charge;
+    setTaxAmount(newTaxAmount);
+    const newTotal = subtotal + charge + newTaxAmount;
 
     if (paymentIntentId) {
       await fetch('/api/checkout/payment-intent', {
@@ -110,7 +127,7 @@ const CheckoutInteractive: React.FC = () => {
         zipCode: formData.zipCode,
         country: formData.country,
       },
-      totals: { subtotal, shipping, tax, total: totalRef.current },
+      totals: { subtotal, shipping, tax: taxAmount, total: totalRef.current },
     };
 
     if (typeof window !== 'undefined') {
@@ -236,7 +253,7 @@ const CheckoutInteractive: React.FC = () => {
               cartItems={items}
               subtotal={subtotal}
               shipping={shipping}
-              tax={tax}
+              tax={taxAmount}
               total={total}
             />
           </div>

@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Site Content', href: '/admin/content', icon: 'PencilSquareIcon' },
   { label: 'Offers', href: '/admin/offers', icon: 'ReceiptPercentIcon' },
   { label: 'Delivery', href: '/admin/delivery', icon: 'TruckIcon' },
+  { label: 'Tax Rates', href: '/admin/tax', icon: 'ReceiptPercentIcon' },
   { label: 'Subscribers', href: '/admin/subscribers', icon: 'EnvelopeIcon' },
 ];
 
