@@ -22,6 +22,7 @@ export default function DeliveryChargesPage() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
 
@@ -83,6 +84,8 @@ export default function DeliveryChargesPage() {
   };
 
   const toggleActive = async (charge: DeliveryCharge) => {
+    setTogglingId(charge.id);
+    setError('');
     const res = await fetch(`/api/admin/delivery-charges/${charge.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -97,6 +100,7 @@ export default function DeliveryChargesPage() {
       setError(data.error || 'Failed to update status.');
     }
     await fetchCharges();
+    setTogglingId(null);
   };
 
   const handleCancel = () => {
@@ -116,6 +120,11 @@ export default function DeliveryChargesPage() {
 
   return (
     <div className="space-y-6">
+      {error && !showForm && (
+        <div className="rounded-md bg-error/10 px-4 py-3 font-body text-sm text-error border border-error/20">
+          {error}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Delivery Charges</h1>
@@ -220,14 +229,15 @@ export default function DeliveryChargesPage() {
                   <td className="px-6 py-4">
                     <button
                       onClick={() => toggleActive(charge)}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-body text-xs font-medium transition-luxury ${
+                      disabled={togglingId === charge.id}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-body text-xs font-medium transition-luxury disabled:opacity-50 disabled:cursor-wait ${
                         charge.is_active
                           ? 'bg-success/10 text-success hover:bg-success/20'
                           : 'bg-muted text-text-secondary hover:bg-muted/80'
                       }`}
                     >
-                      <Icon name={charge.is_active ? 'EyeIcon' : 'EyeSlashIcon'} size={12} />
-                      {charge.is_active ? 'Active' : 'Hidden'}
+                      <Icon name={togglingId === charge.id ? 'ArrowPathIcon' : charge.is_active ? 'EyeIcon' : 'EyeSlashIcon'} size={12} className={togglingId === charge.id ? 'animate-spin' : ''} />
+                      {togglingId === charge.id ? 'Updating…' : charge.is_active ? 'Active' : 'Hidden'}
                     </button>
                   </td>
                   <td className="px-6 py-4 text-right">
