@@ -38,9 +38,12 @@ const CheckoutInteractive: React.FC = () => {
   const totalRef = useRef(total);
   useEffect(() => { totalRef.current = total; }, [total]);
 
+  // Track selected country to apply charge when delivery charges load
+  const [selectedCountry, setSelectedCountry] = useState('United Arab Emirates');
+
   useEffect(() => { setIsHydrated(true); }, []);
 
-  // Fetch delivery charges once
+  // Fetch delivery charges once, then apply charge for the default country
   useEffect(() => {
     fetch('/api/delivery-charges')
       .then((r) => r.json())
@@ -49,6 +52,9 @@ const CheckoutInteractive: React.FC = () => {
           const map: Record<string, number> = {};
           data.forEach((d) => { map[d.country_name] = Number(d.charge_aed); });
           setDeliveryCharges(map);
+          // Apply charge for the default/already-selected country
+          const charge = map[selectedCountry] ?? 0;
+          setShipping(charge);
         }
       })
       .catch(() => {});
@@ -60,7 +66,7 @@ const CheckoutInteractive: React.FC = () => {
     fetch('/api/checkout/payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: subtotal }),
+      body: JSON.stringify({ amount: subtotal + shipping }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -73,6 +79,7 @@ const CheckoutInteractive: React.FC = () => {
 
   // Called by CheckoutForm whenever the country dropdown changes
   const handleCountryChange = async (country: string) => {
+    setSelectedCountry(country);
     const charge = deliveryCharges[country] ?? 0;
     setShipping(charge);
     const newTotal = subtotal + charge;
