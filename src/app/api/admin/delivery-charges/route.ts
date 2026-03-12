@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('delivery_charges')
-    .insert({ country_name: country_name.trim(), charge_aed: Number(charge_aed) })
+    .insert({ country_name: country_name.trim(), charge_aed: Number(charge_aed), is_active: true })
     .select()
     .single();
 
