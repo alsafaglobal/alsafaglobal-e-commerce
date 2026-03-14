@@ -78,7 +78,7 @@ const NewsletterSection: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={nlPlaceholder}
                   required
-                  className="flex-1 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 font-body text-primary-foreground placeholder:text-primary-foreground/60 focus:border-primary-foreground/40 focus:outline-none"
+                  className="flex-1 rounded-lg border-2 border-white/30 bg-white/15 px-4 py-3 font-body text-white placeholder:text-white/60 focus:border-white/60 focus:outline-none focus:bg-white/20"
                 />
 
                 <button
