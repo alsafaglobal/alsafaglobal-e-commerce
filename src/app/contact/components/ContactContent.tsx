@@ -12,6 +12,8 @@ const ContactContent: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const detailsVisible = useSectionVisible('contact_details');
   const formVisible = useSectionVisible('contact_form');
@@ -40,9 +42,26 @@ const ContactContent: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to send message.');
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactDetails = [
@@ -104,6 +123,7 @@ const ContactContent: React.FC = () => {
               <button
                 onClick={() => {
                   setSubmitted(false);
+                  setError('');
                   setFormData({ name: '', email: '', subject: '', message: '' });
                 }}
                 className="mt-8 rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90"
@@ -150,10 +170,13 @@ const ContactContent: React.FC = () => {
                   className="w-full resize-none rounded-md border border-border bg-input px-4 py-3 font-body text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
 
-              <button type="submit"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-base font-medium text-primary-foreground transition-luxury hover:opacity-90 sm:w-auto">
-                {submitText}
-                <Icon name="PaperAirplaneIcon" size={18} className="text-primary-foreground" />
+              {error && (
+                <p className="mt-4 font-body text-sm text-error">{error}</p>
+              )}
+              <button type="submit" disabled={loading}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-base font-medium text-primary-foreground transition-luxury hover:opacity-90 disabled:opacity-60 sm:w-auto">
+                {loading ? 'Sending...' : submitText}
+                {!loading && <Icon name="PaperAirplaneIcon" size={18} className="text-primary-foreground" />}
               </button>
             </form>
           )}
