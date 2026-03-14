@@ -78,7 +78,12 @@ const NewsletterSection: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={nlPlaceholder}
                   required
-                  className="flex-1 rounded-lg border-2 border-white/30 bg-white/15 px-4 py-3 font-body text-white placeholder:text-white/60 focus:border-white/60 focus:outline-none focus:bg-white/20"
+                  className="newsletter-input flex-1 rounded-lg border-2 px-4 py-3 font-body focus:outline-none"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    borderColor: 'rgba(255,255,255,0.35)',
+                    color: '#ffffff',
+                  }}
                 />
 
                 <button
