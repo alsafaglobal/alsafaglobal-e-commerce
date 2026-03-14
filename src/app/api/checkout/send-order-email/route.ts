@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     `;
 
     await resend.emails.send({
-      from: 'Al Safa Global Orders <onboarding@resend.dev>',
+      from: 'Al Safa Global Orders <noreply@shopatasg.com>',
       to: 'info@alsafaglobal.com',
       subject: `New Order ${orderNumber} — ${customer.name} — AED ${totals.total.toFixed(2)}`,
       html,

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // Send welcome email to subscriber
   await resend.emails.send({
-    from: 'Al Safa Global <onboarding@resend.dev>',
+    from: 'Al Safa Global <noreply@shopatasg.com>',
     to: email,
     subject: 'Welcome to Al Safa Global — You\'re In!',
     html: `
