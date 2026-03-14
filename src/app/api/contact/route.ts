@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     `;
 
     await resend.emails.send({
-      from: 'Al Safa Global Contact <onboarding@resend.dev>',
+      from: 'Al Safa Global Contact <noreply@shopatasg.com>',
       to: 'info@alsafaglobal.com',
       replyTo: email,
       subject: `Contact Form: ${subject} — ${name}`,
