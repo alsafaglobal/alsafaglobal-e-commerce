@@ -9,8 +9,7 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from('newsletter_subscribers')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*');
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
