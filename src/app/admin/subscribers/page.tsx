@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import Icon from '@/components/ui/AppIcon';
 
 interface Subscriber {
@@ -16,12 +15,9 @@ export default function AdminSubscribersPage() {
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('newsletter_subscribers')
-        .select('*')
-        .order('subscribed_at', { ascending: false });
-      setSubscribers(data || []);
+      const res = await fetch('/api/admin/subscribers');
+      const data = await res.json();
+      setSubscribers(Array.isArray(data) ? data : []);
       setLoading(false);
     }
     load();
