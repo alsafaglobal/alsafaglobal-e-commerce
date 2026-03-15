@@ -89,11 +89,85 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
+    // Email to admin
     await resend.emails.send({
       from: 'Al Safa Global Orders <noreply@shopatasg.com>',
       to: 'info@alsafaglobal.com',
       subject: `New Order ${orderNumber} — ${customer.name} — AED ${totals.total.toFixed(2)}`,
       html,
+    });
+
+    // Confirmation email to customer
+    const customerHtml = `
+      <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#1f2937;">
+        <div style="background:#1a1a2e;padding:28px 24px;text-align:center;">
+          <h1 style="color:#c9a96e;margin:0;font-size:26px;letter-spacing:1px;">Al Safa Global</h1>
+          <p style="color:#9ca3af;margin:8px 0 0;font-size:14px;">Order Confirmation</p>
+        </div>
+
+        <div style="padding:28px 24px;">
+          <h2 style="color:#1f2937;margin:0 0 8px;">Thank you, ${customer.name}!</h2>
+          <p style="color:#6b7280;margin:0 0 24px;line-height:1.7;">Your order has been placed successfully and payment confirmed. We'll start processing it right away.</p>
+
+          <div style="background:#f9fafb;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
+            <p style="margin:0;color:#6b7280;font-size:13px;">Order Number</p>
+            <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#c9a96e;">#${orderNumber}</p>
+          </div>
+
+          <h3 style="color:#1f2937;border-bottom:2px solid #c9a96e;padding-bottom:8px;margin:0 0 12px;">Shipping To</h3>
+          <p style="margin:0 0 24px;line-height:1.9;color:#374151;">
+            ${shipping.address}<br/>
+            ${shipping.city}${shipping.state ? ', ' + shipping.state : ''} ${shipping.zipCode || ''}<br/>
+            ${shipping.country}
+          </p>
+
+          <h3 style="color:#1f2937;border-bottom:2px solid #c9a96e;padding-bottom:8px;margin:0 0 12px;">Your Order</h3>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <thead>
+              <tr style="background:#f3f4f6;">
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:13px;">Product</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:13px;">Size</th>
+                <th style="padding:8px 12px;text-align:center;color:#6b7280;font-weight:600;font-size:13px;">Qty</th>
+                <th style="padding:8px 12px;text-align:right;color:#6b7280;font-weight:600;font-size:13px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>${items.map((item: any) => `
+              <tr>
+                <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:600;">${item.name}</td>
+                <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${item.size || '-'}</td>
+                <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">${item.quantity}</td>
+                <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">AED ${(item.price * item.quantity).toFixed(2)}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+
+          <table style="width:100%;border-collapse:collapse;max-width:280px;margin-left:auto;">
+            <tr><td style="padding:4px 0;color:#6b7280;">Subtotal</td><td style="padding:4px 0;text-align:right;">AED ${Number(totals.subtotal).toFixed(2)}</td></tr>
+            ${deliveryRow}
+            ${taxRow}
+            <tr style="border-top:2px solid #c9a96e;">
+              <td style="padding:10px 0 4px;font-weight:700;font-size:17px;color:#1f2937;">Total Paid</td>
+              <td style="padding:10px 0 4px;text-align:right;font-weight:700;font-size:17px;color:#c9a96e;">AED ${Number(totals.total).toFixed(2)}</td>
+            </tr>
+          </table>
+
+          <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.7;">
+            If you have any questions about your order, reply to this email or contact us at
+            <a href="mailto:info@alsafaglobal.com" style="color:#c9a96e;">info@alsafaglobal.com</a>
+          </p>
+        </div>
+
+        <div style="background:#1a1a2e;padding:16px 24px;text-align:center;">
+          <p style="color:#9ca3af;margin:0;font-size:12px;">Al Safa Global · info@alsafaglobal.com · shopatasg.com</p>
+        </div>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from: 'Al Safa Global <noreply@shopatasg.com>',
+      to: customer.email,
+      subject: `Order Confirmed #${orderNumber} — Thank you, ${customer.name}!`,
+      html: customerHtml,
     });
 
     return NextResponse.json({ success: true });
