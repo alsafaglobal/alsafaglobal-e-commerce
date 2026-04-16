@@ -29,14 +29,14 @@ const ScentNotes: React.FC<ScentNotesProps> = ({
 
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">{labelTop}</h3>
+          <h3 className="caption font-medium text-text-secondary">{labelTop}</h3>
           <p className="mt-2 font-body text-text-primary">
             {topNotes.join(', ')}
           </p>
         </div>
 
         <div className="border-t border-border pt-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          <h3 className="caption font-medium text-text-secondary">
             {labelHeart}
           </h3>
           <p className="mt-2 font-body text-text-primary">
@@ -45,7 +45,7 @@ const ScentNotes: React.FC<ScentNotesProps> = ({
         </div>
 
         <div className="border-t border-border pt-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          <h3 className="caption font-medium text-text-secondary">
             {labelBase}
           </h3>
           <p className="mt-2 font-body text-text-primary">
