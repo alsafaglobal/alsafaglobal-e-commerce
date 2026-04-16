@@ -68,18 +68,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               isHovered ? 'scale-105' : 'scale-100'
             }`}
           />
-          <div
-            className={`absolute inset-0 bg-gradient-to-t from-background/80 to-transparent transition-luxury ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <p className="caption text-card-foreground">Top Notes:</p>
-              <p className="font-body text-sm font-medium text-card-foreground">
-                {topNotes.join(', ')}
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="p-4">
@@ -89,9 +77,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           </div>
 
-          <h3 className="mb-2 font-heading text-lg font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-luxury">
+          <h3 className="mb-1 font-heading text-lg font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-luxury">
             {name}
           </h3>
+
+          {topNotes.length > 0 && (
+            <div className="mb-2 flex flex-wrap items-center gap-1">
+              <span className="font-body text-xs font-semibold uppercase tracking-wider text-accent">Top Notes</span>
+              <span className="text-xs text-text-secondary">—</span>
+              <span className="font-body text-xs text-text-secondary line-clamp-1">{topNotes.join(' · ')}</span>
+            </div>
+          )}
 
           {offerDiscount ? (
             <div className="flex items-baseline gap-2">
