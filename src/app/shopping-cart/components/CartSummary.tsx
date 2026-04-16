@@ -31,10 +31,11 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, total }) => {
           <span className="text-base text-text-secondary">{labelSubtotal}</span>
           <span className="font-data text-base font-medium text-text-primary">{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex items-center justify-between">
+        {/* Delivery row — hidden until re-enabled */}
+        {/* <div className="flex items-center justify-between">
           <span className="text-base text-text-secondary">{labelDelivery}</span>
           <span className="font-data text-base font-medium text-text-secondary italic">Calculated at checkout</span>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-4 flex items-center justify-between">
