@@ -22,7 +22,6 @@ interface OrderData {
   items: CartItem[];
   customer: { name: string; email: string; phone: string };
   shipping: { address: string; city: string; state: string; zipCode: string; country: string };
-  payment: { cardLast4: string; cardName: string };
   totals: { subtotal: number; shipping: number; tax: number; total: number };
 }
 
@@ -40,7 +39,6 @@ const OrderConfirmationContent: React.FC = () => {
   const labelTotal = useSiteContent('order_label_total', 'Total');
   const shippingTitle = useSiteContent('order_shipping_title', 'Shipping Address');
   const paymentTitle = useSiteContent('order_payment_title', 'Payment');
-  const cardEnding = useSiteContent('order_card_ending', 'Card ending in');
   const emailConfirm = useSiteContent('order_confirmation_email', 'A confirmation email will be sent to');
   const btnContinue = useSiteContent('order_btn_continue', 'Continue Shopping');
   const btnHome = useSiteContent('order_btn_home', 'Back to Home');
@@ -143,10 +141,10 @@ const OrderConfirmationContent: React.FC = () => {
           </div>
           <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
             <h3 className="mb-3 font-heading text-base font-semibold text-text-primary">{paymentTitle}</h3>
-            <p className="font-body text-sm text-text-secondary">
-              {order.payment.cardName}<br />
-              {cardEnding} {order.payment.cardLast4}
-            </p>
+            <div className="flex items-center gap-2">
+              <Icon name="ShieldCheckIcon" size={16} className="text-success" />
+              <p className="font-body text-sm text-text-secondary">Paid securely via Stripe</p>
+            </div>
             <p className="mt-2 font-body text-xs text-text-secondary">
               {emailConfirm} <span className="text-text-primary">{order.customer.email}</span>
             </p>
