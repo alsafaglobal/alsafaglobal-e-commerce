@@ -16,6 +16,7 @@ interface ProductCardProps {
   image: string;
   alt: string;
   scentType: string;
+  gender?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -26,6 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   image,
   alt,
   scentType,
+  gender,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [addedFeedback, setAddedFeedback] = useState(false);
@@ -77,7 +79,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="p-6">
           <div className="mb-2 flex items-center justify-between">
-            <span className="caption text-accent">{scentType}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="caption text-accent">{scentType}</span>
+              {gender && (
+                <span className="rounded-full bg-primary/10 px-3 py-1 caption font-medium text-primary">
+                  For {gender}
+                </span>
+              )}
+            </div>
             <button onClick={handleLike} className="relative z-10">
               <Icon
                 name="HeartIcon"

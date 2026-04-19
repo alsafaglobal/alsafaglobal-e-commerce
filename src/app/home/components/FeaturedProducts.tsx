@@ -13,6 +13,7 @@ interface Product {
   image: string;
   alt: string;
   scentType: string;
+  gender?: string;
 }
 
 const FeaturedProducts: React.FC = () => {
@@ -27,7 +28,7 @@ const FeaturedProducts: React.FC = () => {
       const supabase = createClient();
       const { data } = await supabase
         .from('products')
-        .select('id, name, brand, price, image_url, image_alt, scent_type')
+        .select('id, name, brand, price, image_url, image_alt, scent_type, gender')
         .eq('is_active', true)
         .eq('is_featured', true)
         .limit(6);
@@ -42,6 +43,7 @@ const FeaturedProducts: React.FC = () => {
             image: p.image_url || '',
             alt: p.image_alt || p.name,
             scentType: p.scent_type || '',
+            gender: p.gender || '',
           }))
         );
       }
@@ -95,6 +97,7 @@ const FeaturedProducts: React.FC = () => {
               image={product.image}
               alt={product.alt}
               scentType={product.scentType}
+              gender={product.gender}
             />
           )}
         </div>
