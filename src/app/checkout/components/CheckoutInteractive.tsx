@@ -112,63 +112,51 @@ const CheckoutInteractive: React.FC = () => {
     }
   };
 
-  const handleOrderComplete = async (formData: FormData, paymentIntentId: string) => {
-    const orderNumber = `ORD-${Date.now()}`;
-    const orderData = {
-      orderNumber,
+  // Save pending order to localStorage before Stripe redirects for 3DS
+  const handlePreparePayment = (formData: FormData) => {
+    const pending = {
+      orderNumber: `ORD-${Date.now()}`,
+      formData,
       items,
-      customer: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        phone: formData.phone,
-      },
-      shipping: {
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
-        country: formData.country,
-      },
       totals: { subtotal, shipping, tax: taxAmount, total: totalRef.current },
     };
+    localStorage.setItem('pendingCheckout', JSON.stringify(pending));
+  };
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lastOrder', JSON.stringify(orderData));
-    }
+  const handleOrderComplete = async (formData: FormData, paymentIntentId: string) => {
+    const orderNumber = `ORD-${Date.now()}`;
+    const customer = {
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      phone: formData.phone,
+    };
+    const shippingAddr = {
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+      country: formData.country,
+    };
+    const totals = { subtotal, shipping, tax: taxAmount, total: totalRef.current };
+
+    localStorage.setItem('lastOrder', JSON.stringify({ orderNumber, items, customer, shipping: shippingAddr, totals }));
+    localStorage.removeItem('pendingCheckout');
 
     try {
       await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderNumber,
-          customer: orderData.customer,
-          shipping: orderData.shipping,
-          items,
-          totals: orderData.totals,
-          paymentIntentId,
-        }),
+        body: JSON.stringify({ orderNumber, customer, shipping: shippingAddr, items, totals, paymentIntentId }),
       });
-    } catch (e) {
-      console.error('Order save failed:', e);
-    }
+    } catch (e) { console.error('Order save failed:', e); }
 
     try {
       await fetch('/api/checkout/send-order-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderNumber,
-          customer: orderData.customer,
-          shipping: orderData.shipping,
-          items,
-          totals: orderData.totals,
-          paymentIntentId,
-        }),
+        body: JSON.stringify({ orderNumber, customer, shipping: shippingAddr, items, totals, paymentIntentId }),
       });
-    } catch (e) {
-      console.error('Order email failed:', e);
-    }
+    } catch (e) { console.error('Order email failed:', e); }
 
     router.push('/order-confirmation');
     clearCart();
@@ -242,6 +230,7 @@ const CheckoutInteractive: React.FC = () => {
               <CheckoutForm
                 onOrderComplete={handleOrderComplete}
                 onCountryChange={handleCountryChange}
+                onPreparePayment={handlePreparePayment}
               />
             </Elements>
           ) : (

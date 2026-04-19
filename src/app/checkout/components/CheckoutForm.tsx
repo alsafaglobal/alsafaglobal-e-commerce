@@ -25,9 +25,10 @@ interface FormErrors {
 interface CheckoutFormProps {
   onOrderComplete: (data: FormData, paymentIntentId: string) => void;
   onCountryChange?: (country: string) => void;
+  onPreparePayment?: (data: FormData) => void;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange, onPreparePayment }) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -119,6 +120,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryC
 
     setIsProcessing(true);
     setStripeError('');
+
+    onPreparePayment?.(formData);
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,

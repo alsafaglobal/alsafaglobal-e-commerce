@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
 import { useCurrency } from '@/lib/currency/CurrencyContext';
+import { useCart } from '@/lib/cart/CartContext';
 
 interface CartItem {
   id: number;
@@ -28,6 +30,8 @@ interface OrderData {
 const OrderConfirmationContent: React.FC = () => {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const searchParams = useSearchParams();
+  const { clearCart } = useCart();
 
   const { formatPrice } = useCurrency();
   const confirmedTitle = useSiteContent('order_confirmed_title', 'Order Confirmed!');
@@ -48,6 +52,53 @@ const OrderConfirmationContent: React.FC = () => {
 
   useEffect(() => {
     setIsHydrated(true);
+
+    const redirectStatus = searchParams.get('redirect_status');
+    const paymentIntentId = searchParams.get('payment_intent');
+
+    // 3DS redirect path — complete the order using pending data saved before redirect
+    if (redirectStatus === 'succeeded' && paymentIntentId && !localStorage.getItem('lastOrder')) {
+      const raw = localStorage.getItem('pendingCheckout');
+      if (raw) {
+        try {
+          const pending = JSON.parse(raw);
+          const { orderNumber, formData, items, totals } = pending;
+          const customer = {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            phone: formData.phone,
+          };
+          const shipping = {
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          };
+          const orderData = { orderNumber, items, customer, shipping, totals };
+          localStorage.setItem('lastOrder', JSON.stringify(orderData));
+          localStorage.removeItem('pendingCheckout');
+          setOrder(orderData);
+          clearCart();
+
+          fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderNumber, customer, shipping, items, totals, paymentIntentId }),
+          }).catch(console.error);
+
+          fetch('/api/checkout/send-order-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderNumber, customer, shipping, items, totals, paymentIntentId }),
+          }).catch(console.error);
+
+          return;
+        } catch { /* ignore */ }
+      }
+    }
+
+    // Normal path — read lastOrder set by handleOrderComplete
     const stored = localStorage.getItem('lastOrder');
     if (stored) {
       try { setOrder(JSON.parse(stored)); } catch { /* ignore */ }
