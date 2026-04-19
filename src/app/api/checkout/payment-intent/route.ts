@@ -10,6 +10,9 @@ export async function POST(req: NextRequest) {
       amount: Math.round(amount * 100),
       currency: 'aed',
       automatic_payment_methods: { enabled: true },
+      payment_method_options: {
+        card: { request_three_d_secure: 'any' },
+      },
     });
 
     return NextResponse.json({

@@ -170,8 +170,8 @@ const CheckoutInteractive: React.FC = () => {
       console.error('Order email failed:', e);
     }
 
-    clearCart();
     router.push('/order-confirmation');
+    clearCart();
   };
 
   if (!isHydrated) {
