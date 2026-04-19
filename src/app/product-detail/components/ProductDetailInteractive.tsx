@@ -216,8 +216,6 @@ const ProductDetailInteractive: React.FC = () => {
               brand={productBrand}
               price={selectedSize.price}
               offerDiscount={offerDiscount}
-              rating={4.8}
-              reviewCount={342}
               description={productDescription}
               fragranceFamily={scentType}
               longevity={longevity}

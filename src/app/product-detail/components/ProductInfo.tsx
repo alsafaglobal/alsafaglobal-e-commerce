@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Icon from '@/components/ui/AppIcon';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
 import { useCurrency } from '@/lib/currency/CurrencyContext';
 
@@ -10,8 +9,6 @@ interface ProductInfoProps {
   brand: string;
   price: number;
   offerDiscount?: number;
-  rating: number;
-  reviewCount: number;
   description: string;
   fragranceFamily: string;
   longevity: string;
@@ -24,8 +21,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   brand,
   price,
   offerDiscount = 0,
-  rating,
-  reviewCount,
   description,
   fragranceFamily,
   longevity,
@@ -44,25 +39,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         <h1 className="mt-1 font-heading text-3xl font-semibold text-text-primary lg:text-4xl">
           {name}
         </h1>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Icon
-              key={star}
-              name="StarIcon"
-              variant={star <= Math.floor(rating) ? 'solid' : 'outline'}
-              size={20}
-              className={
-                star <= Math.floor(rating) ? 'text-accent' : 'text-muted'
-              }
-            />
-          ))}
-        </div>
-        <span className="caption text-text-secondary">
-          {rating} ({reviewCount} reviews)
-        </span>
       </div>
 
       <div className="border-t border-border pt-6">
