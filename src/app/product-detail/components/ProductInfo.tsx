@@ -87,7 +87,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         </p>
       </div>
 
-      <div className="grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
+      <div className={`grid gap-4 border-t border-border pt-6 ${gender ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
         <div>
           <p className="caption font-medium text-text-secondary">
             {labelFragrance}
