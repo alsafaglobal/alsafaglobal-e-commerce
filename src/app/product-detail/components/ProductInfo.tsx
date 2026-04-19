@@ -15,6 +15,7 @@ interface ProductInfoProps {
   description: string;
   fragranceFamily: string;
   longevity: string;
+  gender?: string;
   occasions: string[];
 }
 
@@ -28,6 +29,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   description,
   fragranceFamily,
   longevity,
+  gender,
   occasions,
 }) => {
   const { formatPrice } = useCurrency();
@@ -96,6 +98,12 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           <p className="caption font-medium text-text-secondary">{labelLongevity}</p>
           <p className="mt-1 font-body text-text-primary">{longevity}</p>
         </div>
+        {gender && (
+          <div>
+            <p className="caption font-medium text-text-secondary">Preferences</p>
+            <p className="mt-1 font-body text-text-primary">For {gender}</p>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-border pt-6">

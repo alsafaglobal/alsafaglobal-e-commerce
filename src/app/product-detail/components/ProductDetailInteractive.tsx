@@ -64,6 +64,7 @@ const ProductDetailInteractive: React.FC = () => {
   const [occasions, setOccasions] = useState<string[]>([]);
   const [scentType, setScentType] = useState('');
   const [longevity, setLongevity] = useState('');
+  const [gender, setGender] = useState('');
   const [offerDiscount, setOfferDiscount] = useState(0);
   const [stock, setStock] = useState<number | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
@@ -98,6 +99,7 @@ const ProductDetailInteractive: React.FC = () => {
         setProductDescription(data.description || '');
         setScentType(data.scent_type || '');
         setLongevity(data.longevity || '');
+        setGender(data.gender || '');
 
         // Fetch media gallery, related products, and offers in parallel
         const [{ data: extraMedia }, { data: related }, offersRes] = await Promise.all([
@@ -219,6 +221,7 @@ const ProductDetailInteractive: React.FC = () => {
               description={productDescription}
               fragranceFamily={scentType}
               longevity={longevity}
+              gender={gender}
               occasions={occasions} />
 
             <div className="space-y-6 border-t border-border pt-6">
