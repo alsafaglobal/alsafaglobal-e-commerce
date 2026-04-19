@@ -9,6 +9,7 @@ interface ProductInfoProps {
   name: string;
   brand: string;
   price: number;
+  offerDiscount?: number;
   rating: number;
   reviewCount: number;
   description: string;
@@ -21,6 +22,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   name,
   brand,
   price,
+  offerDiscount = 0,
   rating,
   reviewCount,
   description,
@@ -62,9 +64,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       <div className="border-t border-border pt-6">
-        <p className="font-heading text-3xl font-semibold text-primary">
-          {formatPrice(price)}
-        </p>
+        {offerDiscount > 0 ? (
+          <div className="flex items-baseline gap-3">
+            <p className="font-heading text-3xl font-semibold text-primary">
+              {formatPrice(price * (1 - offerDiscount / 100))}
+            </p>
+            <p className="font-data text-lg text-text-secondary line-through">{formatPrice(price)}</p>
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-body text-sm font-semibold text-primary">{offerDiscount}% OFF</span>
+          </div>
+        ) : (
+          <p className="font-heading text-3xl font-semibold text-primary">
+            {formatPrice(price)}
+          </p>
+        )}
       </div>
 
       <div className="space-y-4 border-t border-border pt-6">

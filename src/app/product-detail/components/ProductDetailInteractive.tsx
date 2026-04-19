@@ -64,6 +64,7 @@ const ProductDetailInteractive: React.FC = () => {
   const [occasions, setOccasions] = useState<string[]>([]);
   const [scentType, setScentType] = useState('');
   const [longevity, setLongevity] = useState('');
+  const [offerDiscount, setOfferDiscount] = useState(0);
   const [stock, setStock] = useState<number | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
 
@@ -98,8 +99,8 @@ const ProductDetailInteractive: React.FC = () => {
         setScentType(data.scent_type || '');
         setLongevity(data.longevity || '');
 
-        // Fetch media gallery and related products in parallel
-        const [{ data: extraMedia }, { data: related }] = await Promise.all([
+        // Fetch media gallery, related products, and offers in parallel
+        const [{ data: extraMedia }, { data: related }, offersRes] = await Promise.all([
           supabase
             .from('product_media')
             .select('url, alt')
@@ -112,7 +113,21 @@ const ProductDetailInteractive: React.FC = () => {
             .eq('scent_type', data.scent_type)
             .neq('id', data.id)
             .limit(4),
+          fetch('/api/offers').then((r) => r.json()).catch(() => []),
         ]);
+
+        // Find active product-level offer for this product
+        if (Array.isArray(offersRes)) {
+          for (const offer of offersRes) {
+            if (offer.offer_type === 'product' && offer.is_active && offer.discount_percent) {
+              const linked = offer.offer_products || [];
+              if (linked.some((lp: { product_id: number }) => String(lp.product_id) === String(data.id))) {
+                setOfferDiscount(offer.discount_percent);
+                break;
+              }
+            }
+          }
+        }
 
         // Images — cover + extra media
         const imgs: ProductImage[] = [];
@@ -198,6 +213,7 @@ const ProductDetailInteractive: React.FC = () => {
               name={productName}
               brand={productBrand}
               price={selectedSize.price}
+              offerDiscount={offerDiscount}
               rating={4.8}
               reviewCount={342}
               description={productDescription}
@@ -227,7 +243,7 @@ const ProductDetailInteractive: React.FC = () => {
                 productName={productName}
                 selectedSize={selectedSize.volume}
                 quantity={quantity}
-                price={selectedSize.price}
+                price={offerDiscount > 0 ? selectedSize.price * (1 - offerDiscount / 100) : selectedSize.price}
                 image={productImages[0]?.url || ''}
                 imageAlt={productImages[0]?.alt || productName} />
             </div>

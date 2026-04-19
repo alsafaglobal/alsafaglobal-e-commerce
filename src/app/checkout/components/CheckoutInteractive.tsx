@@ -34,13 +34,15 @@ const CheckoutInteractive: React.FC = () => {
   const [deliveryCharges, setDeliveryCharges] = useState<Record<string, number>>({});
   const [taxRates, setTaxRates] = useState<Record<string, number>>({});
 
-  const total = subtotal + shipping + taxAmount;
+  // Delivery row is hidden — exclude shipping from displayed total and charge
+  const total = subtotal + taxAmount;
   // Keep a ref to the latest total so the update callback always uses the right value
   const totalRef = useRef(total);
   useEffect(() => { totalRef.current = total; }, [total]);
 
   // Track selected country to apply charge when delivery charges load
   const [selectedCountry, setSelectedCountry] = useState('United Arab Emirates');
+  const taxRate = taxRates[selectedCountry] ?? 0;
 
   useEffect(() => { setIsHydrated(true); }, []);
 
@@ -80,7 +82,7 @@ const CheckoutInteractive: React.FC = () => {
     fetch('/api/checkout/payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: subtotal + shipping }),
+      body: JSON.stringify({ amount: subtotal + taxAmount }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -254,6 +256,7 @@ const CheckoutInteractive: React.FC = () => {
               subtotal={subtotal}
               shipping={shipping}
               tax={taxAmount}
+              taxRate={taxRate}
               total={total}
             />
           </div>

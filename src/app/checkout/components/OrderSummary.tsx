@@ -20,6 +20,7 @@ interface OrderSummaryProps {
   subtotal: number;
   shipping: number;
   tax: number;
+  taxRate: number;
   total: number;
 }
 
@@ -28,6 +29,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   subtotal,
   shipping,
   tax,
+  taxRate,
   total,
 }) => {
 
@@ -81,7 +83,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </div> */}
         {tax > 0 && (
           <div className="flex items-center justify-between">
-            <span className="font-body text-sm text-text-secondary">{labelTax}</span>
+            <span className="font-body text-sm text-text-secondary">{labelTax}{taxRate > 0 ? ` (${taxRate}%)` : ''}</span>
             <span className="font-data text-sm text-text-primary">{formatPrice(tax)}</span>
           </div>
         )}
