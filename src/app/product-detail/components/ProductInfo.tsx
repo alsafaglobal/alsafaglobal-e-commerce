@@ -101,7 +101,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         {gender && (
           <div>
             <p className="caption font-medium text-text-secondary">Preferences</p>
-            <p className="mt-1 font-body text-text-primary">For {gender}</p>
+            <p className="mt-1 font-body text-text-primary">{gender}</p>
           </div>
         )}
       </div>
