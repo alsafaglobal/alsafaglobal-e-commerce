@@ -89,7 +89,7 @@ const OrderConfirmationContent: React.FC = () => {
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
             <Icon name="CheckCircleIcon" size={48} className="text-success" />
           </div>
-          <h1 className="mt-6 font-heading text-3xl font-semibold text-text-primary md:text-4xl">{confirmedTitle}</h1>
+          <h1 className="mt-6 font-heading text-3xl font-semibold text-text-primary md:text-4xl">Payment Successful, your order has been placed.</h1>
           <p className="mt-3 font-body text-base text-text-secondary">{personalizedMessage}</p>
           <div className="mt-4 rounded-full bg-secondary px-6 py-2">
             <span className="font-data text-sm font-medium text-secondary-foreground">Order #{order.orderNumber}</span>
