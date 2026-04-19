@@ -35,7 +35,7 @@ const OrderConfirmationContent: React.FC = () => {
 
   const { formatPrice } = useCurrency();
   const confirmedTitle = useSiteContent('order_confirmed_title', 'Order Confirmed!');
-  const confirmedMessage = useSiteContent('order_confirmed_message', 'Thank you, {name}. Your order has been received and is being prepared.');
+  const confirmedMessage = useSiteContent('order_confirmed_message', 'Thank you, {name}. Your order has been received.');
   const summaryTitle = useSiteContent('order_summary_title', 'Order Summary');
   const labelSubtotal = useSiteContent('order_label_subtotal', 'Subtotal');
   const labelShipping = useSiteContent('order_label_shipping', 'Shipping');
