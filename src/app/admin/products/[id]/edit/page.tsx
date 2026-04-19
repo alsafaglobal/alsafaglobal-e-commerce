@@ -25,6 +25,7 @@ export default function EditProductPage() {
     scent_type: 'Floral',
     fragrance_family: '',
     longevity: '',
+    gender: '',
     is_active: true,
     is_featured: false,
   });
@@ -63,6 +64,7 @@ export default function EditProductPage() {
         scent_type: product.scent_type || 'Floral',
         fragrance_family: product.fragrance_family || '',
         longevity: product.longevity || '',
+        gender: product.gender || '',
         is_active: product.is_active ?? true,
         is_featured: product.is_featured ?? false,
       });
@@ -144,6 +146,7 @@ export default function EditProductPage() {
       scent_type: form.scent_type,
       fragrance_family: form.fragrance_family,
       longevity: form.longevity,
+      gender: form.gender || null,
       is_active: form.is_active,
       is_featured: form.is_featured,
       sizes: validSizes,
@@ -245,6 +248,15 @@ export default function EditProductPage() {
             <div>
               <label className={labelCls}>Longevity</label>
               <input name="longevity" value={form.longevity} onChange={handleChange} placeholder="e.g. 8-10 hours" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Gender</label>
+              <select name="gender" value={form.gender} onChange={handleChange} className={inputCls}>
+                <option value="">— Not specified —</option>
+                <option value="Men">For Men</option>
+                <option value="Women">For Women</option>
+                <option value="Men & Women">For Men &amp; Women</option>
+              </select>
             </div>
           </div>
         </div>

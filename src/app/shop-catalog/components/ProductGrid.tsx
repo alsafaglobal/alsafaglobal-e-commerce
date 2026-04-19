@@ -18,6 +18,7 @@ interface Product {
   isBestSelling: boolean;
   stock: number | null;
   offerDiscount?: number;
+  gender?: string;
 }
 
 interface ProductGridProps {
@@ -56,6 +57,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           badge={product.isFastMoving ? 'fast_moving' : product.isBestSelling ? 'best_selling' : undefined}
           stock={product.stock}
           offerDiscount={product.offerDiscount}
+          gender={product.gender}
         />
       ))}
     </div>

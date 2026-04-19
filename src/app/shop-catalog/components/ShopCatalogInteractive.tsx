@@ -27,6 +27,7 @@ interface Product {
   isBestSelling: boolean;
   stock: number | null;
   offerDiscount?: number;
+  gender?: string;
 }
 
 const ShopCatalogInteractive: React.FC = () => {
@@ -92,6 +93,7 @@ const ShopCatalogInteractive: React.FC = () => {
             isBestSelling: !!p.is_best_selling,
             stock: p.stock ?? null,
             offerDiscount: offerMap[String(p.id)],
+            gender: p.gender || '',
           }))
         );
       }

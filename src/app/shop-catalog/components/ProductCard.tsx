@@ -16,6 +16,7 @@ interface ProductCardProps {
   badge?: 'fast_moving' | 'best_selling';
   stock?: number | null;
   offerDiscount?: number;
+  gender?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -29,6 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   badge,
   stock,
   offerDiscount,
+  gender,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { formatPrice } = useCurrency();
@@ -71,10 +73,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         <div className="p-4">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-secondary px-3 py-1 caption text-secondary-foreground">
               {scentType}
             </span>
+            {gender && (
+              <span className="rounded-full bg-primary/10 px-3 py-1 caption font-medium text-primary">
+                For {gender}
+              </span>
+            )}
           </div>
 
           <h3 className="mb-1 font-heading text-lg font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-luxury">
