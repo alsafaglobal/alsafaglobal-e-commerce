@@ -385,6 +385,27 @@ const tabs: Tab[] = [
       },
     ],
   },
+  {
+    id: 'terms', label: 'Terms & Conditions', icon: 'DocumentTextIcon',
+    sections: [
+      {
+        title: 'Page Header',
+        keys: [
+          { key: 'terms_page_title', label: 'Page Title', type: 'text' },
+          { key: 'terms_intro', label: 'Introduction Paragraph', type: 'textarea' },
+        ],
+      },
+      { title: 'Section 1 — General', keys: [{ key: 'terms_s1_title', label: 'Section Title', type: 'text' }, { key: 'terms_s1_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 2 — Orders & Payments', keys: [{ key: 'terms_s2_title', label: 'Section Title', type: 'text' }, { key: 'terms_s2_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 3 — Shipping & Delivery', keys: [{ key: 'terms_s3_title', label: 'Section Title', type: 'text' }, { key: 'terms_s3_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 4 — No Return / No Refund', keys: [{ key: 'terms_s4_title', label: 'Section Title', type: 'text' }, { key: 'terms_s4_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 5 — Damaged / Wrong Items', keys: [{ key: 'terms_s5_title', label: 'Section Title', type: 'text' }, { key: 'terms_s5_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 6 — Order Cancellation', keys: [{ key: 'terms_s6_title', label: 'Section Title', type: 'text' }, { key: 'terms_s6_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 7 — Liability', keys: [{ key: 'terms_s7_title', label: 'Section Title', type: 'text' }, { key: 'terms_s7_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 8 — Intellectual Property', keys: [{ key: 'terms_s8_title', label: 'Section Title', type: 'text' }, { key: 'terms_s8_body', label: 'Content (one point per line)', type: 'textarea' }] },
+      { title: 'Section 9 — Governing Law', keys: [{ key: 'terms_s9_title', label: 'Section Title', type: 'text' }, { key: 'terms_s9_body', label: 'Content (one point per line)', type: 'textarea' }] },
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------------ */

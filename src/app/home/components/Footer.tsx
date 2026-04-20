@@ -7,6 +7,7 @@ import { useSiteContent, useSiteContentJSON, useSectionVisible } from '@/lib/con
 const defaultCompanyLinks = [
   { label: 'About Us', href: '/about', visible: true },
   { label: 'Contact', href: '/contact', visible: true },
+  { label: 'Terms & Conditions', href: '/terms', visible: true },
   { label: 'Store Locator', href: '/contact', visible: true },
   { label: 'Careers', href: '/about', visible: true },
 ];
