@@ -45,7 +45,7 @@ const Header: React.FC = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -68,13 +68,19 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (isMobileMenuOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [isMobileMenuOpen]);
 
@@ -96,6 +102,7 @@ const Header: React.FC = () => {
         className={`sticky top-0 z-40 w-full bg-card transition-luxury ${
           isScrolled ? 'shadow-luxury' : ''
         }`}
+        style={{ willChange: 'transform' }}
       >
         <nav className="mx-auto flex h-[60px] max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-8">
           <Link
