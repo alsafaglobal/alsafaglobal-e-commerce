@@ -7,6 +7,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from './CheckoutForm';
 import OrderSummary from './OrderSummary';
 import { useCart } from '@/lib/cart/CartContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -25,6 +26,7 @@ interface FormData {
 const CheckoutInteractive: React.FC = () => {
   const router = useRouter();
   const { items, clearCart, subtotal } = useCart();
+  const { currency, rate } = useCurrency();
   const [clientSecret, setClientSecret] = useState('');
   const [paymentIntentId, setPaymentIntentId] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
@@ -119,6 +121,9 @@ const CheckoutInteractive: React.FC = () => {
       formData,
       items,
       totals: { subtotal, shipping, tax: taxAmount, total: totalRef.current },
+      currency,
+      rate,
+      taxRate,
     };
     localStorage.setItem('pendingCheckout', JSON.stringify(pending));
   };
@@ -138,6 +143,7 @@ const CheckoutInteractive: React.FC = () => {
       country: formData.country,
     };
     const totals = { subtotal, shipping, tax: taxAmount, total: totalRef.current };
+    const invoiceMeta = { currency, rate, taxRate };
 
     localStorage.setItem('lastOrder', JSON.stringify({ orderNumber, items, customer, shipping: shippingAddr, totals }));
     localStorage.removeItem('pendingCheckout');
@@ -154,7 +160,7 @@ const CheckoutInteractive: React.FC = () => {
       await fetch('/api/checkout/send-order-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber, customer, shipping: shippingAddr, items, totals, paymentIntentId }),
+        body: JSON.stringify({ orderNumber, customer, shipping: shippingAddr, items, totals, paymentIntentId, ...invoiceMeta }),
       });
     } catch (e) { console.error('Order email failed:', e); }
 

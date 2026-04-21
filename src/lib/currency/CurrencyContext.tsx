@@ -4,13 +4,15 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface CurrencyContextType {
   currency: string;
+  rate: number;
   formatPrice: (aedAmount: number) => string;
 }
 
 const CurrencyContext = createContext<CurrencyContextType>({
   currency: 'AED',
+  rate: 1,
   formatPrice: (amount) => `AED ${amount.toFixed(2)}`,
-});
+} as CurrencyContextType);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrency] = useState(() => {
@@ -62,7 +64,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <CurrencyContext.Provider value={{ currency, formatPrice }}>
+    <CurrencyContext.Provider value={{ currency, rate, formatPrice }}>
       {children}
     </CurrencyContext.Provider>
   );

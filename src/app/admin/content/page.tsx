@@ -386,6 +386,48 @@ const tabs: Tab[] = [
     ],
   },
   {
+    id: 'invoice', label: 'Invoice PDF', icon: 'DocumentArrowDownIcon',
+    sections: [
+      {
+        title: 'Company Header',
+        keys: [
+          { key: 'invoice_company_name', label: 'Company Name', type: 'text' },
+          { key: 'invoice_tagline', label: 'Tagline (shown under company name)', type: 'text' },
+          { key: 'invoice_title', label: 'Invoice Title (e.g. "Invoice")', type: 'text' },
+        ],
+      },
+      {
+        title: 'Bill To & Table Columns',
+        keys: [
+          { key: 'invoice_label_bill_to', label: '"Bill To" Label', type: 'text' },
+          { key: 'invoice_col_product', label: 'Product Column Header', type: 'text' },
+          { key: 'invoice_col_size', label: 'Size Column Header', type: 'text' },
+          { key: 'invoice_col_qty', label: 'Qty Column Header', type: 'text' },
+          { key: 'invoice_col_unit_price', label: 'Unit Price Column Header', type: 'text' },
+          { key: 'invoice_col_total', label: 'Total Column Header', type: 'text' },
+        ],
+      },
+      {
+        title: 'Totals Labels',
+        keys: [
+          { key: 'invoice_label_subtotal', label: 'Subtotal Label', type: 'text' },
+          { key: 'invoice_label_tax', label: 'Tax Label (% is added automatically)', type: 'text' },
+          { key: 'invoice_label_delivery', label: 'Delivery Label', type: 'text' },
+          { key: 'invoice_label_grand_total', label: 'Grand Total Label', type: 'text' },
+        ],
+      },
+      {
+        title: 'Footer',
+        keys: [
+          { key: 'invoice_footer_message', label: 'Footer Message', type: 'text' },
+          { key: 'invoice_contact_email', label: 'Contact Email', type: 'text' },
+          { key: 'invoice_website', label: 'Website', type: 'text' },
+          { key: 'invoice_policy_note', label: 'Policy Note (bottom of invoice)', type: 'textarea' },
+        ],
+      },
+    ],
+  },
+  {
     id: 'terms', label: 'Terms & Conditions', icon: 'DocumentTextIcon',
     sections: [
       {

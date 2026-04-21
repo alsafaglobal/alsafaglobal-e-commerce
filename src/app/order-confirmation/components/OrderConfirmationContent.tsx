@@ -62,7 +62,7 @@ const OrderConfirmationContent: React.FC = () => {
       if (raw) {
         try {
           const pending = JSON.parse(raw);
-          const { orderNumber, formData, items, totals } = pending;
+          const { orderNumber, formData, items, totals, currency, rate, taxRate } = pending;
           const customer = {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
@@ -90,7 +90,7 @@ const OrderConfirmationContent: React.FC = () => {
           fetch('/api/checkout/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderNumber, customer, shipping, items, totals, paymentIntentId }),
+            body: JSON.stringify({ orderNumber, customer, shipping, items, totals, paymentIntentId, currency: currency || 'AED', rate: rate || 1, taxRate: taxRate || 0 }),
           }).catch(console.error);
 
           return;
