@@ -417,6 +417,15 @@ const tabs: Tab[] = [
         ],
       },
       {
+        title: 'Terms & Conditions on Invoice',
+        keys: [
+          { key: 'invoice_tc_shipping_title', label: 'Section 1 Title', type: 'text' },
+          { key: 'invoice_tc_shipping_body', label: 'Section 1 Content (one point per line)', type: 'textarea' },
+          { key: 'invoice_tc_refund_title', label: 'Section 2 Title', type: 'text' },
+          { key: 'invoice_tc_refund_body', label: 'Section 2 Content (one point per line)', type: 'textarea' },
+        ],
+      },
+      {
         title: 'Footer',
         keys: [
           { key: 'invoice_footer_message', label: 'Footer Message', type: 'text' },

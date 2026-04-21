@@ -21,10 +21,14 @@ const DEFAULT_INVOICE_CONTENT: InvoiceContent = {
   label_tax: 'Tax',
   label_delivery: 'Delivery',
   label_grand_total: 'Grand Total',
-  footer_message: 'Thank you for your order!',
-  contact_email: 'info@alsafaglobal.com',
-  website: 'www.shopatasg.com',
-  policy_note: 'All sales are final. No returns or refunds.',
+  footer_message:    'Thank you for your order!',
+  contact_email:     'info@alsafaglobal.com',
+  website:           'www.shopatasg.com',
+  policy_note:       'All sales are final. No returns or refunds.',
+  tc_shipping_title: 'Shipping & Delivery',
+  tc_shipping_body:  'Orders are processed and shipped within 3\u20134 working days.\nDelivery timelines may vary depending on location and courier services.\nAl Safa Global is not liable for delays caused by third-party logistics providers.',
+  tc_refund_title:   'No Return / No Refund',
+  tc_refund_body:    'All sales are final.\nNo returns, exchanges, or refunds will be accepted once the product is sold.\nPlease review product details carefully before placing an order.',
 };
 
 async function fetchInvoiceContent(): Promise<InvoiceContent> {
@@ -56,10 +60,14 @@ async function fetchInvoiceContent(): Promise<InvoiceContent> {
       label_tax:       map['label_tax']       || DEFAULT_INVOICE_CONTENT.label_tax,
       label_delivery:  map['label_delivery']  || DEFAULT_INVOICE_CONTENT.label_delivery,
       label_grand_total: map['label_grand_total'] || DEFAULT_INVOICE_CONTENT.label_grand_total,
-      footer_message:  map['footer_message']  || DEFAULT_INVOICE_CONTENT.footer_message,
-      contact_email:   map['contact_email']   || DEFAULT_INVOICE_CONTENT.contact_email,
-      website:         map['website']         || DEFAULT_INVOICE_CONTENT.website,
-      policy_note:     map['policy_note']     || DEFAULT_INVOICE_CONTENT.policy_note,
+      footer_message:    map['footer_message']    || DEFAULT_INVOICE_CONTENT.footer_message,
+      contact_email:     map['contact_email']     || DEFAULT_INVOICE_CONTENT.contact_email,
+      website:           map['website']           || DEFAULT_INVOICE_CONTENT.website,
+      policy_note:       map['policy_note']       || DEFAULT_INVOICE_CONTENT.policy_note,
+      tc_shipping_title: map['tc_shipping_title'] || DEFAULT_INVOICE_CONTENT.tc_shipping_title,
+      tc_shipping_body:  map['tc_shipping_body']  || DEFAULT_INVOICE_CONTENT.tc_shipping_body,
+      tc_refund_title:   map['tc_refund_title']   || DEFAULT_INVOICE_CONTENT.tc_refund_title,
+      tc_refund_body:    map['tc_refund_body']    || DEFAULT_INVOICE_CONTENT.tc_refund_body,
     };
   } catch {
     return DEFAULT_INVOICE_CONTENT;

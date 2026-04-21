@@ -37,7 +37,13 @@ const s = StyleSheet.create({
   totalRowGrand: { flexDirection: 'row', justifyContent: 'space-between', borderTop: 2, borderTopColor: C.gold, paddingTop: 8, marginTop: 4 },
   grandLabel: { fontFamily: 'Helvetica-Bold', fontSize: 13 },
   grandValue: { fontFamily: 'Helvetica-Bold', fontSize: 13, color: C.gold },
-  policy: { marginHorizontal: 28, marginTop: 20, color: C.gray, fontSize: 9, fontStyle: 'italic' },
+  tcSection: { marginHorizontal: 28, marginTop: 20 },
+  tcTitle: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.text, marginBottom: 5 },
+  tcBulletRow: { flexDirection: 'row', marginBottom: 3 },
+  tcDot: { width: 10, color: C.gold, fontSize: 10 },
+  tcLine: { flex: 1, color: C.gray, fontSize: 9, lineHeight: 1.5 },
+  tcDivider: { borderBottom: 1, borderBottomColor: C.border, marginVertical: 12 },
+  policy: { marginHorizontal: 28, marginTop: 16, color: C.gray, fontSize: 9, fontStyle: 'italic' },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: C.dark, paddingHorizontal: 28, paddingVertical: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   footerMsg: { color: C.gold, fontSize: 11 },
   footerRight: { alignItems: 'flex-end' },
@@ -62,6 +68,10 @@ export interface InvoiceContent {
   contact_email: string;
   website: string;
   policy_note: string;
+  tc_shipping_title: string;
+  tc_shipping_body: string;
+  tc_refund_title: string;
+  tc_refund_body: string;
 }
 
 export interface InvoiceOrder {
@@ -74,6 +84,21 @@ export interface InvoiceOrder {
   taxRate: number;
   currency: string;
   rate: number;
+}
+
+function TCSection({ title, body }: { title: string; body: string }) {
+  const lines = body.split('\n').map((l) => l.trim()).filter(Boolean);
+  return (
+    <View style={s.tcSection}>
+      <Text style={s.tcTitle}>{title}</Text>
+      {lines.map((line, i) => (
+        <View key={i} style={s.tcBulletRow}>
+          <Text style={s.tcDot}>•</Text>
+          <Text style={s.tcLine}>{line}</Text>
+        </View>
+      ))}
+    </View>
+  );
 }
 
 function fmt(aed: number, currency: string, rate: number): string {
@@ -178,6 +203,14 @@ export function InvoicePDF({ order, content }: { order: InvoiceOrder; content: I
           </View>
 
         </View>
+
+        {/* Terms & Conditions */}
+        <View style={[s.tcSection, { marginTop: 24 }]}>
+          <Text style={[s.sectionLabel, { marginHorizontal: 0 }]}>Terms & Conditions</Text>
+        </View>
+        <TCSection title={content.tc_shipping_title} body={content.tc_shipping_body} />
+        <View style={{ marginHorizontal: 28 }}><View style={s.tcDivider} /></View>
+        <TCSection title={content.tc_refund_title} body={content.tc_refund_body} />
 
         {/* Policy note */}
         <Text style={s.policy}>{content.policy_note}</Text>
