@@ -137,9 +137,7 @@ export function InvoicePDF({ order, content }: { order: InvoiceOrder; content: I
 
           {/* Bill To */}
           <Text style={s.sectionLabel}>{content.label_bill_to}</Text>
-          <View style={s.billToRow}>
-            <Text style={[s.billToKey, s.boldText]}>{customer.name}</Text>
-          </View>
+          <Text style={[s.boldText, { marginBottom: 6 }]}>{customer.name}</Text>
           <View style={s.billToRow}>
             <Text style={s.billToKey}>Email</Text>
             <Text style={s.billToVal}>{customer.email}</Text>
