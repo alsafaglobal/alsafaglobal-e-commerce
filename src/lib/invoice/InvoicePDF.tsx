@@ -13,7 +13,7 @@ const C = {
 };
 
 const s = StyleSheet.create({
-  page: { fontFamily: 'Helvetica', fontSize: 10, color: C.text, paddingBottom: 80 },
+  page: { fontFamily: 'Helvetica', fontSize: 10, color: C.text, flexDirection: 'column' },
   header: { backgroundColor: C.dark, padding: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   headerLeft: { flexDirection: 'column' },
   headerRight: { flexDirection: 'column', alignItems: 'flex-end' },
@@ -43,8 +43,9 @@ const s = StyleSheet.create({
   tcDot: { width: 10, color: C.gold, fontSize: 10 },
   tcLine: { flex: 1, color: C.gray, fontSize: 9, lineHeight: 1.5 },
   tcDivider: { borderBottom: 1, borderBottomColor: C.border, marginVertical: 12 },
-  policy: { marginHorizontal: 28, marginTop: 16, color: C.gray, fontSize: 9, fontStyle: 'italic' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: C.dark, paddingHorizontal: 28, paddingVertical: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  policy: { marginHorizontal: 28, marginTop: 16, marginBottom: 20, color: C.gray, fontSize: 9, fontStyle: 'italic' },
+  spacer: { flexGrow: 1 },
+  footer: { backgroundColor: C.dark, paddingHorizontal: 28, paddingVertical: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   footerMsg: { color: C.gold, fontSize: 11 },
   footerRight: { alignItems: 'flex-end' },
   footerMeta: { color: C.mutedWhite, fontSize: 9, marginTop: 2 },
@@ -215,6 +216,9 @@ export function InvoicePDF({ order, content }: { order: InvoiceOrder; content: I
 
         {/* Policy note */}
         <Text style={s.policy}>{content.policy_note}</Text>
+
+        {/* Pushes footer to bottom on short pages; on long pages footer follows content naturally */}
+        <View style={s.spacer} />
 
         {/* ── Footer ── */}
         <View style={s.footer}>
