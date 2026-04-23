@@ -104,7 +104,8 @@ function TCSection({ title, body }: { title: string; body: string }) {
 function fmt(aed: number, currency: string, rate: number): string {
   const converted = aed * rate;
   try {
-    return new Intl.NumberFormat('en', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(converted);
+    const number = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(converted);
+    return `${currency} ${number}`;
   } catch {
     return `${currency} ${converted.toFixed(2)}`;
   }
