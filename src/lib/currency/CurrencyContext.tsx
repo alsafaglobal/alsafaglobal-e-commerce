@@ -54,12 +54,12 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const formatPrice = (aedAmount: number): string => {
-    const converted = aedAmount * rate;
+    const converted = Math.round(aedAmount * rate);
     return new Intl.NumberFormat('en', {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(converted);
   };
 

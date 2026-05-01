@@ -75,11 +75,11 @@ async function fetchInvoiceContent(): Promise<InvoiceContent> {
 }
 
 function fmtEmail(aed: number, currency: string, rate: number): string {
-  const converted = aed * rate;
+  const converted = Math.round(aed * rate);
   try {
-    return new Intl.NumberFormat('en', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(converted);
+    return new Intl.NumberFormat('en', { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(converted);
   } catch {
-    return `${currency} ${converted.toFixed(2)}`;
+    return `${currency} ${converted}`;
   }
 }
 

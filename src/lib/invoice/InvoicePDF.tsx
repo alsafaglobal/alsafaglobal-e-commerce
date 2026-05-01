@@ -103,12 +103,12 @@ function TCSection({ title, body }: { title: string; body: string }) {
 }
 
 function fmt(aed: number, currency: string, rate: number): string {
-  const converted = aed * rate;
+  const converted = Math.round(aed * rate);
   try {
-    const number = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(converted);
+    const number = new Intl.NumberFormat('en', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(converted);
     return `${currency} ${number}`;
   } catch {
-    return `${currency} ${converted.toFixed(2)}`;
+    return `${currency} ${converted}`;
   }
 }
 
