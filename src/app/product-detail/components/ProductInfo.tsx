@@ -45,7 +45,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         {offerDiscount > 0 ? (
           <div className="flex items-baseline gap-3">
             <p className="font-heading text-3xl font-semibold text-primary">
-              {formatPrice(price * (1 - offerDiscount / 100))}
+              {formatPrice(Math.round(price * (1 - offerDiscount / 100)))}
             </p>
             <p className="font-data text-lg text-text-secondary line-through">{formatPrice(price)}</p>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 font-body text-sm font-semibold text-primary">{offerDiscount}% OFF</span>

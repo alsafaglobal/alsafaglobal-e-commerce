@@ -244,7 +244,7 @@ const ProductDetailInteractive: React.FC = () => {
                 productName={productName}
                 selectedSize={selectedSize.volume}
                 quantity={quantity}
-                price={offerDiscount > 0 ? selectedSize.price * (1 - offerDiscount / 100) : selectedSize.price}
+                price={offerDiscount > 0 ? Math.round(selectedSize.price * (1 - offerDiscount / 100)) : selectedSize.price}
                 image={productImages[0]?.url || ''}
                 imageAlt={productImages[0]?.alt || productName} />
             </div>
