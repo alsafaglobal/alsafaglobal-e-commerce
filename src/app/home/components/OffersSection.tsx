@@ -123,7 +123,7 @@ export default function OffersSection() {
             const isProductOffer = offer.offer_type === 'product' || offer.offer_type === 'combo';
             const productLink =
               linked.length === 1
-                ? `/product-detail/${linked[0].product_id}`
+                ? `/product-detail?id=${linked[0].product_id}`
                 : offer.link || '/shop-catalog';
 
             return (
