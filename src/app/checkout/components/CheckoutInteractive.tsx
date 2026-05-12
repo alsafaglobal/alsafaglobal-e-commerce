@@ -35,6 +35,7 @@ const CheckoutInteractive: React.FC = () => {
   const [taxAmount, setTaxAmount] = useState(0);
   const [deliveryCharges, setDeliveryCharges] = useState<Record<string, number>>({});
   const [taxRates, setTaxRates] = useState<Record<string, number>>({});
+  const [productRestrictions, setProductRestrictions] = useState<Record<string, string[] | null>>({});
 
   // Delivery row is hidden — exclude shipping from displayed total and charge
   const total = subtotal + taxAmount;
@@ -77,6 +78,21 @@ const CheckoutInteractive: React.FC = () => {
       setTaxAmount((subtotal * taxPercent) / 100);
     }).catch(() => {});
   }, []);
+
+  // Fetch per-product delivery restrictions once cart is known
+  useEffect(() => {
+    if (!isHydrated || items.length === 0) return;
+    const uniqueIds = [...new Set(items.map((i) => i.id))];
+    fetch(`/api/products/delivery-restrictions?ids=${uniqueIds.join(',')}`)
+      .then((r) => r.json())
+      .then((data: { id: string; name: string; deliverable_countries: string[] | null }[]) => {
+        if (!Array.isArray(data)) return;
+        const map: Record<string, string[] | null> = {};
+        data.forEach((p) => { map[p.id] = p.deliverable_countries ?? null; });
+        setProductRestrictions(map);
+      })
+      .catch(() => {});
+  }, [isHydrated, items]);
 
   // Create payment intent once items are ready
   useEffect(() => {
@@ -168,6 +184,18 @@ const CheckoutInteractive: React.FC = () => {
     clearCart();
   };
 
+  // Products whose deliverable_countries is set and doesn't include the selected country
+  const undeliverableNames = [
+    ...new Set(
+      items
+        .filter((item) => {
+          const allowed = productRestrictions[item.id];
+          return Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(selectedCountry);
+        })
+        .map((item) => item.name)
+    ),
+  ];
+
   if (!isHydrated) {
     return (
       <div className="mx-auto min-h-screen max-w-[1440px] px-4 py-8 md:px-6 lg:px-8">
@@ -237,6 +265,8 @@ const CheckoutInteractive: React.FC = () => {
                 onOrderComplete={handleOrderComplete}
                 onCountryChange={handleCountryChange}
                 onPreparePayment={handlePreparePayment}
+                undeliverableProducts={undeliverableNames}
+                selectedCountry={selectedCountry}
               />
             </Elements>
           ) : (

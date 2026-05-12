@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import ImageUpload from '@/app/admin/components/ImageUpload';
 import MediaGalleryManager from '@/app/admin/components/MediaGalleryManager';
+import { COUNTRIES } from '@/lib/countries';
 
 interface SizeEntry { volume_ml: string; price: string }
 interface NoteEntry { note_name: string }
@@ -35,6 +36,9 @@ export default function EditProductPage() {
   const [heartNotes, setHeartNotes] = useState<NoteEntry[]>([]);
   const [baseNotes, setBaseNotes] = useState<NoteEntry[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
+
+  const [deliverableCountries, setDeliverableCountries] = useState<string[]>([]);
+  const [countrySearchInput, setCountrySearchInput] = useState('');
 
   const [topInput, setTopInput] = useState('');
   const [heartInput, setHeartInput] = useState('');
@@ -74,6 +78,7 @@ export default function EditProductPage() {
       setHeartNotes(rawNotes.filter((n: any) => n.note_type === 'heart').map((n: any) => ({ note_name: n.note_name })));
       setBaseNotes(rawNotes.filter((n: any) => n.note_type === 'base').map((n: any) => ({ note_name: n.note_name })));
       setOccasions(rawOccasions.map((o: any) => o.occasion));
+      setDeliverableCountries(product.deliverable_countries || []);
       setLoading(false);
     }
     load();
@@ -115,6 +120,25 @@ export default function EditProductPage() {
 
   const removeOccasion = (i: number) => setOccasions((prev) => prev.filter((_, idx) => idx !== i));
 
+  // --- Deliverable Countries helpers ---
+  const addDeliverableCountry = (country: string) => {
+    if (!deliverableCountries.includes(country)) {
+      setDeliverableCountries((prev) => [...prev, country]);
+    }
+    setCountrySearchInput('');
+  };
+
+  const removeDeliverableCountry = (i: number) =>
+    setDeliverableCountries((prev) => prev.filter((_, idx) => idx !== i));
+
+  const filteredCountryOptions = countrySearchInput.trim()
+    ? COUNTRIES.filter(
+        (c) =>
+          c.toLowerCase().includes(countrySearchInput.toLowerCase()) &&
+          !deliverableCountries.includes(c)
+      )
+    : [];
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -152,6 +176,7 @@ export default function EditProductPage() {
       sizes: validSizes,
       scent_notes: scent_notes,
       occasions: occasions,
+      deliverable_countries: deliverableCountries.length > 0 ? deliverableCountries : null,
     };
 
     const res = await fetch(`/api/admin/products/${id}`, {
@@ -374,6 +399,50 @@ export default function EditProductPage() {
             onKeyDown={(e) => handleKeyDown(e, () => addOccasion(occasionInput))}
             onBlur={() => occasionInput.trim() && addOccasion(occasionInput)}
             placeholder="Type an occasion and press Enter" className={inputCls} />
+        </div>
+
+        {/* Deliverable Countries */}
+        <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
+          <h2 className="mb-1 font-heading text-lg font-semibold text-text-primary">Deliverable Countries</h2>
+          <p className="mb-4 font-body text-xs text-text-secondary">
+            Select countries where this product can be shipped. Leave empty to allow delivery to all countries.
+          </p>
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {deliverableCountries.map((c, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 font-body text-xs text-primary">
+                {c}
+                <button type="button" onClick={() => removeDeliverableCountry(i)} className="hover:text-error">
+                  <Icon name="XMarkIcon" size={12} />
+                </button>
+              </span>
+            ))}
+            {deliverableCountries.length === 0 && (
+              <span className="font-body text-xs text-text-secondary italic">All countries (no restriction)</span>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              value={countrySearchInput}
+              onChange={(e) => setCountrySearchInput(e.target.value)}
+              placeholder="Search country to add…"
+              className={inputCls}
+              autoComplete="off"
+            />
+            {filteredCountryOptions.length > 0 && (
+              <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-border bg-card shadow-luxury-sm">
+                {filteredCountryOptions.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onMouseDown={() => addDeliverableCountry(c)}
+                    className="w-full px-4 py-2 text-left font-body text-sm text-text-primary hover:bg-muted"
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Toggles */}

@@ -26,9 +26,11 @@ interface CheckoutFormProps {
   onOrderComplete: (data: FormData, paymentIntentId: string) => void;
   onCountryChange?: (country: string) => void;
   onPreparePayment?: (data: FormData) => void;
+  undeliverableProducts?: string[];
+  selectedCountry?: string;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange, onPreparePayment }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange, onPreparePayment, undeliverableProducts = [], selectedCountry }) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -256,6 +258,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryC
           </select>
         </div>
       </div>
+
+      {undeliverableProducts.length > 0 && (
+        <div className="flex items-start gap-3 rounded-md border border-error/30 bg-error/10 p-4">
+          <Icon name="ExclamationCircleIcon" size={18} className="mt-0.5 flex-shrink-0 text-error" />
+          <p className="font-body text-sm text-error">
+            Sorry,{' '}
+            <strong>
+              {undeliverableProducts.length === 1
+                ? undeliverableProducts[0]
+                : undeliverableProducts.slice(0, -1).join(', ') + ' and ' + undeliverableProducts[undeliverableProducts.length - 1]}
+            </strong>
+            {undeliverableProducts.length === 1 ? ' is' : ' are'} not deliverable for{' '}
+            <strong>{selectedCountry}</strong>.
+          </p>
+        </div>
+      )}
     </div>
   );
 
@@ -301,13 +319,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryC
           </button>
         )}
         {currentStep < 3 ? (
-          <button type="button" onClick={handleNextStep}
-            className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90">
+          <button
+            type="button"
+            onClick={handleNextStep}
+            disabled={currentStep === 2 && undeliverableProducts.length > 0}
+            className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
             {btnNext}
             <Icon name="ArrowRightIcon" size={16} />
           </button>
         ) : (
-          <button type="submit" disabled={isProcessing || !stripe || !elements || !isElementReady}
+          <button type="submit" disabled={isProcessing || !stripe || !elements || !isElementReady || undeliverableProducts.length > 0}
             className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-body text-sm font-medium text-primary-foreground transition-luxury hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
             {isProcessing ? (
               <>
