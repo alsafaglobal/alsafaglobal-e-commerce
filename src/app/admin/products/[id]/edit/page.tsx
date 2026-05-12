@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import ImageUpload from '@/app/admin/components/ImageUpload';
@@ -39,6 +39,19 @@ export default function EditProductPage() {
 
   const [deliverableCountries, setDeliverableCountries] = useState<string[]>([]);
   const [countrySearchInput, setCountrySearchInput] = useState('');
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
+        setCountryDropdownOpen(false);
+        setCountrySearchInput('');
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const [topInput, setTopInput] = useState('');
   const [heartInput, setHeartInput] = useState('');
@@ -420,26 +433,44 @@ export default function EditProductPage() {
               <span className="font-body text-xs text-text-secondary italic">All countries (no restriction)</span>
             )}
           </div>
-          <div className="relative">
-            <input
-              value={countrySearchInput}
-              onChange={(e) => setCountrySearchInput(e.target.value)}
-              placeholder="Search country to add…"
-              className={inputCls}
-              autoComplete="off"
-            />
-            {filteredCountryOptions.length > 0 && (
-              <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-border bg-card shadow-luxury-sm">
-                {filteredCountryOptions.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onMouseDown={() => addDeliverableCountry(c)}
-                    className="w-full px-4 py-2 text-left font-body text-sm text-text-primary hover:bg-muted"
-                  >
-                    {c}
-                  </button>
-                ))}
+          <div className="relative" ref={countryDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setCountryDropdownOpen((prev) => !prev)}
+              className="inline-flex w-full items-center justify-between rounded-md border border-border bg-input px-4 py-2.5 font-body text-sm text-text-primary hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <span className={deliverableCountries.length === 0 ? 'text-text-secondary' : ''}>
+                {deliverableCountries.length === 0
+                  ? 'Select countries…'
+                  : `${deliverableCountries.length} countr${deliverableCountries.length === 1 ? 'y' : 'ies'} selected`}
+              </span>
+              <Icon name="ChevronDownIcon" size={16} className={`transition-transform duration-200 ${countryDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {countryDropdownOpen && (
+              <div className="absolute z-20 mt-1 w-full rounded-md border border-border bg-card shadow-luxury-sm">
+                <div className="p-2">
+                  <input
+                    autoFocus
+                    value={countrySearchInput}
+                    onChange={(e) => setCountrySearchInput(e.target.value)}
+                    placeholder="Search countries…"
+                    className={inputCls}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="max-h-52 overflow-y-auto">
+                  {(countrySearchInput.trim() ? filteredCountryOptions : COUNTRIES.filter((c) => !deliverableCountries.includes(c))).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onMouseDown={() => addDeliverableCountry(c)}
+                      className="w-full px-4 py-2 text-left font-body text-sm text-text-primary hover:bg-muted"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
