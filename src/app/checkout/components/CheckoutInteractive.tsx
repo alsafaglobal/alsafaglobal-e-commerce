@@ -36,9 +36,9 @@ const CheckoutInteractive: React.FC = () => {
   const [deliveryCharges, setDeliveryCharges] = useState<Record<string, number>>({});
   const [taxRates, setTaxRates] = useState<Record<string, number>>({});
   const [productRestrictions, setProductRestrictions] = useState<Record<string, string[] | null>>({});
+  const [chargesLoaded, setChargesLoaded] = useState(false);
 
-  // Delivery row is hidden — exclude shipping from displayed total and charge
-  const total = subtotal + taxAmount;
+  const total = subtotal + shipping + taxAmount;
   // Keep a ref to the latest total so the update callback always uses the right value
   const totalRef = useRef(total);
   useEffect(() => { totalRef.current = total; }, [total]);
@@ -76,7 +76,8 @@ const CheckoutInteractive: React.FC = () => {
       const taxPercent = taxMap[selectedCountry] ?? 0;
       setShipping(charge);
       setTaxAmount((subtotal * taxPercent) / 100);
-    }).catch(() => {});
+      setChargesLoaded(true);
+    }).catch(() => { setChargesLoaded(true); });
   }, []);
 
   // Fetch per-product delivery restrictions once cart is known
@@ -94,13 +95,13 @@ const CheckoutInteractive: React.FC = () => {
       .catch(() => {});
   }, [isHydrated, items]);
 
-  // Create payment intent once items are ready
+  // Create payment intent once items and charges are ready
   useEffect(() => {
-    if (!isHydrated || items.length === 0) return;
+    if (!isHydrated || items.length === 0 || !chargesLoaded) return;
     fetch('/api/checkout/payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: subtotal + taxAmount }),
+      body: JSON.stringify({ amount: subtotal + shipping + taxAmount }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -109,7 +110,7 @@ const CheckoutInteractive: React.FC = () => {
         if (data.error) setPaymentError(data.error);
       })
       .catch(() => setPaymentError('Failed to initialize payment. Please refresh.'));
-  }, [isHydrated, items.length]);
+  }, [isHydrated, items.length, chargesLoaded]);
 
   // Called by CheckoutForm whenever the country dropdown changes
   const handleCountryChange = async (country: string) => {

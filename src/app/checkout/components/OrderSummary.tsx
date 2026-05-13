@@ -74,13 +74,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <span className="font-body text-sm text-text-secondary">{labelSubtotal}</span>
           <span className="font-data text-sm text-text-primary">{formatPrice(subtotal)}</span>
         </div>
-        {/* Delivery row — hidden until re-enabled */}
-        {/* <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <span className="font-body text-sm text-text-secondary">{labelShipping}</span>
           <span className="font-data text-sm text-text-primary">
             {shipping > 0 ? formatPrice(shipping) : 'Free'}
           </span>
-        </div> */}
+        </div>
         {tax > 0 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-text-secondary">{labelTax}{taxRate > 0 ? ` (${taxRate}%)` : ''}</span>
