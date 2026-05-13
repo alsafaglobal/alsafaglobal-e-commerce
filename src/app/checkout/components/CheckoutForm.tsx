@@ -28,9 +28,10 @@ interface CheckoutFormProps {
   onPreparePayment?: (data: FormData) => void;
   undeliverableProducts?: string[];
   selectedCountry?: string;
+  initialCountry?: string;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange, onPreparePayment, undeliverableProducts = [], selectedCountry }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryChange, onPreparePayment, undeliverableProducts = [], selectedCountry, initialCountry }) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -43,7 +44,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderComplete, onCountryC
     city: '',
     state: '',
     zipCode: '',
-    country: 'United Arab Emirates',
+    country: initialCountry || 'United Arab Emirates',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});

@@ -8,6 +8,7 @@ import CheckoutForm from './CheckoutForm';
 import OrderSummary from './OrderSummary';
 import { useCart } from '@/lib/cart/CartContext';
 import { useCurrency } from '@/lib/currency/CurrencyContext';
+import { COUNTRIES } from '@/lib/countries';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -26,7 +27,7 @@ interface FormData {
 const CheckoutInteractive: React.FC = () => {
   const router = useRouter();
   const { items, clearCart, subtotal } = useCart();
-  const { currency, rate } = useCurrency();
+  const { currency, rate, detectedCountry } = useCurrency();
   const [clientSecret, setClientSecret] = useState('');
   const [paymentIntentId, setPaymentIntentId] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
@@ -43,8 +44,14 @@ const CheckoutInteractive: React.FC = () => {
   const totalRef = useRef(total);
   useEffect(() => { totalRef.current = total; }, [total]);
 
-  // Track selected country to apply charge when delivery charges load
-  const [selectedCountry, setSelectedCountry] = useState('United Arab Emirates');
+  // Initialize from localStorage so returning visitors see their country instantly
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    if (typeof window === 'undefined') return 'United Arab Emirates';
+    try {
+      const stored = localStorage.getItem('detected_country_name');
+      return stored && COUNTRIES.includes(stored) ? stored : 'United Arab Emirates';
+    } catch { return 'United Arab Emirates'; }
+  });
   const taxRate = taxRates[selectedCountry] ?? 0;
 
   useEffect(() => { setIsHydrated(true); }, []);
@@ -79,6 +86,21 @@ const CheckoutInteractive: React.FC = () => {
       setChargesLoaded(true);
     }).catch(() => { setChargesLoaded(true); });
   }, []);
+
+  // For first-time visitors: detectedCountry resolves async after ipapi.co responds.
+  // Once both charges and country are known, sync the selected country and apply its charges.
+  const [autoCountryApplied, setAutoCountryApplied] = useState(false);
+  useEffect(() => {
+    if (autoCountryApplied || !chargesLoaded || !detectedCountry) return;
+    if (!COUNTRIES.includes(detectedCountry)) { setAutoCountryApplied(true); return; }
+    setAutoCountryApplied(true);
+    if (detectedCountry === selectedCountry) return; // already correct
+    setSelectedCountry(detectedCountry);
+    const charge = deliveryCharges[detectedCountry] ?? 0;
+    const taxPercent = taxRates[detectedCountry] ?? 0;
+    setShipping(charge);
+    setTaxAmount((subtotal * taxPercent) / 100);
+  }, [chargesLoaded, detectedCountry, autoCountryApplied]);
 
   // Fetch per-product delivery restrictions once cart is known
   useEffect(() => {
@@ -268,6 +290,7 @@ const CheckoutInteractive: React.FC = () => {
                 onPreparePayment={handlePreparePayment}
                 undeliverableProducts={undeliverableNames}
                 selectedCountry={selectedCountry}
+                initialCountry={selectedCountry}
               />
             </Elements>
           ) : (
