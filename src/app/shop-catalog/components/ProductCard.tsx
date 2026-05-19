@@ -17,6 +17,8 @@ interface ProductCardProps {
   stock?: number | null;
   offerDiscount?: number;
   gender?: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -31,9 +33,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
   stock,
   offerDiscount,
   gender,
+  displayPrice,
+  displayCurrency,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { formatPrice } = useCurrency();
+
+  const fmtLocal = (amount: number) =>
+    displayCurrency
+      ? new Intl.NumberFormat('en', { style: 'currency', currency: displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
+      : formatPrice(amount);
+
+  const shownPrice = displayPrice !== undefined ? displayPrice : price;
+  const shownOriginal = displayPrice !== undefined ? displayPrice : price;
+  const showPrice = (aed: number, local: number) => displayPrice !== undefined ? fmtLocal(local) : formatPrice(aed);
 
   return (
     <Link
@@ -99,15 +112,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {offerDiscount ? (
             <div className="flex items-baseline gap-2">
               <p className="font-data text-xl font-semibold text-primary">
-                {formatPrice(price * (1 - offerDiscount / 100))}
+                {showPrice(price * (1 - offerDiscount / 100), shownPrice * (1 - offerDiscount / 100))}
               </p>
               <p className="font-data text-sm text-text-secondary line-through">
-                {formatPrice(price)}
+                {showPrice(price, shownOriginal)}
               </p>
             </div>
           ) : (
             <p className="font-data text-xl font-semibold text-primary">
-              {formatPrice(price)}
+              {showPrice(price, shownPrice)}
             </p>
           )}
           {stock !== null && stock !== undefined && stock <= 5 && stock > 0 && (

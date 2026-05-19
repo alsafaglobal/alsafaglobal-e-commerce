@@ -19,6 +19,8 @@ interface Product {
   stock: number | null;
   offerDiscount?: number;
   gender?: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface ProductGridProps {
@@ -58,6 +60,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           stock={product.stock}
           offerDiscount={product.offerDiscount}
           gender={product.gender}
+          displayPrice={product.displayPrice}
+          displayCurrency={product.displayCurrency}
         />
       ))}
     </div>

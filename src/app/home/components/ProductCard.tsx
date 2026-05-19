@@ -17,6 +17,8 @@ interface ProductCardProps {
   alt: string;
   scentType: string;
   gender?: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -28,6 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   alt,
   scentType,
   gender,
+  displayPrice,
+  displayCurrency,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [addedFeedback, setAddedFeedback] = useState(false);
@@ -35,6 +39,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const addText = useSiteContent('product_btn_add', 'Add');
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
+
+  const priceDisplay = displayPrice !== undefined && displayCurrency
+    ? new Intl.NumberFormat('en', { style: 'currency', currency: displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(displayPrice)
+    : formatPrice(price);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -105,7 +113,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           <div className="flex items-center justify-between">
             <span className="data-text text-lg font-medium text-primary">
-              {formatPrice(price)}
+              {priceDisplay}
             </span>
 
             <button

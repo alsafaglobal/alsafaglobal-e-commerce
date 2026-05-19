@@ -28,6 +28,8 @@ interface Product {
   stock: number | null;
   offerDiscount?: number;
   gender?: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const ShopCatalogInteractive: React.FC = () => {
@@ -44,18 +46,37 @@ const ShopCatalogInteractive: React.FC = () => {
   const btnFilters = useSiteContent('shop_btn_filters', 'Filters');
   const btnClearFilters = useSiteContent('shop_btn_clear_filters', 'Clear All Filters');
   const showingTextTpl = useSiteContent('shop_showing_text', 'Showing {count} of {total} perfumes');
-  // Fetch products + active product offers in parallel
+  // Fetch products + active product offers + country-specific prices in parallel
   useEffect(() => {
     async function loadProducts() {
       const supabase = createClient();
-      const [{ data }, offersRes] = await Promise.all([
+      const userCountry = typeof window !== 'undefined'
+        ? (localStorage.getItem('detected_country_name') || 'United Arab Emirates')
+        : 'United Arab Emirates';
+
+      const [{ data }, offersRes, { data: cpData }] = await Promise.all([
         supabase
           .from('products')
           .select('*, product_sizes(*), scent_notes(*)')
           .eq('is_active', true)
           .order('created_at', { ascending: false }),
         fetch('/api/offers').then((r) => r.json()).catch(() => []),
+        supabase
+          .from('product_country_prices')
+          .select('product_id, price, currency_code')
+          .eq('country_name', userCountry),
       ]);
+
+      // Build map: product_id → lowest country price for this country
+      const cpMap: Record<string, { price: number; currency_code: string }> = {};
+      if (cpData) {
+        for (const cp of cpData as { product_id: string; price: number; currency_code: string }[]) {
+          const key = String(cp.product_id);
+          if (!cpMap[key] || cp.price < cpMap[key].price) {
+            cpMap[key] = { price: cp.price, currency_code: cp.currency_code };
+          }
+        }
+      }
 
       // Build map: product_id → discount_percent for active single-product offers
       const offerMap: Record<string, number> = {};
@@ -71,33 +92,37 @@ const ShopCatalogInteractive: React.FC = () => {
 
       if (data) {
         setProducts(
-          data.map((p) => ({
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            scentType: p.scent_type || '',
-            image: p.image_url || '',
-            alt: p.image_alt || p.name,
-            topNotes: (p.scent_notes || [])
-              .filter((n: { note_type: string }) => n.note_type === 'top')
-              .map((n: { note_name: string }) => n.note_name),
-            heartNotes: (p.scent_notes || [])
-              .filter((n: { note_type: string }) => n.note_type === 'heart')
-              .map((n: { note_name: string }) => n.note_name),
-            baseNotes: (p.scent_notes || [])
-              .filter((n: { note_type: string }) => n.note_type === 'base')
-              .map((n: { note_name: string }) => n.note_name),
-            sizes: (p.product_sizes || []).map((s: { volume_ml: number }) => s.volume_ml),
-            description: p.description || '',
-            isFastMoving: !!p.is_fast_moving,
-            isBestSelling: !!p.is_best_selling,
-            stock: p.stock ?? null,
-            offerDiscount: offerMap[String(p.id)],
-            gender: p.gender || '',
-          }))
+          data.map((p) => {
+            const cp = cpMap[String(p.id)];
+            return {
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              scentType: p.scent_type || '',
+              image: p.image_url || '',
+              alt: p.image_alt || p.name,
+              topNotes: (p.scent_notes || [])
+                .filter((n: { note_type: string }) => n.note_type === 'top')
+                .map((n: { note_name: string }) => n.note_name),
+              heartNotes: (p.scent_notes || [])
+                .filter((n: { note_type: string }) => n.note_type === 'heart')
+                .map((n: { note_name: string }) => n.note_name),
+              baseNotes: (p.scent_notes || [])
+                .filter((n: { note_type: string }) => n.note_type === 'base')
+                .map((n: { note_name: string }) => n.note_name),
+              sizes: (p.product_sizes || []).map((s: { volume_ml: number }) => s.volume_ml),
+              description: p.description || '',
+              isFastMoving: !!p.is_fast_moving,
+              isBestSelling: !!p.is_best_selling,
+              stock: p.stock ?? null,
+              offerDiscount: offerMap[String(p.id)],
+              gender: p.gender || '',
+              displayPrice: cp?.price,
+              displayCurrency: cp?.currency_code,
+            };
+          })
         );
       }
-      // Mark loading done only after data is ready — not on a timer
       setIsLoading(false);
     }
     loadProducts();

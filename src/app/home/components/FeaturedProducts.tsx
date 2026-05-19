@@ -14,6 +14,8 @@ interface Product {
   alt: string;
   scentType: string;
   gender?: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const FeaturedProducts: React.FC = () => {
@@ -26,25 +28,50 @@ const FeaturedProducts: React.FC = () => {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from('products')
-        .select('id, name, brand, price, image_url, image_alt, scent_type, gender')
-        .eq('is_active', true)
-        .eq('is_featured', true)
-        .limit(6);
+      const userCountry = typeof window !== 'undefined'
+        ? (localStorage.getItem('detected_country_name') || 'United Arab Emirates')
+        : 'United Arab Emirates';
+
+      const [{ data }, { data: cpData }] = await Promise.all([
+        supabase
+          .from('products')
+          .select('id, name, brand, price, image_url, image_alt, scent_type, gender')
+          .eq('is_active', true)
+          .eq('is_featured', true)
+          .limit(6),
+        supabase
+          .from('product_country_prices')
+          .select('product_id, price, currency_code')
+          .eq('country_name', userCountry),
+      ]);
+
+      const cpMap: Record<string, { price: number; currency_code: string }> = {};
+      if (cpData) {
+        for (const cp of cpData as { product_id: string; price: number; currency_code: string }[]) {
+          const key = String(cp.product_id);
+          if (!cpMap[key] || cp.price < cpMap[key].price) {
+            cpMap[key] = { price: cp.price, currency_code: cp.currency_code };
+          }
+        }
+      }
 
       if (data) {
         setFeaturedProducts(
-          data.map((p) => ({
-            id: p.id,
-            name: p.name,
-            brand: p.brand || '',
-            price: p.price,
-            image: p.image_url || '',
-            alt: p.image_alt || p.name,
-            scentType: p.scent_type || '',
-            gender: p.gender || '',
-          }))
+          data.map((p) => {
+            const cp = cpMap[String(p.id)];
+            return {
+              id: p.id,
+              name: p.name,
+              brand: p.brand || '',
+              price: p.price,
+              image: p.image_url || '',
+              alt: p.image_alt || p.name,
+              scentType: p.scent_type || '',
+              gender: p.gender || '',
+              displayPrice: cp?.price,
+              displayCurrency: cp?.currency_code,
+            };
+          })
         );
       }
       setLoading(false);
@@ -98,6 +125,8 @@ const FeaturedProducts: React.FC = () => {
               alt={product.alt}
               scentType={product.scentType}
               gender={product.gender}
+              displayPrice={product.displayPrice}
+              displayCurrency={product.displayCurrency}
             />
           )}
         </div>
