@@ -18,9 +18,12 @@ interface Size {
   volume: string;
   price: number;    // AED price
   volumeMl: number;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface CountryPriceEntry {
+  product_id?: string;
   volume_ml: number;
   price: number;
   currency_code: string;
@@ -39,6 +42,8 @@ interface RelatedProduct {
   image: string;
   alt: string;
   rating: number;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface BreadcrumbItem {
@@ -133,15 +138,23 @@ const ProductDetailInteractive: React.FC = () => {
           fetch('/api/offers').then((r) => r.json()).catch(() => []),
           supabase
             .from('product_country_prices')
-            .select('volume_ml, price, currency_code')
-            .eq('product_id', data.id)
+            .select('product_id, volume_ml, price, currency_code')
             .eq('country_name', userCountry),
         ]);
 
-        // Build volume_ml → country price map
-        const cpMap: Record<number, CountryPriceEntry> = {};
+        // Build per-product country price maps from one query
+        const cpMap: Record<number, CountryPriceEntry> = {};           // current product: volume_ml → entry
+        const relatedCpMap: Record<string, { price: number; currency_code: string }> = {}; // other products: id → min price
         if (Array.isArray(cpData)) {
-          cpData.forEach((cp: CountryPriceEntry) => { cpMap[cp.volume_ml] = cp; });
+          cpData.forEach((cp: CountryPriceEntry) => {
+            if (String(cp.product_id) === String(data.id)) {
+              cpMap[cp.volume_ml] = cp;
+            }
+            const key = String(cp.product_id);
+            if (!relatedCpMap[key] || cp.price < relatedCpMap[key].price) {
+              relatedCpMap[key] = { price: cp.price, currency_code: cp.currency_code };
+            }
+          });
         }
         setCountryPriceMap(cpMap);
 
@@ -164,12 +177,17 @@ const ProductDetailInteractive: React.FC = () => {
         for (const m of extraMedia ?? []) imgs.push({ url: m.url, alt: m.alt || data.name });
         setProductImages(imgs.length > 0 ? imgs : [{ url: 'https://images.unsplash.com/photo-1541643600914-78b084683601', alt: data.name }]);
 
-        // Sizes
-        const productSizes = (data.product_sizes || []).map((s: { volume_ml: number; price: number }) => ({
-          volume: `${s.volume_ml}ml`,
-          price: s.price,
-          volumeMl: s.volume_ml,
-        }));
+        // Sizes — embed country price so SizeSelector can show it per button
+        const productSizes = (data.product_sizes || []).map((s: { volume_ml: number; price: number }) => {
+          const cp = cpMap[s.volume_ml];
+          return {
+            volume: `${s.volume_ml}ml`,
+            price: s.price,
+            volumeMl: s.volume_ml,
+            displayPrice: cp?.price,
+            displayCurrency: cp?.currency_code,
+          };
+        });
         setSizes(productSizes);
         if (productSizes.length > 0) setSelectedSize(productSizes[0]);
 
@@ -183,13 +201,18 @@ const ProductDetailInteractive: React.FC = () => {
         setOccasions((data.product_occasions || []).map((o: { occasion: string }) => o.occasion));
         setStock(data.stock ?? null);
 
-        // Related products
+        // Related products — embed country price from the shared relatedCpMap
         if (related) {
-          setRelatedProducts(related.map((p) => ({
-            id: p.id, name: p.name, brand: p.brand || '',
-            price: p.price, image: p.image_url || '',
-            alt: p.image_alt || p.name, rating: 4.5,
-          })));
+          setRelatedProducts(related.map((p) => {
+            const rcp = relatedCpMap[String(p.id)];
+            return {
+              id: p.id, name: p.name, brand: p.brand || '',
+              price: p.price, image: p.image_url || '',
+              alt: p.image_alt || p.name, rating: 4.5,
+              displayPrice: rcp?.price,
+              displayCurrency: rcp?.currency_code,
+            };
+          }));
         }
       }
       setLoading(false);

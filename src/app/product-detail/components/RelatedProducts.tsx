@@ -15,6 +15,8 @@ interface RelatedProduct {
   image: string;
   alt: string;
   rating: number;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface RelatedProductsProps {
@@ -55,7 +57,9 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ products }) => {
               </h3>
               <div className="mt-2 flex items-center justify-between">
                 <p className="font-body font-semibold text-primary">
-                  {formatPrice(product.price)}
+                  {product.displayPrice !== undefined && product.displayCurrency
+                    ? new Intl.NumberFormat('en', { style: 'currency', currency: product.displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(product.displayPrice)
+                    : formatPrice(product.price)}
                 </p>
                 <div className="flex items-center gap-1">
                   <Icon

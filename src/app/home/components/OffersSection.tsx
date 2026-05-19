@@ -6,6 +6,7 @@ import AppImage from '@/components/ui/AppImage';
 import { useSiteContent, useSectionVisible } from '@/lib/content/SiteContentContext';
 import { useCurrency } from '@/lib/currency/CurrencyContext';
 import { useCart } from '@/lib/cart/CartContext';
+import { createClient } from '@/lib/supabase/client';
 
 interface LinkedProduct {
   id: string;
@@ -16,6 +17,8 @@ interface LinkedProduct {
     price: number;
     image_url: string;
     image_alt: string;
+    displayPrice?: number;
+    displayCurrency?: string;
   };
 }
 
@@ -51,6 +54,9 @@ export default function OffersSection() {
     linked.forEach((lp) => {
       const p = lp.products;
       if (!p) return;
+      const discountedDisplayPrice = p.displayPrice !== undefined
+        ? Math.round(p.displayPrice * multiplier)
+        : undefined;
       addItem({
         id: lp.product_id,
         name: p.name,
@@ -59,6 +65,8 @@ export default function OffersSection() {
         quantity: 1,
         image: p.image_url || '',
         alt: p.image_alt || p.name,
+        displayPrice: discountedDisplayPrice,
+        displayCurrency: p.displayCurrency,
       });
     });
     setAddedFeedback((prev) => ({ ...prev, [offer.id]: true }));
@@ -66,15 +74,54 @@ export default function OffersSection() {
   };
 
   useEffect(() => {
+    const userCountry = typeof window !== 'undefined'
+      ? (localStorage.getItem('detected_country_name') || 'United Arab Emirates')
+      : 'United Arab Emirates';
+
     fetch('/api/offers')
       .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const now = new Date();
-          setOffers(
-            data.filter((o: Offer) => o.is_active && (!o.valid_until || new Date(o.valid_until) >= now))
-          );
+      .then(async (data) => {
+        if (!Array.isArray(data)) return;
+        const now = new Date();
+        const activeOffers: Offer[] = data.filter(
+          (o: Offer) => o.is_active && (!o.valid_until || new Date(o.valid_until) >= now)
+        );
+
+        // Collect all linked product IDs
+        const allProductIds = activeOffers.flatMap((o) =>
+          (o.offer_products || []).map((lp) => lp.product_id)
+        );
+
+        // Fetch country prices for all linked products in one query
+        if (allProductIds.length > 0 && userCountry !== 'United Arab Emirates') {
+          const supabase = createClient();
+          const { data: cpData } = await supabase
+            .from('product_country_prices')
+            .select('product_id, price, currency_code')
+            .eq('country_name', userCountry)
+            .in('product_id', allProductIds);
+
+          if (cpData && cpData.length > 0) {
+            const cpMap: Record<string, { price: number; currency_code: string }> = {};
+            for (const cp of cpData as { product_id: string; price: number; currency_code: string }[]) {
+              if (!cpMap[cp.product_id] || cp.price < cpMap[cp.product_id].price) {
+                cpMap[cp.product_id] = { price: cp.price, currency_code: cp.currency_code };
+              }
+            }
+            // Embed display prices into linked products
+            activeOffers.forEach((offer) => {
+              (offer.offer_products || []).forEach((lp) => {
+                const cp = cpMap[lp.product_id];
+                if (cp && lp.products) {
+                  lp.products.displayPrice = cp.price;
+                  lp.products.displayCurrency = cp.currency_code;
+                }
+              });
+            });
+          }
         }
+
+        setOffers(activeOffers);
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
@@ -110,11 +157,25 @@ export default function OffersSection() {
         >
           {offers.map((offer) => {
             const linked = offer.offer_products || [];
-            const origTotal = linked.reduce((s, lp) => s + (lp.products?.price || 0), 0);
+
+            // Use country-specific prices if available, otherwise AED
+            const hasLocalPrices = linked.some((lp) => lp.products?.displayPrice !== undefined);
+            const origTotal = linked.reduce((s, lp) => {
+              const p = lp.products;
+              if (!p) return s;
+              return s + (hasLocalPrices ? (p.displayPrice ?? p.price) : p.price);
+            }, 0);
             const discTotal =
               offer.discount_percent && origTotal
                 ? origTotal * (1 - offer.discount_percent / 100)
                 : null;
+            const priceCurrency = hasLocalPrices
+              ? linked.find((lp) => lp.products?.displayCurrency)?.products?.displayCurrency
+              : undefined;
+            const fmtOfferPrice = (amount: number) =>
+              priceCurrency
+                ? new Intl.NumberFormat('en', { style: 'currency', currency: priceCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
+                : formatPrice(amount);
 
             const daysLeft = offer.valid_until
               ? Math.ceil((new Date(offer.valid_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -182,11 +243,13 @@ export default function OffersSection() {
                   {/* Pricing — product / combo */}
                   {isProductOffer && origTotal > 0 && (
                     <div className="mb-4 flex items-baseline gap-3">
-                      <span className="font-body text-sm text-white/50 line-through">
-                        {formatPrice(origTotal)}
-                      </span>
+                      {discTotal !== null && (
+                        <span className="font-body text-sm text-white/50 line-through">
+                          {fmtOfferPrice(origTotal)}
+                        </span>
+                      )}
                       <span className="font-heading text-3xl font-bold text-accent">
-                        {formatPrice(discTotal ?? origTotal)}
+                        {fmtOfferPrice(discTotal ?? origTotal)}
                       </span>
                     </div>
                   )}

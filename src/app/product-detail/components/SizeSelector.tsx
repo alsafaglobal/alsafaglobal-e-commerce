@@ -7,6 +7,9 @@ import { useCurrency } from '@/lib/currency/CurrencyContext';
 interface Size {
   volume: string;
   price: number;
+  volumeMl?: number;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface SizeSelectorProps {
@@ -65,7 +68,9 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
               {size.volume}
             </p>
             <p className="caption mt-1 text-text-secondary">
-              {formatPrice(size.price)}
+              {size.displayPrice !== undefined && size.displayCurrency
+                ? new Intl.NumberFormat('en', { style: 'currency', currency: size.displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(size.displayPrice)
+                : formatPrice(size.price)}
             </p>
           </button>
         ))}

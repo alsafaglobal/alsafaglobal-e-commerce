@@ -55,6 +55,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
       quantity: 1,
       image,
       alt,
+      displayPrice,
+      displayCurrency,
     });
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 1500);

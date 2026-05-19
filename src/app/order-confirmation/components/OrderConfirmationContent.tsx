@@ -17,6 +17,8 @@ interface CartItem {
   size: string;
   image: string;
   alt: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface OrderData {
@@ -161,7 +163,11 @@ const OrderConfirmationContent: React.FC = () => {
                   <p className="font-body text-sm font-medium text-text-primary">{item.name}</p>
                   <p className="mt-0.5 font-body text-xs text-text-secondary">{item.size} · Qty {item.quantity}</p>
                 </div>
-                <p className="font-data text-sm font-medium text-text-primary">{formatPrice(item.price * item.quantity)}</p>
+                <p className="font-data text-sm font-medium text-text-primary">
+                  {item.displayPrice !== undefined && item.displayCurrency
+                    ? new Intl.NumberFormat('en', { style: 'currency', currency: item.displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(item.displayPrice * item.quantity)
+                    : formatPrice(item.price * item.quantity)}
+                </p>
               </div>
             ))}
           </div>
