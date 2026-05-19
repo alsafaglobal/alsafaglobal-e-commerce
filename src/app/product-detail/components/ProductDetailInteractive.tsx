@@ -55,7 +55,8 @@ const ProductDetailInteractive: React.FC = () => {
 
   const [selectedSize, setSelectedSize] = useState<Size>({
     volume: '50ml',
-    price: 85.0
+    price: 85.0,
+    volumeMl: 0,
   });
   const [quantity, setQuantity] = useState(1);
   const [isHydrated, setIsHydrated] = useState(false);

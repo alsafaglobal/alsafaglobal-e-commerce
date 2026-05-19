@@ -43,6 +43,7 @@ export default function EditProductPage() {
   const [countryPrices, setCountryPrices] = useState<CountryPrice[]>([]);
   const [cpForm, setCpForm] = useState({ country_name: '', currency_code: '', volume_ml: '', price: '' });
   const [cpSaving, setCpSaving] = useState(false);
+  const [cpError, setCpError] = useState('');
 
   const [deliverableCountries, setDeliverableCountries] = useState<string[]>([]);
   const [countrySearchInput, setCountrySearchInput] = useState('');
@@ -166,7 +167,12 @@ export default function EditProductPage() {
   // --- Country Pricing helpers ---
   const refreshCountryPrices = async () => {
     const res = await fetch(`/api/admin/products/${id}/country-prices`);
-    if (res.ok) setCountryPrices(await res.json());
+    if (res.ok) {
+      setCountryPrices(await res.json());
+    } else {
+      const body = await res.json().catch(() => ({}));
+      setCpError(body.error || 'Failed to load country prices. Make sure the product_country_prices table exists in Supabase.');
+    }
   };
 
   const handleCpCountryChange = (country: string) => {
@@ -176,6 +182,7 @@ export default function EditProductPage() {
   const handleCpSave = async () => {
     if (!cpForm.country_name || !cpForm.volume_ml || !cpForm.price) return;
     setCpSaving(true);
+    setCpError('');
     const res = await fetch(`/api/admin/products/${id}/country-prices`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -189,14 +196,22 @@ export default function EditProductPage() {
     if (res.ok) {
       setCpForm({ country_name: '', currency_code: '', volume_ml: '', price: '' });
       await refreshCountryPrices();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      setCpError(body.error || 'Failed to save. Make sure the product_country_prices table exists in Supabase.');
     }
     setCpSaving(false);
   };
 
   const handleCpDelete = async (cpId: string) => {
     if (!confirm('Remove this country price?')) return;
-    await fetch(`/api/admin/products/${id}/country-prices/${cpId}`, { method: 'DELETE' });
-    await refreshCountryPrices();
+    const res = await fetch(`/api/admin/products/${id}/country-prices/${cpId}`, { method: 'DELETE' });
+    if (res.ok) {
+      await refreshCountryPrices();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      setCpError(body.error || 'Failed to delete price entry.');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
@@ -527,6 +542,12 @@ export default function EditProductPage() {
               </div>
             </div>
           </div>
+
+          {cpError && (
+            <div className="mb-3 rounded-md border border-error/30 bg-error/10 px-4 py-2.5 font-body text-sm text-error">
+              {cpError}
+            </div>
+          )}
 
           {/* Existing rows */}
           {countryPrices.length > 0 ? (

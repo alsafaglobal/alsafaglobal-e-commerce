@@ -39,6 +39,9 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS is_fast_moving BOOLEAN DEFAULT fal
 ALTER TABLE products ADD COLUMN IF NOT EXISTS is_best_selling BOOLEAN DEFAULT false;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT NULL;
 
+-- Deliverable countries restriction per product (NULL = all countries allowed)
+ALTER TABLE products ADD COLUMN IF NOT EXISTS deliverable_countries TEXT[] DEFAULT NULL;
+
 CREATE TABLE IF NOT EXISTS product_sizes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID REFERENCES products(id) ON DELETE CASCADE,
@@ -110,6 +113,36 @@ CREATE TABLE IF NOT EXISTS offer_products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   offer_id UUID REFERENCES offers(id) ON DELETE CASCADE,
   product_id UUID REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- Delivery charges per country (in AED)
+CREATE TABLE IF NOT EXISTS delivery_charges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  country_name TEXT NOT NULL,
+  charge_aed DECIMAL(10,2) NOT NULL DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Tax rates per country (percentage)
+CREATE TABLE IF NOT EXISTS tax_rates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  country_name TEXT NOT NULL,
+  tax_percent DECIMAL(5,2) NOT NULL DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Country-specific product pricing (overrides AED auto-conversion)
+CREATE TABLE IF NOT EXISTS product_country_prices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  country_name TEXT NOT NULL,
+  currency_code TEXT NOT NULL,
+  volume_ml INTEGER NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT product_country_prices_unique UNIQUE (product_id, country_name, volume_ml)
 );
 
 -- Customer orders
@@ -191,6 +224,21 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
   CREATE POLICY "Public read orders" ON orders FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+ALTER TABLE delivery_charges ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "Public read delivery_charges" ON delivery_charges FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+ALTER TABLE tax_rates ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "Public read tax_rates" ON tax_rates FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+ALTER TABLE product_country_prices ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "Public read product_country_prices" ON product_country_prices FOR SELECT USING (true);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Service role has full access (bypasses RLS automatically)
