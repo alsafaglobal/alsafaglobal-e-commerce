@@ -14,16 +14,22 @@ interface CartItemProps {
   quantity: number;
   image: string;
   alt: string;
+  displayPrice?: number;
+  displayCurrency?: string;
   onQuantityChange: (id: string, newQuantity: number) => void;
   onRemove: (id: string) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({
-  id, name, size, price, quantity, image, alt, onQuantityChange, onRemove,
+  id, name, size, price, quantity, image, alt, displayPrice, displayCurrency, onQuantityChange, onRemove,
 }) => {
   const labelSize = useSiteContent('cart_label_size', 'Size');
   const btnRemove = useSiteContent('cart_btn_remove', 'Remove');
   const { formatPrice } = useCurrency();
+
+  const priceDisplay = displayPrice && displayCurrency
+    ? new Intl.NumberFormat('en', { style: 'currency', currency: displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(displayPrice)
+    : formatPrice(price);
 
   const cartKey = `${id}-${size}`;
   const handleIncrement = () => onQuantityChange(cartKey, quantity + 1);
@@ -39,7 +45,7 @@ const CartItem: React.FC<CartItemProps> = ({
       <div className="flex flex-1 flex-col gap-2">
         <h3 className="font-heading text-lg font-medium text-text-primary sm:text-xl">{name}</h3>
         <p className="caption text-text-secondary">{labelSize}: {size}</p>
-        <p className="font-data text-lg font-medium text-primary">{formatPrice(price)}</p>
+        <p className="font-data text-lg font-medium text-primary">{priceDisplay}</p>
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">

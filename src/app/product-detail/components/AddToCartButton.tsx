@@ -14,6 +14,8 @@ interface AddToCartButtonProps {
   price: number;
   image: string;
   imageAlt: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
@@ -24,6 +26,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   price,
   image,
   imageAlt,
+  displayPrice,
+  displayCurrency,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -50,6 +54,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       quantity,
       image,
       alt: imageAlt,
+      displayPrice,
+      displayCurrency,
     });
 
     setTimeout(() => {
@@ -71,6 +77,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       quantity,
       image,
       alt: imageAlt,
+      displayPrice,
+      displayCurrency,
     });
     router.push('/shopping-cart');
   };

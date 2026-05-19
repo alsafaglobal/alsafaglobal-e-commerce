@@ -12,10 +12,18 @@ import RelatedProducts from './RelatedProducts';
 import Breadcrumb from './Breadcrumb';
 import { createClient } from '@/lib/supabase/client';
 import { useSiteContent } from '@/lib/content/SiteContentContext';
+import { useCurrency } from '@/lib/currency/CurrencyContext';
 
 interface Size {
   volume: string;
+  price: number;    // AED price
+  volumeMl: number;
+}
+
+interface CountryPriceEntry {
+  volume_ml: number;
   price: number;
+  currency_code: string;
 }
 
 interface ProductImage {
@@ -41,6 +49,7 @@ interface BreadcrumbItem {
 const ProductDetailInteractive: React.FC = () => {
   const searchParams = useSearchParams();
   const productId = searchParams.get('id');
+  const { rate } = useCurrency();
   const bcHome = useSiteContent('product_breadcrumb_home', 'Home');
   const bcShop = useSiteContent('product_breadcrumb_shop', 'Shop');
 
@@ -68,6 +77,7 @@ const ProductDetailInteractive: React.FC = () => {
   const [offerDiscount, setOfferDiscount] = useState(0);
   const [stock, setStock] = useState<number | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
+  const [countryPriceMap, setCountryPriceMap] = useState<Record<number, CountryPriceEntry>>({});
 
   useEffect(() => {
     setIsHydrated(true);
@@ -102,7 +112,11 @@ const ProductDetailInteractive: React.FC = () => {
         setGender(data.gender || '');
 
         // Fetch media gallery, related products, and offers in parallel
-        const [{ data: extraMedia }, { data: related }, offersRes] = await Promise.all([
+        const userCountry = typeof window !== 'undefined'
+          ? (localStorage.getItem('detected_country_name') || 'United Arab Emirates')
+          : 'United Arab Emirates';
+
+        const [{ data: extraMedia }, { data: related }, offersRes, { data: cpData }] = await Promise.all([
           supabase
             .from('product_media')
             .select('url, alt')
@@ -116,7 +130,19 @@ const ProductDetailInteractive: React.FC = () => {
             .neq('id', data.id)
             .limit(4),
           fetch('/api/offers').then((r) => r.json()).catch(() => []),
+          supabase
+            .from('product_country_prices')
+            .select('volume_ml, price, currency_code')
+            .eq('product_id', data.id)
+            .eq('country_name', userCountry),
         ]);
+
+        // Build volume_ml → country price map
+        const cpMap: Record<number, CountryPriceEntry> = {};
+        if (Array.isArray(cpData)) {
+          cpData.forEach((cp: CountryPriceEntry) => { cpMap[cp.volume_ml] = cp; });
+        }
+        setCountryPriceMap(cpMap);
 
         // Find active product-level offer for this product
         if (Array.isArray(offersRes)) {
@@ -141,6 +167,7 @@ const ProductDetailInteractive: React.FC = () => {
         const productSizes = (data.product_sizes || []).map((s: { volume_ml: number; price: number }) => ({
           volume: `${s.volume_ml}ml`,
           price: s.price,
+          volumeMl: s.volume_ml,
         }));
         setSizes(productSizes);
         if (productSizes.length > 0) setSelectedSize(productSizes[0]);
@@ -178,6 +205,29 @@ const ProductDetailInteractive: React.FC = () => {
   const handleSizeChange = (size: Size) => {
     setSelectedSize(size);
   };
+
+  // Country-specific price for the currently selected size
+  const activeCountryPrice = countryPriceMap[selectedSize.volumeMl];
+
+  // Effective AED price for cart/Stripe: use country price converted back to AED, else AED size price
+  const effectiveAedPrice = (() => {
+    const base = offerDiscount > 0
+      ? Math.round(selectedSize.price * (1 - offerDiscount / 100))
+      : selectedSize.price;
+    if (activeCountryPrice && rate > 0) {
+      const discounted = offerDiscount > 0
+        ? Math.round(activeCountryPrice.price * (1 - offerDiscount / 100))
+        : activeCountryPrice.price;
+      return discounted / rate;
+    }
+    return base;
+  })();
+
+  // Display price for ProductInfo (country override or nil → formatPrice(aed))
+  const displayPrice = activeCountryPrice
+    ? (offerDiscount > 0 ? Math.round(activeCountryPrice.price * (1 - offerDiscount / 100)) : activeCountryPrice.price)
+    : undefined;
+  const displayCurrency = activeCountryPrice?.currency_code;
 
   const handleQuantityChange = (newQuantity: number) => {
     setQuantity(newQuantity);
@@ -220,7 +270,9 @@ const ProductDetailInteractive: React.FC = () => {
               fragranceFamily={scentType}
               longevity={longevity}
               gender={gender}
-              occasions={occasions} />
+              occasions={occasions}
+              displayPrice={displayPrice}
+              displayCurrency={displayCurrency} />
 
             <div className="space-y-6 border-t border-border pt-6">
               <SizeSelector sizes={sizes} onSizeChange={handleSizeChange} />
@@ -244,7 +296,9 @@ const ProductDetailInteractive: React.FC = () => {
                 productName={productName}
                 selectedSize={selectedSize.volume}
                 quantity={quantity}
-                price={offerDiscount > 0 ? Math.round(selectedSize.price * (1 - offerDiscount / 100)) : selectedSize.price}
+                price={effectiveAedPrice}
+                displayPrice={displayPrice}
+                displayCurrency={displayCurrency}
                 image={productImages[0]?.url || ''}
                 imageAlt={productImages[0]?.alt || productName} />
             </div>

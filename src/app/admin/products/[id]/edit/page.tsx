@@ -6,6 +6,9 @@ import Icon from '@/components/ui/AppIcon';
 import ImageUpload from '@/app/admin/components/ImageUpload';
 import MediaGalleryManager from '@/app/admin/components/MediaGalleryManager';
 import { COUNTRIES } from '@/lib/countries';
+import { getCurrencyForCountry } from '@/lib/country-currency-map';
+
+interface CountryPrice { id: string; country_name: string; currency_code: string; volume_ml: number; price: number }
 
 interface SizeEntry { volume_ml: string; price: string }
 interface NoteEntry { note_name: string }
@@ -36,6 +39,10 @@ export default function EditProductPage() {
   const [heartNotes, setHeartNotes] = useState<NoteEntry[]>([]);
   const [baseNotes, setBaseNotes] = useState<NoteEntry[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
+
+  const [countryPrices, setCountryPrices] = useState<CountryPrice[]>([]);
+  const [cpForm, setCpForm] = useState({ country_name: '', currency_code: '', volume_ml: '', price: '' });
+  const [cpSaving, setCpSaving] = useState(false);
 
   const [deliverableCountries, setDeliverableCountries] = useState<string[]>([]);
   const [countrySearchInput, setCountrySearchInput] = useState('');
@@ -92,6 +99,10 @@ export default function EditProductPage() {
       setBaseNotes(rawNotes.filter((n: any) => n.note_type === 'base').map((n: any) => ({ note_name: n.note_name })));
       setOccasions(rawOccasions.map((o: any) => o.occasion));
       setDeliverableCountries(product.deliverable_countries || []);
+
+      const cpRes = await fetch(`/api/admin/products/${id}/country-prices`);
+      if (cpRes.ok) setCountryPrices(await cpRes.json());
+
       setLoading(false);
     }
     load();
@@ -151,6 +162,42 @@ export default function EditProductPage() {
           !deliverableCountries.includes(c)
       )
     : [];
+
+  // --- Country Pricing helpers ---
+  const refreshCountryPrices = async () => {
+    const res = await fetch(`/api/admin/products/${id}/country-prices`);
+    if (res.ok) setCountryPrices(await res.json());
+  };
+
+  const handleCpCountryChange = (country: string) => {
+    setCpForm((p) => ({ ...p, country_name: country, currency_code: getCurrencyForCountry(country) }));
+  };
+
+  const handleCpSave = async () => {
+    if (!cpForm.country_name || !cpForm.volume_ml || !cpForm.price) return;
+    setCpSaving(true);
+    const res = await fetch(`/api/admin/products/${id}/country-prices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        country_name: cpForm.country_name,
+        currency_code: cpForm.currency_code,
+        volume_ml: parseInt(cpForm.volume_ml),
+        price: parseFloat(cpForm.price),
+      }),
+    });
+    if (res.ok) {
+      setCpForm({ country_name: '', currency_code: '', volume_ml: '', price: '' });
+      await refreshCountryPrices();
+    }
+    setCpSaving(false);
+  };
+
+  const handleCpDelete = async (cpId: string) => {
+    if (!confirm('Remove this country price?')) return;
+    await fetch(`/api/admin/products/${id}/country-prices/${cpId}`, { method: 'DELETE' });
+    await refreshCountryPrices();
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
     if (e.key === 'Enter' || e.key === ',') {
@@ -412,6 +459,112 @@ export default function EditProductPage() {
             onKeyDown={(e) => handleKeyDown(e, () => addOccasion(occasionInput))}
             onBlur={() => occasionInput.trim() && addOccasion(occasionInput)}
             placeholder="Type an occasion and press Enter" className={inputCls} />
+        </div>
+
+        {/* Country-Specific Pricing */}
+        <div className="rounded-lg bg-card p-6 shadow-luxury-sm">
+          <h2 className="mb-1 font-heading text-lg font-semibold text-text-primary">Country-Specific Pricing</h2>
+          <p className="mb-4 font-body text-xs text-text-secondary">
+            Set fixed prices per country for each size. Countries without a custom price will use auto-converted AED pricing.
+          </p>
+
+          {/* Add row form */}
+          <div className="mb-4 grid gap-3 rounded-md border border-border bg-muted/30 p-4 sm:grid-cols-4">
+            <div>
+              <label className={labelCls}>Country</label>
+              <select
+                value={cpForm.country_name}
+                onChange={(e) => handleCpCountryChange(e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select…</option>
+                {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Currency</label>
+              <input
+                value={cpForm.currency_code}
+                onChange={(e) => setCpForm((p) => ({ ...p, currency_code: e.target.value.toUpperCase() }))}
+                placeholder="e.g. INR"
+                maxLength={4}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Size</label>
+              <select
+                value={cpForm.volume_ml}
+                onChange={(e) => setCpForm((p) => ({ ...p, volume_ml: e.target.value }))}
+                className={inputCls}
+              >
+                <option value="">Select…</option>
+                {sizes.filter((s) => s.volume_ml).map((s) => (
+                  <option key={s.volume_ml} value={s.volume_ml}>{s.volume_ml}ml</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Price</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={cpForm.price}
+                  onChange={(e) => setCpForm((p) => ({ ...p, price: e.target.value }))}
+                  placeholder="0.00"
+                  className={inputCls}
+                />
+                <button
+                  type="button"
+                  onClick={handleCpSave}
+                  disabled={cpSaving || !cpForm.country_name || !cpForm.volume_ml || !cpForm.price}
+                  className="flex-shrink-0 rounded-md bg-primary px-3 py-2.5 font-body text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
+                >
+                  {cpSaving ? '…' : 'Add'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Existing rows */}
+          {countryPrices.length > 0 ? (
+            <div className="overflow-hidden rounded-md border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-body text-xs font-medium text-text-secondary">Country</th>
+                    <th className="px-4 py-2 text-left font-body text-xs font-medium text-text-secondary">Size</th>
+                    <th className="px-4 py-2 text-left font-body text-xs font-medium text-text-secondary">Price</th>
+                    <th className="px-4 py-2" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {countryPrices.map((cp) => (
+                    <tr key={cp.id} className="hover:bg-muted/30">
+                      <td className="px-4 py-2 font-body text-sm text-text-primary">{cp.country_name}</td>
+                      <td className="px-4 py-2 font-data text-sm text-text-secondary">{cp.volume_ml}ml</td>
+                      <td className="px-4 py-2 font-data text-sm text-text-primary">
+                        {cp.currency_code} {Number(cp.price).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <button
+                          type="button"
+                          onClick={() => handleCpDelete(cp.id)}
+                          className="rounded p-1 text-error hover:bg-error/10"
+                        >
+                          <Icon name="TrashIcon" size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="font-body text-sm text-text-secondary italic">No custom prices set — all countries use auto-converted AED prices.</p>
+          )}
         </div>
 
         {/* Deliverable Countries */}

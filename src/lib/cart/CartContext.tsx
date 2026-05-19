@@ -6,10 +6,12 @@ export interface CartItem {
   id: string;
   name: string;
   size: string;
-  price: number;
+  price: number;        // AED equivalent — used for Stripe charge & subtotal
   quantity: number;
   image: string;
   alt: string;
+  displayPrice?: number;    // Country-specific price in local currency (for display only)
+  displayCurrency?: string; // ISO 4217 code for displayPrice
 }
 
 interface CartContextType {

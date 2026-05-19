@@ -13,6 +13,8 @@ interface CartItem {
   size: string;
   image: string;
   alt: string;
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 interface OrderSummaryProps {
@@ -34,6 +36,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 }) => {
 
   const { formatPrice } = useCurrency();
+
+  const fmtItemPrice = (item: CartItem) =>
+    item.displayPrice && item.displayCurrency
+      ? new Intl.NumberFormat('en', { style: 'currency', currency: item.displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(item.displayPrice * item.quantity)
+      : formatPrice(item.price * item.quantity);
   const summaryTitle = useSiteContent('checkout_summary_title', 'Order Summary');
   const labelSize = useSiteContent('checkout_label_size', 'Size');
   const labelQty = useSiteContent('checkout_label_qty', 'Qty');
@@ -62,7 +69,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-data text-sm text-text-secondary">{labelQty}: {item.quantity}</span>
-                <span className="font-data text-sm font-medium text-text-primary">{formatPrice(item.price * item.quantity)}</span>
+                <span className="font-data text-sm font-medium text-text-primary">{fmtItemPrice(item)}</span>
               </div>
             </div>
           </div>

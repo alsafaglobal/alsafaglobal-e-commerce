@@ -14,6 +14,8 @@ interface ProductInfoProps {
   longevity: string;
   gender?: string;
   occasions: string[];
+  displayPrice?: number;
+  displayCurrency?: string;
 }
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
@@ -26,8 +28,23 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   longevity,
   gender,
   occasions,
+  displayPrice,
+  displayCurrency,
 }) => {
   const { formatPrice } = useCurrency();
+
+  const fmtOverride = (amount: number) =>
+    displayCurrency
+      ? new Intl.NumberFormat('en', { style: 'currency', currency: displayCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)
+      : formatPrice(amount);
+
+  const showPrice = (aed: number) =>
+    displayPrice !== undefined ? fmtOverride(displayPrice) : formatPrice(aed);
+
+  const showOriginal = (aed: number) =>
+    displayPrice !== undefined && displayCurrency
+      ? fmtOverride(displayPrice / (1 - offerDiscount / 100))
+      : formatPrice(aed);
   const labelFragrance = useSiteContent('product_label_fragrance_family', 'Fragrance Family');
   const labelLongevity = useSiteContent('product_label_longevity', 'Longevity');
   const labelOccasions = useSiteContent('product_label_occasions', 'Recommended Occasions');
@@ -45,14 +62,14 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         {offerDiscount > 0 ? (
           <div className="flex items-baseline gap-3">
             <p className="font-heading text-3xl font-semibold text-primary">
-              {formatPrice(Math.round(price * (1 - offerDiscount / 100)))}
+              {showPrice(Math.round(price * (1 - offerDiscount / 100)))}
             </p>
-            <p className="font-data text-lg text-text-secondary line-through">{formatPrice(price)}</p>
+            <p className="font-data text-lg text-text-secondary line-through">{showOriginal(price)}</p>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 font-body text-sm font-semibold text-primary">{offerDiscount}% OFF</span>
           </div>
         ) : (
           <p className="font-heading text-3xl font-semibold text-primary">
-            {formatPrice(price)}
+            {showPrice(price)}
           </p>
         )}
       </div>
