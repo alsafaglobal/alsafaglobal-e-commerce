@@ -92,9 +92,13 @@ export default function AdminOrdersPage() {
     }
   }, [orders, sortBy]);
 
+  const formatItemsList = (items: OrderItem[]) =>
+    (items || []).map((i) => `${i.name} (${i.selectedSize || '—'}) x${i.quantity}`).join('; ');
+
   const exportCSV = () => {
-    const header = ['Order #', 'Customer', 'Email', 'Phone', 'Address', 'City', 'Country', 'Total (AED)', 'Status', 'Date'];
+    const header = ['Company', 'Order #', 'Customer', 'Email', 'Phone', 'Address', 'City', 'Country', 'Products', 'Total (AED)', 'Status', 'Date'];
     const rows = sortedOrders.map((o) => [
+      'Al Safa Global',
       o.order_number,
       o.customer_name,
       o.customer_email,
@@ -102,12 +106,13 @@ export default function AdminOrdersPage() {
       o.shipping_address?.address || '',
       o.shipping_address?.city || '',
       o.shipping_address?.country || '',
+      formatItemsList(o.items),
       o.total?.toFixed(2),
       o.payment_status,
       new Date(o.created_at).toLocaleDateString(),
     ]);
-    const csv = [header, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -118,20 +123,26 @@ export default function AdminOrdersPage() {
 
   const exportPDF = () => {
     const dateStr = new Date().toLocaleDateString('en-AE', { day: 'numeric', month: 'long', year: 'numeric' });
-    const rows = sortedOrders.map((o) => `
+    const rows = sortedOrders.map((o) => {
+      const productLines = (o.items || [])
+        .map((i) => `${i.name} &nbsp;<span style="color:#6b7280;font-size:10px">(${i.selectedSize || '—'}) ×${i.quantity}</span>`)
+        .join('<br/>');
+      return `
       <tr>
-        <td>${o.order_number}</td>
+        <td style="font-size:11px;color:#6b7280;white-space:nowrap">Al Safa Global</td>
+        <td style="white-space:nowrap">${o.order_number}</td>
         <td>${o.customer_name}<br/><small>${o.customer_email}</small><br/><small>${o.customer_phone || ''}</small></td>
         <td>${o.shipping_address?.city || ''}, ${o.shipping_address?.country || ''}</td>
-        <td style="text-align:right">AED ${o.total?.toFixed(2)}</td>
+        <td style="max-width:180px">${productLines || '<small style="color:#9ca3af">—</small>'}</td>
+        <td style="text-align:right;white-space:nowrap">AED ${o.total?.toFixed(2)}</td>
         <td style="text-align:center">
           <span style="padding:2px 8px;border-radius:99px;font-size:11px;background:${o.payment_status === 'paid' ? '#dcfce7' : '#fef9c3'};color:${o.payment_status === 'paid' ? '#16a34a' : '#a16207'}">
             ${o.payment_status}
           </span>
         </td>
-        <td>${new Date(o.created_at).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-      </tr>
-    `).join('');
+        <td style="white-space:nowrap">${new Date(o.created_at).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+      </tr>`;
+    }).join('');
 
     const html = `<!DOCTYPE html>
 <html>
@@ -140,39 +151,48 @@ export default function AdminOrdersPage() {
   <title>Orders Report — Al Safa Global</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 13px; color: #111; padding: 32px; }
-    h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-    .meta { color: #555; font-size: 12px; margin-bottom: 24px; }
-    .stats { display: flex; gap: 16px; margin-bottom: 28px; }
-    .stat { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 20px; flex: 1; }
-    .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; }
-    .stat-value { font-size: 20px; font-weight: 700; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f3f4f6; text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
-    td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
-    td small { color: #6b7280; font-size: 11px; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #111; padding: 28px; }
+    .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    h1 { font-size: 20px; font-weight: 700; }
+    .company { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    .meta { color: #555; font-size: 11px; margin-bottom: 20px; }
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; }
+    .stat { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 16px; flex: 1; }
+    .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; }
+    .stat-value { font-size: 18px; font-weight: 700; margin-top: 3px; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { background: #f3f4f6; text-align: left; padding: 7px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
+    td { padding: 9px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: top; line-height: 1.5; }
+    td small { color: #6b7280; font-size: 10px; }
     tr:last-child td { border-bottom: none; }
-    .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
-    @media print { body { padding: 16px; } }
+    .footer { margin-top: 28px; text-align: center; color: #9ca3af; font-size: 10px; }
+    @media print { body { padding: 12px; } @page { size: A4 landscape; margin: 12mm; } }
   </style>
 </head>
 <body>
-  <h1>Al Safa Global — Orders Report</h1>
-  <p class="meta">Generated on ${dateStr} · Sorted by: ${SORT_LABELS[sortBy]}</p>
+  <div class="header">
+    <div>
+      <h1>Al Safa Global — Orders Report</h1>
+      <div class="company">Al Safa Global General Trading FZ LLC · Ras Al Khaimah, UAE</div>
+    </div>
+  </div>
+  <p class="meta">Generated on ${dateStr} &nbsp;·&nbsp; Sorted by: ${SORT_LABELS[sortBy]} &nbsp;·&nbsp; ${stats.total} orders</p>
 
   <div class="stats">
     <div class="stat"><div class="stat-label">Total Orders</div><div class="stat-value">${stats.total}</div></div>
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" style="color:#7c3aed">AED ${stats.totalRevenue.toFixed(2)}</div></div>
-    <div class="stat"><div class="stat-label">This Month</div><div class="stat-value">${stats.monthCount} <small style="font-size:13px;font-weight:400">/ AED ${stats.monthRevenue.toFixed(2)}</small></div></div>
+    <div class="stat"><div class="stat-label">This Month</div><div class="stat-value">${stats.monthCount} <small style="font-size:12px;font-weight:400">/ AED ${stats.monthRevenue.toFixed(2)}</small></div></div>
     <div class="stat"><div class="stat-label">Today</div><div class="stat-value">${stats.todayCount}</div></div>
   </div>
 
   <table>
     <thead>
       <tr>
+        <th>Company</th>
         <th>Order #</th>
         <th>Customer</th>
         <th>Location</th>
+        <th>Products Ordered</th>
         <th style="text-align:right">Total</th>
         <th style="text-align:center">Status</th>
         <th>Date</th>
@@ -180,7 +200,7 @@ export default function AdminOrdersPage() {
     </thead>
     <tbody>${rows}</tbody>
   </table>
-  <div class="footer">Al Safa Global General Trading FZ LLC · info@alsafaglobal.com</div>
+  <div class="footer">Al Safa Global General Trading FZ LLC &nbsp;·&nbsp; info@alsafaglobal.com &nbsp;·&nbsp; alsafaglobal.com</div>
 </body>
 </html>`;
 
@@ -286,13 +306,14 @@ export default function AdminOrdersPage() {
             <table className="w-full text-left">
               <thead className="bg-muted">
                 <tr>
+                  <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Company</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Order</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Customer</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Location</th>
+                  <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Products Ordered</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-right">Total</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Status</th>
                   <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary">Date</th>
-                  <th className="px-4 py-3 font-body text-xs font-medium uppercase tracking-wider text-text-secondary text-center">Items</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-card">
@@ -302,8 +323,11 @@ export default function AdminOrdersPage() {
                       className="cursor-pointer transition-luxury hover:bg-muted/50"
                       onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
                     >
+                      <td className="px-4 py-3 font-body text-xs text-text-secondary whitespace-nowrap">
+                        Al Safa Global
+                      </td>
                       <td className="px-4 py-3">
-                        <p className="font-data text-sm font-medium text-text-primary">{order.order_number}</p>
+                        <p className="font-data text-sm font-medium text-text-primary whitespace-nowrap">{order.order_number}</p>
                         <p className="max-w-[120px] truncate font-data text-xs text-text-secondary">{order.payment_intent_id}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -311,10 +335,18 @@ export default function AdminOrdersPage() {
                         <p className="font-body text-xs text-text-secondary">{order.customer_email}</p>
                         <p className="font-body text-xs text-text-secondary">{order.customer_phone}</p>
                       </td>
-                      <td className="px-4 py-3 font-body text-sm text-text-secondary">
+                      <td className="px-4 py-3 font-body text-sm text-text-secondary whitespace-nowrap">
                         {order.shipping_address?.city}, {order.shipping_address?.country}
                       </td>
-                      <td className="px-4 py-3 text-right font-data text-sm font-semibold text-primary">
+                      <td className="px-4 py-3 max-w-[220px]">
+                        {(order.items || []).map((item, idx) => (
+                          <p key={idx} className="font-body text-xs text-text-primary leading-relaxed">
+                            {item.name}
+                            <span className="ml-1 text-text-secondary">({item.selectedSize || '—'}) ×{item.quantity}</span>
+                          </p>
+                        ))}
+                      </td>
+                      <td className="px-4 py-3 text-right font-data text-sm font-semibold text-primary whitespace-nowrap">
                         AED {order.total?.toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -324,19 +356,13 @@ export default function AdminOrdersPage() {
                           {order.payment_status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-body text-sm text-text-secondary">
+                      <td className="px-4 py-3 font-body text-sm text-text-secondary whitespace-nowrap">
                         {new Date(order.created_at).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-data text-xs text-primary">
-                          {(order.items || []).length} items
-                          <Icon name={expandedId === order.id ? 'ChevronUpIcon' : 'ChevronDownIcon'} size={12} />
-                        </span>
                       </td>
                     </tr>
                     {expandedId === order.id && (
                       <tr className="bg-muted/30">
-                        <td colSpan={7} className="px-4 py-4">
+                        <td colSpan={8} className="px-4 py-4">
                           <div className="space-y-2">
                             <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Order Items</p>
                             {(order.items || []).map((item, idx) => (
