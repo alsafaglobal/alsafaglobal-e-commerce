@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
     td small { color: #6b7280; font-size: 10px; }
     tr:last-child td { border-bottom: none; }
     .footer { margin-top: 28px; text-align: center; color: #9ca3af; font-size: 10px; }
-    @media print { body { padding: 12px; } @page { size: A4 landscape; margin: 12mm; } }
+    @media print { body { padding: 12px; } @page { size: landscape; margin: 12mm; } }
   </style>
 </head>
 <body>
