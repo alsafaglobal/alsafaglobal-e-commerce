@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
     td small { color: #6b7280; font-size: 10px; }
     tr:last-child td { border-bottom: none; }
     .footer { margin-top: 28px; text-align: center; color: #9ca3af; font-size: 10px; }
-    @media print { body { padding: 12px; } @page { size: landscape; margin: 12mm; } }
+    @media print { body { padding: 12px; } @page { margin: 12mm; } }
   </style>
 </head>
 <body>
@@ -235,12 +235,14 @@ export default function AdminOrdersPage() {
 </body>
 </html>`;
 
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 400);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (!win) { URL.revokeObjectURL(url); return; }
+    win.addEventListener('load', () => {
+      setTimeout(() => { win.print(); }, 300);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    });
   };
 
   return (
