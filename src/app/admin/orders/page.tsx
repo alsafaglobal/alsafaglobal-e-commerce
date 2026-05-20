@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { createClient } from '@/lib/supabase/client';
 
 interface OrderItem {
   id: string | number;
@@ -54,12 +55,35 @@ export default function AdminOrdersPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [sortOpen, setSortOpen] = useState(false);
+  const [brandMap, setBrandMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch('/api/orders')
       .then((r) => r.json())
-      .then((data) => {
-        setOrders(Array.isArray(data) ? data : []);
+      .then(async (data) => {
+        const loaded: Order[] = Array.isArray(data) ? data : [];
+        setOrders(loaded);
+
+        // Collect all unique product IDs from order items and look up their brands
+        const productIds = [...new Set(
+          loaded.flatMap((o) => (o.items || []).map((i) => String(i.id)))
+        )].filter((id) => id && id !== 'default');
+
+        if (productIds.length > 0) {
+          const supabase = createClient();
+          const { data: brandData } = await supabase
+            .from('products')
+            .select('id, brand')
+            .in('id', productIds);
+          if (brandData) {
+            const map: Record<string, string> = {};
+            brandData.forEach((p: { id: string; brand: string | null }) => {
+              map[String(p.id)] = p.brand || '';
+            });
+            setBrandMap(map);
+          }
+        }
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -93,7 +117,10 @@ export default function AdminOrdersPage() {
   }, [orders, sortBy]);
 
   const formatItemsList = (items: OrderItem[]) =>
-    (items || []).map((i) => `${i.name} (${i.selectedSize || '—'}) x${i.quantity}`).join('; ');
+    (items || []).map((i) => {
+      const brand = brandMap[String(i.id)];
+      return `${brand ? `${brand} - ` : ''}${i.name} (${i.selectedSize || '—'}) x${i.quantity}`;
+    }).join('; ');
 
   const exportCSV = () => {
     const header = ['Company', 'Order #', 'Customer', 'Email', 'Phone', 'Address', 'City', 'Country', 'Products', 'Total (AED)', 'Status', 'Date'];
@@ -125,7 +152,11 @@ export default function AdminOrdersPage() {
     const dateStr = new Date().toLocaleDateString('en-AE', { day: 'numeric', month: 'long', year: 'numeric' });
     const rows = sortedOrders.map((o) => {
       const productLines = (o.items || [])
-        .map((i) => `${i.name} &nbsp;<span style="color:#6b7280;font-size:10px">(${i.selectedSize || '—'}) ×${i.quantity}</span>`)
+        .map((i) => {
+          const brand = brandMap[String(i.id)];
+          const prefix = brand ? `<span style="color:#6b7280">${brand} —</span> ` : '';
+          return `${prefix}${i.name} &nbsp;<span style="color:#6b7280;font-size:10px">(${i.selectedSize || '—'}) ×${i.quantity}</span>`;
+        })
         .join('<br/>');
       return `
       <tr>
@@ -338,9 +369,12 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3 font-body text-sm text-text-secondary whitespace-nowrap">
                         {order.shipping_address?.city}, {order.shipping_address?.country}
                       </td>
-                      <td className="px-4 py-3 max-w-[220px]">
+                      <td className="px-4 py-3 max-w-[240px]">
                         {(order.items || []).map((item, idx) => (
                           <p key={idx} className="font-body text-xs text-text-primary leading-relaxed">
+                            {brandMap[String(item.id)] && (
+                              <span className="text-text-secondary">{brandMap[String(item.id)]} — </span>
+                            )}
                             {item.name}
                             <span className="ml-1 text-text-secondary">({item.selectedSize || '—'}) ×{item.quantity}</span>
                           </p>
